@@ -1,7 +1,9 @@
 #!/usr/bin/env luadoc
 -- vim: set ft=lua et sts=4 sw=4 ts=4 fdm=marker:
 
---- Lua module to interact with the Free Internet Chess Server<br />
+--- <a href="http://github.com/hawking/luafics/"><i>LuaFics</i></a>,
+-- <a href="http://www.lua.org/">Lua</a> module to interact with the
+-- <a href="http://www.freechess.org">Free Internet Chess Server</a><br />
 -- Requires <a href="http://www.tecgraf.puc-rio.br/~diego/professional/luasocket/">luasocket</a>.<br />
 -- Copyright &copy; 2008 <a href="mailto:polatel@itu.edu.tr">Ali Polatel</a><br />
 -- Distributed under the terms of the GNU General Public License v2

@@ -1,0 +1,18 @@
+# LuaFics makefile configuration
+# vim: set ft=make :
+
+# Installation tool
+INSTALL= install -m 644
+
+# Lua includes and libraries
+LUAINC=-I/usr/include
+
+# Top of your Lua installation
+INSTALL_TOP_LIB=$(DESTDIR)/usr/lib/lua/5.1
+INSTALL_TOP_SHARE=$(DESTDIR)/usr/share/lua/5.1
+
+# Compiler and linker settings
+CC=gcc
+CFLAGS+= $(LUAINC) -fPIC -shared -Wall
+LUALINK=-llua
+

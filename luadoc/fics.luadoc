@@ -1,0 +1,90 @@
+#!/usr/bin/env luadoc
+-- vim: set ft=lua et sts=4 sw=4 ts=4 fdm=marker:
+
+--- Lua module to interact with the Free Internet Chess Server<br />
+-- Requires <a href="http://www.tecgraf.puc-rio.br/~diego/professional/luasocket/">luasocket</a>.<br />
+-- Copyright &copy; 2008 <a href="mailto:polatel@itu.edu.tr">Ali Polatel</a><br />
+-- Distributed under the terms of the GNU General Public License v2
+
+module("fics")
+
+--- Turn string delimited with a specific delimiter into a string
+-- @param str space delimited string
+-- @param delim delimiter, defaults to space
+-- @return array of strings
+local function tolist(str, delim) end
+
+--- Turn a string like "(CA)(SR)(*)(B)" into an array of tags.
+-- @param tags string which has the list of tags
+-- @return array of tags
+local function totaglist(tags) end
+
+--- Create a new fics.client instance
+-- @param argtable A table which may have the following elements;<br />
+-- <ul>
+-- <li><b>prompt</b> Pattern for server prompt, defaults to "^fics%% $"<br />
+-- <li><b>prompt_login</b> Pattern for login prompt, defaults to "^login: $"<br />
+-- <li><b>prompt_password</b> Pattern for password prompt, defaults to "^password: $"<br />
+-- <li><b>ivars</b> Interface variables. This is a list of interface variables.<br />
+-- Example:
+-- <pre>
+-- ivars = {}<br />
+-- ivars[fics.IV_COMPRESSMOVE] = true<br />
+-- ivars[fics.IV_DEFPROMPT] = true<br />
+-- </pre>
+-- Note: LuaFics sets some of the interface variables itself for the functions to work as expected.
+-- <li><b>timeseal</b> Boolean that specifies whether to use timeseal, defaults to false.
+-- </ul>
+-- @return fics.client instance.
+function client:new(argtable) end
+
+--- Convert a list of interface variables to a string to be sent to server.
+-- @return interface variables string that can be sent to server on login
+-- prompt.
+function client:ivars_tostring() end
+
+--- Connect to the ics server.
+-- @param address Address to connect to, defaults to "freechess.org"
+-- @param port Port to connect to, defaults to 23.
+-- @return true if connection is successfuly, nil and error message if connection
+-- fails.
+function client:connect(address, port) end
+
+--- Disconnect from the server.
+-- @return nil
+function client:disconnect() end
+
+--- Send some data to the server, encode using timeseal if necessary.
+-- @param data Data to be sent to server.
+-- @return number of bytes sent if successful, nil and error message if send
+-- fails.
+function client:send(data) end
+
+--- Receive a line from the server. Recognizes prompts.
+-- @return line received from the server. May be partial if a prompt is received.
+function client:recvline() end
+
+--- Register a callback giving its name.
+-- @param name Name of the callback group
+-- @param func The callback function
+-- @return nil
+function client:register_callback(name, func) end
+
+--- Run the functions in a callback group with given arguments.
+-- If a callback returns false then no other callbacks are run.
+-- @param name Name of the callback group
+-- @param ... The rest of the arguments are passed to the callback function.
+-- @return nil
+function client:run_callback(name, ...) end
+
+--- Parse a line and call callback functions.
+-- @return true if successfully parsed, nil and error message if an error occurs.
+-- error may be "timeout" if there was no data to read.
+function client:parseline() end
+
+--- Loop for given times or until connection is lost.
+-- @param times how many times to loop, default is 0 which means loop forever.
+-- @return true if client:parseline() succeeds, nil and error message if an error
+--occurs.
+function client:loop(times) end
+

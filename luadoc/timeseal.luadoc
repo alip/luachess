@@ -1,0 +1,20 @@
+#!/usr/bin/env luadoc
+-- vim: set ft=lua et sts=4 sw=4 ts=4 fdm=marker:
+
+--- Timeseal for Lua.<br />
+-- Copyright &copy; 2008 <a href="mailto:polatel@itu.edu.tr">Ali Polatel</a><br />
+-- Distributed under the terms of the GNU General Public License v2<br />
+-- Depends on ngboard's timesealplus which is:<br />
+-- Copyright &copy; 2006 Bruce Horn
+
+module("timeseal")
+
+--- Encode a string using timeseal.
+-- @param string The string to encode.
+-- @return Encoded string
+function encode(string) end
+
+--- Get timeseal initialization string.
+-- This string has to be encoded and sent to server when connection is established.
+function init_string() end
+

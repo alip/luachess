@@ -257,11 +257,9 @@ function client:parseline(line) --{{{
                 return nil, errmsg
             end
         else
-            assert(self.callbacks["login"], "no callback for login")
             self:run_callback("login")
         end
     elseif string.find(line, self.password_prompt) then
-        assert(self.callbacks["password"], "no callback for password")
         self:run_callback("password")
     elseif string.find(line, self.prompt) then
         self:run_callback("prompt")

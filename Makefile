@@ -24,6 +24,9 @@ uninstall:
 	rm -f $(INSTALL_TOP_LIB)/timeseal.so || true
 	rm -f $(INSTALL_TOP_SHARE)/fics.lua || true
 
+upload-www: doc/index.html
+	rsync -avze ssh doc/* shell.nonlogic.org:htdocs/html/projects/LuaFics
+
 .phony: all clean install uninstall doc
 .default: all
 

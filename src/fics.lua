@@ -246,7 +246,7 @@ function client:parseline() --{{{
 
     -- Prompts
     if string.find(line, self.login_prompt) then
-        if self._ivars_sent == false then
+        if self.ivars ~= nil and self._ivars_sent == false then
             -- Set necessary interface variables.
             self.ivars[IV_DEFPROMPT] = true
             self.ivars[IV_NOWRAP] = true

@@ -18,7 +18,7 @@
 #include <unistd.h>
 
 #include <lua.h>
-#if defined(LUA_VERSION_NUM) & LUA_VERSION_NUM >= 501
+#if defined(LUA_VERSION_NUM) && LUA_VERSION_NUM >= 501
 #include <lauxlib.h>
 #endif
 

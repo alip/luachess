@@ -189,40 +189,14 @@ function client:recvline() --{{{
             self._linebuf = self._linebuf .. chunk
 
             if string.find(self._linebuf, self.login_prompt) then
-                if self._ivars_sent == false then
-                    -- Set necessary interface variables.
-                    self.ivars[IV_DEFPROMPT] = true
-                    self.ivars[IV_NOWRAP] = true
-                    -- and lock them.
-                    self.ivars[IV_LOCK] = true
-                    local bytes, errmsg = self:send(self:ivars_tostring())
-                    if errmsg ~= nil then
-                        return nil, errmsg
-                    else
-                        self._ivars_sent = true
-                    end
-
-                    -- Send another newline to get login prompt back.
-                    local bytes, errmsg = self:send("")
-                    if errmsg ~= nil then
-                        return nil, errmsg
-                    end
-                else
-                    self:run_callback("login")
-                end
-                self._linebuf = ""
-                return nil, "timeout"
+                break
             elseif string.find(self._linebuf, self.password_prompt) then
-                self:run_callback("password")
-                self._linebuf = ""
-                return nil, "timeout"
+                break
             elseif string.find(self._linebuf, self.prompt) then
                 if self._seen_prompt == false then
                     self._seen_prompt = true
                 end
-                self:run_callback("prompt")
-                self._linebuf = ""
-                return nil, "timeout"
+                break
             end
         end
     end
@@ -270,8 +244,38 @@ function client:parseline() --{{{
 
     self:run_callback("line", line)
 
+    -- Prompts
+    if string.find(line, self.login_prompt) then
+        if self._ivars_sent == false then
+            -- Set necessary interface variables.
+            self.ivars[IV_DEFPROMPT] = true
+            self.ivars[IV_NOWRAP] = true
+            -- and lock them.
+            self.ivars[IV_LOCK] = true
+            local bytes, errmsg = self:send(self:ivars_tostring())
+            if errmsg ~= nil then
+                return nil, errmsg
+            else
+                self._ivars_sent = true
+            end
+
+            -- Send another newline to get login prompt back.
+            local bytes, errmsg = self:send("")
+            if errmsg ~= nil then
+                return nil, errmsg
+            end
+        else
+            assert(self.callbacks["login"], "no callback for login")
+            self:run_callback("login")
+        end
+    elseif string.find(line, self.password_prompt) then
+        assert(self.callbacks["password"], "no callback for password")
+        self:run_callback("password")
+    elseif string.find(line, self.prompt) then
+        self:run_callback("prompt")
+
     -- Authentication
-    if string.find(line, "^A name should be at least three characters long") then
+    elseif string.find(line, "^A name should be at least three characters long") then
         if self.callbacks["handle_too_short"] ~= nil then
             self:run_callback("handle_too_short")
         else

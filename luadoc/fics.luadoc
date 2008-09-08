@@ -80,9 +80,11 @@ function client:register_callback(name, func) end
 function client:run_callback(name, ...) end
 
 --- Parse a line and call callback functions.
+-- This function can be used alone as a line based parser.
+-- i.e. when parsing the output of a chess interface.
+-- @param line The line to parse.
 -- @return true if successfully parsed, nil and error message if an error occurs.
--- error may be "timeout" if there was no data to read.
-function client:parseline() end
+function client:parseline(line) end
 
 --- Loop for given times or until connection is lost.
 -- @param times how many times to loop, default is 0 which means loop forever.

@@ -232,16 +232,8 @@ function client:run_callback(name, ...) --{{{
         end
     end
 end --}}}
-function client:parseline() --{{{
-    assert(self.sock ~= nil, "not connected")
-
+function client:parseline(line) --{{{
     self:run_callback("idle", os.time() - self._last_sent)
-
-    local line, errmsg = self:recvline()
-    if line == nil then
-        return nil, errmsg
-    end
-
     self:run_callback("line", line)
 
     -- Prompts
@@ -279,21 +271,18 @@ function client:parseline() --{{{
         if self.callbacks["handle_too_short"] ~= nil then
             self:run_callback("handle_too_short")
         else
-            self:disconnect()
             error("handle too short")
         end
     elseif string.find(line, "^Sorry, names may be at most 17 characters long") then
         if self.callbacks["handle_too_long"] ~= nil then
             self:run_callback("handle_too_long")
         else
-            self:disconnect()
             error("handle too long")
         end
     elseif string.find(line, "^Sorry, names can only consist of lower and upper case letters") then
         if self.callbacks["handle_not_alpha"] ~= nil then
             self:run_callback("handle_not_alpha")
         else
-            self:disconnect()
             error("handle not alpha")
         end
     elseif string.find(line, "^\"%w+\" is not a registered name") then
@@ -303,7 +292,6 @@ function client:parseline() --{{{
         if self.callbacks["password_invalid"] ~= nil then
             self:run_callback("password_invalid")
         else
-            self:disconnect()
             error("invalid password")
         end
 
@@ -494,16 +482,26 @@ function client:loop(times) --{{{
 
     if 0 >= times then
         while true do
-            status, errmsg = self:parseline()
-            if status == nil and errmsg ~= "timeout" then
-                return nil, errmsg
+            local line, errmsg = self:recvline()
+            if line == nil then
+                if errmsg ~= "timeout" then
+                    return nil, errmsg
+                end
+            else
+                status, errmsg = self:parseline(line)
+                if status == nil then return nil, errmsg end
             end
         end
     else
         for i=1,times do
-            status, errmsg = self:parseline()
-            if status == nil and errmsg ~= "timeout" then
-                return nil, errmsg
+            local line, errmsg = self:recvline()
+            if line == nil then
+                if errmsg ~= "timeout" then
+                    return nil, errmsg
+                end
+            else
+                status, errmsg = self:parseline(line)
+                if status == nil then return nil, errmsg end
             end
         end
     end

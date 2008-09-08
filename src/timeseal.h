@@ -6,6 +6,9 @@
  * Distributed under the terms of the GNU General Public License v2
  */
 
+#ifndef LUAFICS_GUARD_TIMESEAL_H
+#define LUAFICS_GUARD_TIMESEAL_H 1
+
 #define MODNAME "timeseal"
 #define VERSION "0.01"
 
@@ -36,4 +39,6 @@ static const luaL_reg R[] = {
     {"init_string",     l_init_string},
     {NULL,              NULL}
 };
+
+#endif /* LUAFICS_GUARD_TIMESEAL_H */
 

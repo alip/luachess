@@ -176,6 +176,7 @@ end --}}}
 function client:recvline() --{{{
     assert(self.sock ~= nil, "not connected")
 
+    self:run_callback("idle", os.time() - self._last_sent)
     while true do
         local chunk, errmsg = self.sock:receive(1)
         if chunk == nil then
@@ -233,7 +234,6 @@ function client:run_callback(name, ...) --{{{
     end
 end --}}}
 function client:parseline(line) --{{{
-    self:run_callback("idle", os.time() - self._last_sent)
     self:run_callback("line", line)
 
     -- Timeseal

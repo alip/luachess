@@ -236,8 +236,12 @@ function client:parseline(line) --{{{
     self:run_callback("idle", os.time() - self._last_sent)
     self:run_callback("line", line)
 
+    -- Timeseal
+    if self.timeseal and string.find(line, "^%[G%]") then
+        self:run_callback("gresponse")
+
     -- Prompts
-    if string.find(line, self.login_prompt) then
+    elseif string.find(line, self.login_prompt) then
         if self.ivars ~= nil and self._ivars_sent == false then
             -- Set necessary interface variables.
             self.ivars[IV_DEFPROMPT] = true

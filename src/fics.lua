@@ -394,6 +394,25 @@ function client:parseline(line) --{{{
 
     -- Style 12
     elseif string.find(line, "^<12>") then
+        local pattern = "^<12> " ..
+            "([%a%-]+) ([%a%-]+) ([%a%-]+) ([%a%-]+) " ..
+            "([%a%-]+) ([%a%-]+) ([%a%-]+) ([%a%-]+) " ..
+            "([BW]) ([%d%l-]+) " ..
+            "([01]) ([01]) ([01]) ([01]) " ..
+            "(%d+) (%d+) (%a+) (%a+) " ..
+            "([%d%-]+) (%d+) (%d+) " ..
+            "(%d+) (%d+) (%d+) (%d+) " ..
+            "(%d+) ([%a%d%p]+) "
+
+        if self.ivars[IV_MS] then
+            pattern = pattern .. "%((%d+:%d+%.%d+)%) "
+        else
+            pattern = pattern .. "%((%d+:%d+%) "
+        end
+
+        pattern = pattern .. "([%a%d%p]+) ([01])"
+
+        local last_time
         local m = {}
         m.rank8, m.rank7, m.rank6, m.rank5,
         m.rank4, m.rank3, m.rank2, m.rank1,
@@ -402,19 +421,16 @@ function client:parseline(line) --{{{
         m.lastirr, m.gameno, m.wname, m.bname,
         m.relation, m.itime, m.inc,
         m.wstrength, m.bstrength, m.wtime, m.btime,
-        m.moveno, m.llastmove, m.lastmin, m.lastsec, m.lastmove,
-        m.flip = string.match(line,
-            "^<12> " ..
-            "([%a%-]+) ([%a%-]+) ([%a%-]+) ([%a%-]+) " ..
-            "([%a%-]+) ([%a%-]+) ([%a%-]+) ([%a%-]+) " ..
-            "([BW]) ([%d%l-]+) " ..
-            "([01]) ([01]) ([01]) ([01]) " ..
-            "(%d+) (%d+) (%a+) (%a+) " ..
-            "([%d%-]+) (%d+) (%d+) " ..
-            "(%d+) (%d+) (%d+) (%d+) " ..
-            "(%d+) ([%a%d%p]+) %((%d+):(%d+)%) ([%a%d%p]+) " ..
-            "([01])")
+        m.moveno, m.llastmove, last_time, m.lastmove,
+        m.flip = string.match(line, pattern)
 
+        if self.ivars[IV_MS] then
+            m.lastmin, m.lastsec, m.lastms = string.match(last_time, "(%d+):(%d+)%.(%d+)")
+        else
+            m.lastmin, m.lastsec = string.match(last_time, "(%d+):(%d+)")
+        end
+
+        -- Convert to boolean
         if m.wcastle == 0 then
             m.wcastle = false
         else

@@ -407,7 +407,7 @@ function client:parseline(line) --{{{
         if self.ivars[IV_MS] then
             pattern = pattern .. "%((%d+:%d+%.%d+)%) "
         else
-            pattern = pattern .. "%((%d+:%d+%) "
+            pattern = pattern .. "%((%d+:%d+)%) "
         end
 
         pattern = pattern .. "([%a%d%p]+) ([01])"

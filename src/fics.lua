@@ -341,9 +341,18 @@ function client:parseline(line) --{{{
     -- Challenge
     elseif string.find(line, "^%a+ updates the match request.") then
         game = { update = true }
-    elseif string.find(line, "^Challenge:") then
-        local handle1, rating1, handle2, rating2, rated, gtype, time, inc, chunk =
-            string.match(line, "^Challenge: (%a+) %(([%dEP-]+)%) (%a+) %(([%dEP-]+)%) (%a+) (%a+) (%d+) (%d+)(.*)%.")
+    elseif string.find(line, "^Challenge:") or string.find(line, "^Issuing:") then
+        local pattern
+        if string.find(line, "^Challenge:") then
+            pattern = "^Challenge: "
+            issued = false
+        else
+            pattern = "^Issuing: "
+            issued = true
+        end
+        pattern = pattern .. "(%a+) %(([%dEP-]+)%) (%a+) %(([%dEP-]+)%) (%a+) (%a+) (%d+) (%d+)(.*)%."
+
+        local handle1, rating1, handle2, rating2, rated, gtype, time, inc, chunk = string.match(line, pattern)
 
         -- if rating1 == "----" then rating1 = nil end
         -- if rating2 == "----" then rating2 = nil end
@@ -363,13 +372,14 @@ function client:parseline(line) --{{{
 
         if game == nil then
             game = { update = false, type = gtype, wtype = wildtype,
-                rated = rated, time = time + 0, inc = inc + 0}
+                rated = rated, time = time + 0, inc = inc + 0, issued = issued}
         else
             game.type = gtype
             game.wtype = wildtype
             game.rated = rated
             game.time = time + 0
             game.inc = inc + 0
+            game.issued = issued
         end
 
         if rated == false then

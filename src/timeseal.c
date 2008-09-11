@@ -115,9 +115,8 @@ static int l_encode(lua_State *L) {
     }
     buf[len++] = (char)128 | encode_offset;
     buf[len++] = (char)10;
-    buf[len] = '\0';
 
-    lua_pushstring(L, buf);
+    lua_pushlstring(L, buf, len);
     free(buf);
     return 1;
 }

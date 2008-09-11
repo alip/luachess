@@ -35,6 +35,9 @@ static int l_encode(lua_State *L) {
     int i, j;
     int encode_offset;
 
+    /* Support for testing */
+    int testing = lua_toboolean(L, 2);
+
     str = luaL_checkstring(L, 1);
     size = lua_strlen(L, 1);
 
@@ -47,14 +50,18 @@ static int l_encode(lua_State *L) {
     }
     strncpy(buf, str, size);
 
-    if (gettimeofday(&tv, NULL) == -1) {
-        /* Push nil and error message */
-        free(buf);
-        lua_pushnil(L);
-        lua_pushstring(L, strerror(errno));
-        return 2;
+    if (!testing) {
+        if (gettimeofday(&tv, NULL) == -1) {
+            /* Push nil and error message */
+            free(buf);
+            lua_pushnil(L);
+            lua_pushstring(L, strerror(errno));
+            return 2;
+        }
+        timestamp = (tv.tv_sec % 10000) * 1000 + tv.tv_usec / 1000;
     }
-    timestamp = (tv.tv_sec % 10000) * 1000 + tv.tv_usec / 1000;
+    else
+        timestamp = 0;
 
     added = snprintf(buf + size, BUF_SIZE - size, "%c%ld%c", (char)24, timestamp, (char)25);
     if (0 >= added) {
@@ -74,7 +81,8 @@ static int l_encode(lua_State *L) {
     }
 
     while (padding > 0) {
-        int r = random(); /* Fill with random padding */
+        /* Fill with random padding */
+        int r = testing ? 0 : random();
         r %= FILLERLEN;
         buf[len++] = FILLER[r];
         padding--;
@@ -93,7 +101,10 @@ static int l_encode(lua_State *L) {
         buf[i + 4] = tmp3;
     }
 
-    j = encode_offset = random() % ENCODELEN;
+    if (testing)
+        j = encode_offset = 0;
+    else
+        j = encode_offset = random() % ENCODELEN;
 
     for (i = 0; i < len; i++) {
         buf[i] |= (char)0x80;

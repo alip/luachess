@@ -11,8 +11,9 @@ module("timeseal")
 
 --- Encode a string using timeseal.
 -- @param string The string to encode.
+-- @param norandom If set to true don't use random values while encoding (used for testing.)
 -- @return Encoded string
-function encode(string) end
+function encode(string, norandom) end
 
 --- Get timeseal initialization string.
 -- This string has to be encoded and sent to server when connection is established.

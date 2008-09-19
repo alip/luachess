@@ -165,7 +165,7 @@ static int l_init_string(lua_State *L) {
     if (buf == NULL) {
         /* Push nil and error message */
         lua_pushnil(L);
-        lua_pushstring(L, "insufficient memory");
+        lua_pushstring(L, "malloc");
         return 2;
     }
 

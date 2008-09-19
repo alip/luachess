@@ -34,7 +34,6 @@ local string = string
 local table = table
 local socket = require("socket")
 local timeseal = require("timeseal")
-
 --}}}
 --{{{ Variables
 module("fics")

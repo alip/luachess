@@ -1,9 +1,22 @@
 /* Timeseal module for Lua.
  * vim: set et ts=4 sts=4 sw=4 fdm=syntax :
+ *
  * Copyright (c) 2008 Ali Polatel <polatel@itu.edu.tr>
  * depends on ngboard's timesealplus which is:
  * Copyright (c) 2006 Bruce Horn
- * Distributed under the terms of the GNU General Public License v2
+ *
+ * This file is part of LuaFics. LuaFics is free software; you can redistribute
+ * it and/or modify it under the terms of the GNU General Public License
+ * version 2, as published by the Free Software Foundation.
+
+ * LuaFics is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef LUAFICS_GUARD_TIMESEAL_H

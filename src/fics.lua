@@ -354,14 +354,16 @@ function client:parseline(line) --{{{
     -- Challenge
     elseif string.find(line, "^%a+ updates the match request.") then
         game = { update = true }
-    elseif string.find(line, "^Challenge:") or string.find(line, "^Issuing:") then
+    elseif string.find(line, "^Challenge:") or string.find(line, "^Issuing:") or string.find(line, "^Your game will be:") then
         local pattern
         if string.find(line, "^Challenge:") then
             pattern = "^Challenge: "
             issued = false
-        else
+        elseif string.find(line, "^Issuing:") then
             pattern = "^Issuing: "
             issued = true
+        else
+            pattern = "^Your game will be:"
         end
         pattern = pattern .. "(%a+) %(([%dEP-]+)%) (%a+) %(([%dEP-]+)%) (%a+) (%a+) (%d+) (%d+)(.*)%."
 

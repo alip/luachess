@@ -188,7 +188,15 @@ LUALIB_API int luaopen_timeseal(lua_State *L) {
     luaL_openlib(L, MODNAME, R, 0);
 
     lua_pushliteral(L, "_VERSION");
-    lua_pushliteral(L, VERSION);
+    lua_pushstring(L, VERSION);
+    lua_settable(L, -3);
+
+    lua_pushliteral(L, "MAGICGSTR");
+    lua_pushstring(L, MAGICGSTR);
+    lua_settable(L, -3);
+
+    lua_pushliteral(L, "GRESPONSE");
+    lua_pushstring(L, GRESPONSE);
     lua_settable(L, -3);
 
     return 1;

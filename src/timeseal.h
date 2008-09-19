@@ -29,13 +29,11 @@
 #define TIMESTAMP_SIZE 64
 
 /* Encryption strings used by FICS */
+#define MAGICGSTR "^%[G%]"
+#define GRESPONSE "\0029"
+
 static char ENCODESTR[] = "Timestamp (FICS) v1.0 - programmed by Henrik Gram.";
 static int ENCODELEN = sizeof(ENCODESTR)/sizeof(ENCODESTR[0]) - 1; /* sizeof includes trailing \0 */
-/* static char MAGICGSTR[] = "\n\r[G]\n\r";
-static int MAGICGLEN = sizeof(MAGICGSTR)/sizeof(MAGICGSTR[0]) - 1;
-
-static char GRESPONSE[] = "\0029";
-static int GRESPONSELEN = sizeof(GRESPONSE)/sizeof(GRESPONSE[0]) -1; */
 
 static char FILLER[] = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static int FILLERLEN = sizeof(FILLER)/sizeof(FILLER[0]) - 1;

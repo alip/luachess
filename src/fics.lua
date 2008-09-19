@@ -221,6 +221,9 @@ function client:recvline() --{{{
         -- The newline after the prompt causes this.
         self._seen_prompt = false
         return nil, "timeout"
+    elseif self.timeseal and string.find(line, timeseal.MAGICGSTR) then
+        self:send(timeseal.GRESPONSE)
+        return nil, "timeout"
     else
         return line
     end
@@ -249,12 +252,8 @@ end --}}}
 function client:parseline(line) --{{{
     self:run_callback("line", line)
 
-    -- Timeseal
-    if self.timeseal and string.find(line, "^%[G%]") then
-        self:run_callback("gresponse")
-
     -- Prompts
-    elseif string.find(line, self.login_prompt) then
+    if string.find(line, self.login_prompt) then
         if self.ivars ~= nil and self._ivars_sent == false then
             -- Set necessary interface variables.
             self.ivars[IV_DEFPROMPT] = true

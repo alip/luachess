@@ -3,13 +3,17 @@
 # Load configuration
 include config
 
+all: src/timeseal.so examples/itelnet/iutils.so
+
 src/timeseal.so: src/timeseal.c
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LUALINK) -o $@ $<
+
+examples/itelnet/iutils.so: examples/itelnet/iutils.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LUALINK) -o $@ $<
 
 doc/index.html: luadoc/*.luadoc
 	luadoc --nofiles -d doc luadoc/*.luadoc
 
-all: src/timeseal.so
 doc: doc/index.html
 
 clean:

@@ -512,6 +512,54 @@ function client:parseline(line) --{{{
             "{Game (%d+) %((%a+) vs. (%a+)%) (.*)}")
         gameno = gameno + 0
         self:run_callback("game_start", gameno, wname, bname, reason)
+
+    -- Seeks
+    elseif self.ivars[IV_SEEKINFO] and string.find(line, "^<s>") then
+        local seek = {}
+        seek.index, seek.from, seek.titles, seek.rating, seek.time,
+        seek.increment, seek.rated, seek.type, seek.colour, seek.rating_range,
+        seek.automatic, seek.formula_checked = string.match(line,
+            "^<s> (%d+) w=(%a+) ti=(%d+) rt=(%d+[ EP]) t=(%d+) " ..
+            "i=(%d+) r=([ru]) tp=(%a+) c=([%?WB]) rr=(%d+-%d+) " ..
+            "a=([ft]) f=([ft])")
+
+        -- Convert to integers
+        seek.index = seek.index + 0
+        seek.titles = seek.titles + 0
+        seek.time = seek.time + 0
+        seek.increment = seek.increment + 0
+
+        -- Convert to booleans
+        if seek.rated == "r" then
+            seek.rated = true
+        else
+            seek.rated = false
+        end
+
+        if seek.automatic == "t" then
+            seek.automatic = true
+        else
+            seek.automatic = false
+        end
+
+        if seek.formula_checked == "t" then
+            seek.formula_checked = true
+        else
+            seek.formula_checked = false
+        end
+
+        self:run_callback("seek", seek)
+    elseif (self.ivars[IV_SEEKINFO] or self.ivars[IV_SEEKREMOVE]) and string.find(line, "^<sr>") then
+        local indexes = {}
+
+        for index in string.gmatch(line, "%d+") do
+            table.insert(indexes, index + 0)
+        end
+
+        self:run_callback("seekremove", indexes)
+    elseif self.ivars[IV_SEEKINFO] and string.find(line, "^<sc>") then
+        self:run_callback("seekclear")
+
     -- The rest is unknown
     else
         self:run_callback("line_unknown", line)

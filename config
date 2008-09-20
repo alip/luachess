@@ -14,5 +14,5 @@ INSTALL_TOP_SHARE=$(DESTDIR)/usr/share/lua/5.1
 # Compiler and linker settings
 CC=gcc
 CFLAGS+= $(LUAINC) -fPIC -shared -Wall
-LUALINK=-llua
+LUALIBS= $(shell pkg-config --libs lua)
 

@@ -6,10 +6,10 @@ include config
 all: src/timeseal.so examples/itelnet/iutils.so
 
 src/timeseal.so: src/timeseal.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LUALINK) -o $@ $<
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LUALIBS) -o $@ $<
 
 examples/itelnet/iutils.so: examples/itelnet/iutils.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LUALINK) -o $@ $<
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LUALIBS) -o $@ $<
 
 doc/index.html: luadoc/*.luadoc
 	luadoc --nofiles -d doc luadoc/*.luadoc

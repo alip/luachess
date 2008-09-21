@@ -374,9 +374,9 @@ function client:parseline(line) --{{{
         else
             pattern = "^Your game will be:"
         end
-        pattern = pattern .. "(%a+) %(([%dEP-]+)%) (%a+) %(([%dEP-]+)%) (%a+) (%a+) (%d+) (%d+)(.*)%."
+        pattern = pattern .. "(%a+) %(([%dEP-]+)%) ?(%[?%a*%]?) (%a+) %(([%dEP-]+)%) (%a+) (%a+) (%d+) (%d+)(.*)%."
 
-        local handle1, rating1, handle2, rating2, rated, gtype, time, inc, chunk = string.match(line, pattern)
+        local handle1, rating1, colour, handle2, rating2, rated, gtype, time, inc, chunk = string.match(line, pattern)
 
         -- if rating1 == "----" then rating1 = nil end
         -- if rating2 == "----" then rating2 = nil end
@@ -385,13 +385,17 @@ function client:parseline(line) --{{{
         elseif rated == "unrated" then rated = false
         else error("unknown rated value '" .. rated .. "'") end
 
+        if colour ~= nil then
+            colour = string.match(colour, "%[(%a+)%]")
+        end
+
         if chunk ~= "" then
             if string.find(chunk, "^ Loaded from wild/") then
                 wildtype = string.match(chunk, "^ Loaded from wild/(%d+)")
             end
         end
 
-        player1 = { handle = handle1, rating = rating1 }
+        player1 = { handle = handle1, rating = rating1, colour = colour }
         player2 = { handle = handle2, rating = rating2 }
 
         if game == nil then

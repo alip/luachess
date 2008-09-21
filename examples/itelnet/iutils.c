@@ -39,7 +39,6 @@ static int l_set_echo(lua_State *L) {
     struct termios pios;
     int infd;
 
-    state = lua_toboolean(L, 1);
     infd = fileno(stdin);
     memset(&pios, 0, sizeof(pios));
 

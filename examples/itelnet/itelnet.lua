@@ -46,6 +46,8 @@ function log(...)
     io.stderr:write("> " .. os.date(TIMESTAMP_FORMAT) .. " " .. table.concat(arg) .. "\n")
 end
 
+local SENDING_PASSWORD = false
+
 --{{{ Callbacks
 client:register_callback("line", function (client, line)
     if string.find(line, client.login_prompt) then
@@ -64,6 +66,9 @@ client:register_callback("line", function (client, line)
         io.write(line .. "\n")
     end
     io.flush()
+    end)
+client:register_callback("password", function(client)
+    SENDING_PASSWORD = true
     end)
 --}}}
 --{{{ Hooks
@@ -124,6 +129,12 @@ iutils.unblock_stdin()
 client.sock:settimeout(1)
 
 while true do
+    if SENDING_PASSWORD then
+        iutils.set_echo(false)
+    else
+        iutils.set_echo(true)
+        SENDING_PASSWORD = false
+    end
     line = io.read()
     if line ~= nil then
         if (not BLOCK_ISET or not string.match(line, "^%$?iset")) and

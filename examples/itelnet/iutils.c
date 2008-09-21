@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include <lua.h>
 #if defined(LUA_VERSION_NUM) && LUA_VERSION_NUM >= 501
@@ -32,6 +33,34 @@
 
 #define MODNAME "iutils"
 #define VERSION "0.01"
+
+static int l_set_echo(lua_State *L) {
+    int ret, state;
+    struct termios pios;
+    int infd;
+
+    state = lua_toboolean(L, 1);
+    infd = fileno(stdin);
+    memset(&pios, 0, sizeof(pios));
+
+    ret = tcgetattr(infd, &pios);
+    if (ret < 0) {
+        /* Push nil and error message */
+        lua_pushnil(L);
+        lua_pushstring(L, "tcgetattr");
+        return 2;
+    }
+
+    state = lua_toboolean(L, 1);
+    if (state)
+        pios.c_lflag |= ECHO;
+    else
+        pios.c_lflag &= ~ECHO;
+
+    ret = tcsetattr(infd, TCSADRAIN, &pios);
+    lua_pushinteger(L, ret);
+    return 1;
+}
 
 static int l_unblock_stdin(lua_State *L) {
     if (fcntl(fileno(stdin), F_SETFL, O_NONBLOCK) == -1) {
@@ -47,6 +76,7 @@ static int l_unblock_stdin(lua_State *L) {
 
 static const luaL_reg R[] = {
     {"unblock_stdin",       l_unblock_stdin},
+    {"set_echo",            l_set_echo},
     {NULL,                  NULL}
 };
 

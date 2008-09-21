@@ -105,8 +105,8 @@ function register_user_hooks(client)
 
             assert(type(hookname) == "string",
                 "The first value returned by hook " .. entry .. " is not a string")
-            assert(type(cbfunc) == "function",
-                "The second value return by hook " .. entry .. " is not a function")
+            assert(type(cbfunc) == "function" or type(cbfunc) == "thread",
+                "The second value return by hook " .. entry .. " is neither a function nor a coroutine.")
 
             client:register_callback(hookname, cbfunc)
             log("Registered " .. entry .. " to group " .. hookname .. ".")

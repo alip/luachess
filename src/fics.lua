@@ -28,6 +28,7 @@ local setmetatable = setmetatable
 local type = type
 local unpack = unpack
 
+local coroutine = coroutine
 local io = io
 local os = os
 local string = string
@@ -229,6 +230,8 @@ function client:recvline() --{{{
     end
 end --}}}
 function client:register_callback(name, func) --{{{
+    assert(type(func) == "function" or type(func) == "thread",
+        "callback is neither a function nor a coroutine.")
     if self.callbacks[name] == nil then
         self.callbacks[name] = { func }
     else
@@ -238,12 +241,19 @@ end --}}}
 function client:run_callback(name, ...) --{{{
     if self.callbacks[name] ~= nil then
         for index, func in ipairs(self.callbacks[name]) do
-            local status, errmsg = pcall(func, self, unpack(arg))
+            if type(func) == "function" then
+                local status, value = pcall(func, self, unpack(arg))
+            elseif type(func) == "thread" then
+                local status, value = coroutine.resume(func, self, unpack(arg))
+            else
+                error("callback is neither a function nor a coroutine.")
+            end
+
             if status == false then
                 if self.sock ~= nil then self.sock:close() end
-                error("Error: Callback group: " .. name .. " index: " .. index .. " failed: " .. errmsg)
-            elseif errmsg == false then
-                -- Callback returned false, don't run any other callback.
+                error("Error: Callback group: " .. name .. " index: " .. index .. " failed: " .. value)
+            elseif value == false then
+                -- Callback returned/yielded false, don't run any other callback.
                 break
             end
         end

@@ -67,17 +67,17 @@ function client:send(data) end
 function client:recvline() end
 
 --- Register a callback giving its name.
--- @param name Name of the callback group
--- @param func The callback function
+-- @param group Name of the callback group
+-- @param func The callback function/coroutine.
 -- @return nil
-function client:register_callback(name, func) end
+function client:register_callback(group, func) end
 
 --- Run the functions in a callback group with given arguments.
 -- If a callback returns false then no other callbacks are run.
--- @param name Name of the callback group
--- @param ... The rest of the arguments are passed to the callback function.
+-- @param group Name of the callback group
+-- @param ... The rest of the arguments are passed to the callback function/coroutine.
 -- @return nil
-function client:run_callback(name, ...) end
+function client:run_callback(group, ...) end
 
 --- Parse a line and call callback functions.
 -- This function can be used alone as a line based parser.

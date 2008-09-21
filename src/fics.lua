@@ -229,18 +229,18 @@ function client:recvline() --{{{
         return line
     end
 end --}}}
-function client:register_callback(name, func) --{{{
+function client:register_callback(group, func) --{{{
     assert(type(func) == "function" or type(func) == "thread",
         "callback is neither a function nor a coroutine.")
-    if self.callbacks[name] == nil then
-        self.callbacks[name] = { func }
+    if self.callbacks[group] == nil then
+        self.callbacks[group] = { func }
     else
-        table.insert(self.callbacks[name], func)
+        table.insert(self.callbacks[group], func)
     end
 end --}}}
-function client:run_callback(name, ...) --{{{
-    if self.callbacks[name] ~= nil then
-        for index, func in ipairs(self.callbacks[name]) do
+function client:run_callback(group, ...) --{{{
+    if self.callbacks[group] ~= nil then
+        for index, func in ipairs(self.callbacks[group]) do
             if type(func) == "function" then
                 local status, value = pcall(func, self, unpack(arg))
             elseif type(func) == "thread" then
@@ -251,7 +251,7 @@ function client:run_callback(name, ...) --{{{
 
             if status == false then
                 if self.sock ~= nil then self.sock:close() end
-                error("Error: Callback group: " .. name .. " index: " .. index .. " failed: " .. value)
+                error("Error: Callback group: " .. group .. " index: " .. index .. " failed: " .. value)
             elseif value == false then
                 -- Callback returned/yielded false, don't run any other callback.
                 break

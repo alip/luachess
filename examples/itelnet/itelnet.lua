@@ -49,8 +49,8 @@ end
 local SENDING_PASSWORD = false
 
 --{{{ Callbacks
-client:register_callback("line", function (client, line)
-    if string.find(line, client.login_prompt) then
+client:register_callback("line", function (client, group, line)
+    if group == "login" then
         if not client._ivars_sent then
             -- Workaround to not confuse xboard while LuaFics sends interface
             -- variables.
@@ -58,9 +58,9 @@ client:register_callback("line", function (client, line)
         else
             io.write(line)
         end
-    elseif string.find(line, client.password_prompt) then
+    elseif group == "password" then
         io.write(line)
-    elseif not SEND_PROMPT and string.find(line, client.prompt) then
+    elseif not SEND_PROMPT and group == "prompt" then
         return
     else
         io.write(line .. "\n")

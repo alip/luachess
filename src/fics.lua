@@ -344,11 +344,11 @@ function client:parseline(line) --{{{
         local no, date, subject = string.match(line, "^(%d+) %((.*)%) (.*)")
         no = no + 0
         self:run_callback("news", no, date, subject)
-    elseif string.find(line, "^You have %d+ messages? %(%d+ unread%).") then
+    elseif string.find(line, "^You have %d+ messages? %(%d+ unread%)") then
         self:run_callback("line", "messages", line)
         if not self.callbacks["messages"] then return true end
 
-        local total, unread = string.match(line, "^You have (%d+) messages? %((%d+) unread%).")
+        local total, unread = string.match(line, "^You have (%d+) messages? %((%d+) unread%)")
         self:run_callback("messages", total, unread)
     elseif string.find(line, "^Present company includes:") then
         self:run_callback("line", "notify_includes", line)

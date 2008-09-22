@@ -228,10 +228,10 @@ function client:recvline() --{{{
     if self._seen_prompt and line == "" then
         -- The newline after the prompt causes this.
         self._seen_prompt = false
-        return nil, "timeout"
+        return nil, "internal"
     elseif self.timeseal and string.find(line, timeseal.MAGICGSTR) then
         self:send(timeseal.GRESPONSE)
-        return nil, "timeout"
+        return nil, "internal"
     else
         return line
     end
@@ -665,7 +665,7 @@ function client:loop(times) --{{{
         while true do
             local line, errmsg = self:recvline()
             if line == nil then
-                if errmsg ~= "timeout" then
+                if errmsg ~= "internal" or errmsg ~= "timeout" then
                     return nil, errmsg
                 end
             else
@@ -677,7 +677,7 @@ function client:loop(times) --{{{
         for i=1,times do
             local line, errmsg = self:recvline()
             if line == nil then
-                if errmsg ~= "timeout" then
+                if errmsg ~= "internal" or errmsg ~= "timeout" then
                     return nil, errmsg
                 end
             else

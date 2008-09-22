@@ -1,0 +1,6 @@
+# Gitignore for LuaFics
+*~
+*.o
+*.so
+*.tar.gz
+doc

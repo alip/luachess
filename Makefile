@@ -3,6 +3,9 @@
 # Load configuration
 include config
 
+LUA_PATH="src/?.lua;$(shell lua -e 'print(package.path)')"
+LUA_CPATH="src/?.so;$(shell lua -e 'print(package.cpath)')"
+
 all: src/timeseal.so examples/itelnet/iutils.so
 
 src/timeseal.so: src/timeseal.c
@@ -15,6 +18,9 @@ doc/index.html: luadoc/*.luadoc
 	luadoc --nofiles -d doc luadoc/*.luadoc
 
 doc: doc/index.html
+
+test: all
+	@LUA_PATH=$(LUA_PATH) LUA_CPATH=$(LUA_CPATH) lunit test/*.lua
 
 clean:
 	rm -f src/*.so src/*.o || true

@@ -451,7 +451,7 @@ function client:parseline(line) --{{{
         self:run_callback("line", "challenge", line)
         if not self.callbacks["challenge"] then return true end
 
-        local pattern
+        local pattern, issued
         if string.find(line, "^Challenge:") then
             pattern = "^Challenge: "
             issued = false

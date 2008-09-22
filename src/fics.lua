@@ -435,7 +435,7 @@ function client:parseline(line) --{{{
 
         handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) c%-shouts: (.*)")
         self:run_callback("cshout", handle, totaglist(tags), message)
-    elseif string.find(line, "^ +*%*%*ANNOUNCEMENT%%*%*") then
+    elseif string.find(line, "^ +%*%*ANNOUNCEMENT%*%*") then
         self:run_callback("line", "announcement", line)
         if not self.callbacks["announcement"] then return true end
 

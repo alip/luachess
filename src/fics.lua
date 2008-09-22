@@ -342,6 +342,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["news"] then return true end
 
         local no, date, subject = string.match(line, "^(%d+) %((.*)%) (.*)")
+        no = no + 0
         self:run_callback("news", no, date, subject)
     elseif string.find(line, "^You have %d+ messages? %(%d+ unread%).") then
         self:run_callback("line", "messages", line)

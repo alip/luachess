@@ -246,23 +246,24 @@ function client:register_callback(group, func) --{{{
     end
 end --}}}
 function client:run_callback(group, ...) --{{{
-    if type(self.callbacks[group]) == "table" then
-        for index, func in ipairs(self.callbacks[group]) do
-            if type(func) == "function" then
-                local status, value = pcall(func, self, unpack(arg))
-            elseif type(func) == "thread" then
-                local status, value = coroutine.resume(func, self, unpack(arg))
-            else
-                error("callback is neither a function nor a coroutine.")
-            end
+    if self.callbacks[group] == nil then self.callbacks[group] = {} end
+    assert(type(self.callbacks[group]) == "table", "callback group not table")
 
-            if status == false then
-                if self.sock ~= nil then self.sock:close() end
-                error("Error: Callback group: " .. group .. " index: " .. index .. " failed: " .. value)
-            elseif value == false then
-                -- Callback returned/yielded false, don't run any other callback.
-                break
-            end
+    for index, func in ipairs(self.callbacks[group]) do
+        if type(func) == "function" then
+            local status, value = pcall(func, self, unpack(arg))
+        elseif type(func) == "thread" then
+            local status, value = coroutine.resume(func, self, unpack(arg))
+        else
+            error("callback is neither a function nor a coroutine.")
+        end
+
+        if status == false then
+            if self.sock ~= nil then self.sock:close() end
+            error("Error: Callback group: " .. group .. " index: " .. index .. " failed: " .. value)
+        elseif value == false then
+            -- Callback returned/yielded false, don't run any other callback.
+            break
         end
     end
 end --}}}

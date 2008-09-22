@@ -35,6 +35,8 @@ local function totaglist(tags) end
 -- ivars[fics.IV_DEFPROMPT] = true<br />
 -- </pre>
 -- Note: LuaFics sets some of the interface variables itself for the functions to work as expected.
+-- <li><b>send_ivars</b> Boolean that specifies whether LuaFics should send
+-- interface variables when login prompt is received, defaults to true.<br />
 -- <li><b>timeseal</b> Boolean that specifies whether to use timeseal, defaults to false.
 -- </ul>
 -- @return fics.client instance.

@@ -115,8 +115,10 @@ function client:new(argtable) --{{{
         prompt = argtable.prompt or "^fics%% $",
         login_prompt = argtable.prompt_login or "^login: $",
         password_prompt = argtable.prompt_password or "^password: $",
-        ivars = argtable.ivars or {},
         timeseal = argtable.timeseal or false,
+
+        ivars = argtable.ivars or {},
+        send_ivars = argtable.send_ivars or true,
 
         sock = nil,
         callbacks = {},
@@ -127,6 +129,11 @@ function client:new(argtable) --{{{
         _seen_prompt = false,
         _linebuf = ""
     }
+
+    -- Set necessary interface variables.
+    instance.ivars[IV_DEFPROMPT] = true
+    instance.ivars[IV_NOWRAP] = true
+    instance.ivars[IV_LOCK] = true
 
     return setmetatable(instance, { __index = client })
 end --}}}
@@ -264,12 +271,7 @@ function client:parseline(line) --{{{
 
     -- Prompts
     if string.find(line, self.login_prompt) then
-        if self.ivars ~= nil and self._ivars_sent == false then
-            -- Set necessary interface variables.
-            self.ivars[IV_DEFPROMPT] = true
-            self.ivars[IV_NOWRAP] = true
-            -- and lock them.
-            self.ivars[IV_LOCK] = true
+        if self.send_ivars and self._ivars_sent == false then
             local bytes, errmsg = self:send(self:ivars_tostring())
             if errmsg ~= nil then
                 return nil, errmsg

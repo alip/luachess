@@ -358,18 +358,44 @@ function client:parseline(line) --{{{
         unread = unread + 0
 
         self:run_callback("messages", total, unread)
+
+    -- Notifications
     elseif string.find(line, "^Present company includes:") then
         self:run_callback("line", "notify_includes", line)
-        if not self.callbacks["notify_includes"] then return true end
+        if not self.callbacks["notify_include"] then return true end
 
         local handles = string.match(line, "^Present company includes: ([%a ]+).")
-        self:run_callback("notify_includes", tolist(handles))
+        self:run_callback("notify_include", tolist(handles))
     elseif string.find(line, "^Your arrival was noted by:") then
-        self:run_callback("line", "notify_noted", line)
-        if not self.callbacks["notify_noted"] then return true end
+        self:run_callback("line", "notify_note", line)
+        if not self.callbacks["notify_note"] then return true end
 
         local handles = string.match(line, "^Your arrival was noted by: ([%a ]+).")
-        self:run_callback("notify_noted", tolist(handles))
+        self:run_callback("notify_note", tolist(handles))
+    elseif string.find(line, "^Notification: %a+ has arrived and isn't on your notify list") then
+        self:run_callback(line, "notify_arrive", line)
+        if not self.callbacks["notify_arrive"] then return true end
+
+        local handle = string.match(line, "^Notification: (%a+) has arrived")
+        self:run_callback("notify_arrive", handle, false)
+    elseif string.find(line, "^Notification: %a+ has arrived") then
+        self:run_callback("line", "notify_arrive", line)
+        if not self.callbacks["notify_arrive"] then return true end
+
+        local handle = string.match(line, "^Notification: (%a+) has arrived")
+        self:run_callback("notify_arrive", handle, true)
+    elseif string.find(line, "^Notification: %a+ has departed and isn't on your notify list") then
+        self:run_callback(line, "notify_arrive", line)
+        if not self.callbacks["notify_depart"] then return true end
+
+        local handle = string.match(line, "^Notification: (%a+) has departed")
+        self:run_callback("notify_depart", handle, false)
+    elseif string.find(line, "^Notification: %a+ has departed") then
+        self:run_callback("line", "notify_depart", line)
+        if not self.callbacks["notify_depart"] then return true end
+
+        local handle = string.match(line, "^Notification: (%a+) has departed")
+        self:run_callback("notify_depart", handle, true)
 
     -- Chat
     elseif string.find(line, "^%a+[%u%*%(%)]* tells you:") then

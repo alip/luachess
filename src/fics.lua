@@ -259,7 +259,7 @@ function client:run_callback(group, ...) --{{{
         end
 
         if status == false then
-            if self.sock ~= nil then self.sock:close() end
+            if self.sock ~= nil then self:disconnect() end
             error("Error: Callback group: " .. group .. " index: " .. index .. " failed: " .. value)
         elseif value == false then
             -- Callback returned/yielded false, don't run any other callback.

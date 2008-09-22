@@ -364,13 +364,13 @@ function client:parseline(line) --{{{
         self:run_callback("line", "notify_includes", line)
         if not self.callbacks["notify_include"] then return true end
 
-        local handles = string.match(line, "^Present company includes: ([%a ]+).")
+        local handles = string.match(line, "^Present company includes: ([%a ]+)%.")
         self:run_callback("notify_include", tolist(handles))
     elseif string.find(line, "^Your arrival was noted by:") then
         self:run_callback("line", "notify_note", line)
         if not self.callbacks["notify_note"] then return true end
 
-        local handles = string.match(line, "^Your arrival was noted by: ([%a ]+).")
+        local handles = string.match(line, "^Your arrival was noted by: ([%a ]+)%.")
         self:run_callback("notify_note", tolist(handles))
     elseif string.find(line, "^Notification: %a+ has arrived and isn't on your notify list") then
         self:run_callback(line, "notify_arrive", line)

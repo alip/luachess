@@ -709,7 +709,7 @@ function client:loop(times) --{{{
         while true do
             local line, errmsg = self:recvline()
             if line == nil then
-                if errmsg ~= "internal" or errmsg ~= "timeout" then
+                if errmsg ~= "internal" and errmsg ~= "timeout" then
                     return nil, errmsg
                 end
             else
@@ -721,7 +721,7 @@ function client:loop(times) --{{{
         for i=1,times do
             local line, errmsg = self:recvline()
             if line == nil then
-                if errmsg ~= "internal" or errmsg ~= "timeout" then
+                if errmsg ~= "internal" and errmsg ~= "timeout" then
                     return nil, errmsg
                 end
             else

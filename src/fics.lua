@@ -362,7 +362,7 @@ function client:parseline(line) --{{{
 
     -- Notifications
     elseif string.find(line, "^Present company includes:") then
-        self:run_callback("line", "notify_includes", line)
+        self:run_callback("line", "notify_include", line)
         if not self.callbacks["notify_include"] then return true end
 
         local handles = string.match(line, "^Present company includes: ([%a ]+)%.")

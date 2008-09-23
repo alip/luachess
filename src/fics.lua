@@ -570,6 +570,7 @@ function client:parseline(line) --{{{
 
         if self.ivars[IV_MS] then
             m.lastmin, m.lastsec, m.lastms = string.match(last_time, "(%d+):(%d+)%.(%d+)")
+            m.lastms = m.lastms + 0
         else
             m.lastmin, m.lastsec = string.match(last_time, "(%d+):(%d+)")
         end
@@ -606,6 +607,7 @@ function client:parseline(line) --{{{
         end
 
         -- Convert to integer
+        m.doublepawn = m.doublepawn + 0
         m.lastirr = m.lastirr + 0
         m.gameno = m.gameno + 0
         m.relation = m.relation + 0

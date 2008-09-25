@@ -16,6 +16,7 @@ examples/itelnet/iutils.so: examples/itelnet/iutils.c
 
 doc/index.html: luadoc/*.luadoc
 	luadoc --nofiles -d doc luadoc/*.luadoc
+	cp luadoc/logo.png doc/
 
 doc: doc/index.html
 
@@ -34,8 +35,9 @@ uninstall:
 	rm -f $(INSTALL_TOP_LIB)/timeseal.so || true
 	rm -f $(INSTALL_TOP_SHARE)/fics.lua || true
 
-upload-www: doc/index.html
-	rsync -avze ssh doc/* shell.nonlogic.org:htdocs/html/projects/LuaFics
+upload-www: doc
+	rsync --delete -avze ssh doc/* shell.nonlogic.org:htdocs/html/projects/luafics
+	ssh shell.nonlogic.org chmod -R o+r htdocs/html/projects/luafics
 
 .phony: all clean install uninstall doc
 .default: all

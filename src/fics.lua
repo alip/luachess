@@ -38,7 +38,7 @@ local timeseal = require("timeseal")
 --}}}
 --{{{ Variables
 module("fics")
-_VERSION = 0.1
+_VERSION = 0.02
 
 client = {}
 

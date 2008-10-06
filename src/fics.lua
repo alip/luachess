@@ -642,20 +642,20 @@ function client:parseline(line) --{{{
         self:run_callback("style12", m)
 
     -- Game start, end
-    elseif string.find(line, "{Game (%d+) %((%a+) vs. (%a+)%) (.*)} ([%*%d%p]+)") then
+    elseif string.find(line, "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)} ([%*%d%p]+)") then
         self:run_callback("line", "game_end", line)
         if not self.callbacks["game_end"] then return true end
 
         local gameno, wname, bname, reason, result = string.match(line,
-            "{Game (%d+) %((%a+) vs. (%a+)%) (.*)} ([%*%d%p]+)")
+            "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)} ([%*%d%p]+)")
         gameno = gameno + 0
         self:run_callback("game_end", gameno, wname, bname, reason, result)
-    elseif string.find(line, "{Game (%d+) %((%a+) vs. (%a+)%) (.*)}") then
+    elseif string.find(line, "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)}") then
         self:run_callback("line", "game_start", line)
         if not self.callbacks["game_start"] then return true end
 
         local gameno, wname, bname, reason = string.match(line,
-            "{Game (%d+) %((%a+) vs. (%a+)%) (.*)}")
+            "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)}")
         gameno = gameno + 0
         self:run_callback("game_start", gameno, wname, bname, reason)
 

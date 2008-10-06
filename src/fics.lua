@@ -659,6 +659,36 @@ function client:parseline(line) --{{{
         gameno = gameno + 0
         self:run_callback("game_start", gameno, wname, bname, reason)
 
+    -- Offers
+    elseif string.find(line, "^%a+ offers you a draw%.") then
+        self:run_callback("line", "offer_draw", line)
+        if not self.callbacks["offer_draw"] then return true end
+
+        local handle = string.match(line, "^(%a+) offers you a draw%.")
+        self:run_callback("offer_draw", handle)
+
+    elseif string.find(line, "^%a+ would like to abort the game") then
+        self:run_callback("line", "offer_abort", line)
+        if not self.callbacks["offer_abort"] then return true end
+
+        local handle = string.match(line, "^(%a+) would like to abort the game")
+        self:run_callback("offer_abort", handle)
+
+    elseif string.find(line, "^%a+ would like to adjourn the game") then
+        self:run_callback("line", "offer_adjourn", line)
+        if not self.callbacks["offer_adjourn"] then return true end
+
+        local handle = string.match(line, "^(%a+) would like to adjourn the game")
+        self:run_callback("offer_adjourn", handle)
+
+    elseif string.find(line, "^a+ would like to take back %d+ half move") then
+        self:run_callback("line", "offer_takeback", line)
+        if not self.callbacks["offer_takeback"] then return true end
+
+        local handle, halfmoves = string.match(line, "^(%a+) would like to take back (%d+) half move")
+        halfmoves = halfmoves + 0
+        self:run_callback("offer_takeback", handle, halfmoves)
+
     -- Seeks
     elseif self.ivars[IV_SEEKINFO] and string.find(line, "^<s>") then
         self:run_callback("line", "seek", line)

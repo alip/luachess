@@ -126,7 +126,6 @@ function client:new(argtable) --{{{
         -- Internal
         _ivars_sent = false,
         _last_sent = 0,
-        _seen_prompt = false,
         _seen_magicgstr = false,
         _linebuf = ""
     }
@@ -216,7 +215,6 @@ function client:recvline() --{{{
             elseif string.find(self._linebuf, self.password_prompt) then
                 break
             elseif string.find(self._linebuf, self.prompt) then
-                self._seen_prompt = true
                 break
             end
         end
@@ -225,10 +223,7 @@ function client:recvline() --{{{
     local line = self._linebuf
     self._linebuf = ""
     if line == "" then
-        if self._seen_prompt then
-            self._seen_prompt = false
-            return nil, "internal"
-        elseif self._seen_magicgstr then
+        if self._seen_magicgstr then
             self._seen_magicgstr = false
             return nil, "internal"
         else

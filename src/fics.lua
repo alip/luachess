@@ -116,7 +116,7 @@ function client:new(argtable) --{{{
     assert(type(argtable) == "table", "Argument is not a table")
 
     local instance = {
-        prompt = argtable.prompt or "^fics%% $",
+        prompt = argtable.prompt or "^([0-9]?[0-9]?:?[0-9]?[0-9]?)_?fics%% $",
         login_prompt = argtable.prompt_login or "^login: $",
         password_prompt = argtable.prompt_password or "^password: $",
         timeseal = argtable.timeseal or false,
@@ -298,7 +298,10 @@ function client:parseline(line) --{{{
         self:run_callback("password")
     elseif string.find(line, self.prompt) then
         self:run_callback("line", "prompt", line)
-        self:run_callback("prompt")
+        if not self.callbacks["prompt"] then return true end
+
+        local ptime = string.match(line, self.prompt)
+        self:run_callback("prompt", ptime)
 
     -- Authentication
     elseif string.find(line, "^A name should be at least three characters long") then

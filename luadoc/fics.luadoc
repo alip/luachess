@@ -25,7 +25,7 @@ local function totaglist(tags) end
 --- Create a new fics.client instance
 -- @param argtable A table which may have the following elements;<br />
 -- <ul>
--- <li><b>prompt</b> Pattern for server prompt, defaults to "^fics%% $"<br />
+-- <li><b>prompt</b> Pattern for server prompt, defaults to "^([0-9]?[0-9]?:?[0-9]?[0-9]?)_?fics%% $"<br />
 -- <li><b>prompt_login</b> Pattern for login prompt, defaults to "^login: $"<br />
 -- <li><b>prompt_password</b> Pattern for password prompt, defaults to "^password: $"<br />
 -- <li><b>ivars</b> Interface variables. This is a list of interface variables.<br />

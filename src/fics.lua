@@ -667,12 +667,40 @@ function client:parseline(line) --{{{
         local handle = string.match(line, "^(%a+) offers you a draw%.")
         self:run_callback("offer_draw", handle)
 
+    elseif string.find(line, "^%a+ accepts the draw request") then
+        self:run_callback("line", "draw_accept", line)
+        if not self.callbacks["draw_accept"] then return true end
+
+        local handle = string.match(line, "^(%a+) accepts the draw request")
+        self:run_callback("draw_accept", handle)
+
+    elseif string.find(line, "^%a+ declines the draw request") then
+        self:run_callback("line", "draw_decline", line)
+        if not self.callbacks["draw_decline"] then return true end
+
+        local handle = string.match(line, "^(%a+) declines the draw request")
+        self:run_callback("draw_decline", handle)
+
     elseif string.find(line, "^%a+ would like to abort the game") then
         self:run_callback("line", "offer_abort", line)
         if not self.callbacks["offer_abort"] then return true end
 
         local handle = string.match(line, "^(%a+) would like to abort the game")
         self:run_callback("offer_abort", handle)
+
+    elseif string.find(line, "^%a+ accepts the abort request") then
+        self:run_callback("line", "abort_accept", line)
+        if not self.callbacks["abort_accept"] then return true end
+
+        local handle = string.match(line, "^(%a+) accepts the abort request")
+        self:run_callback("abort_accept", handle)
+
+    elseif string.find(line, "^%a+ declines the abort request") then
+        self:run_callback("line", "abort_decline", line)
+        if not self.callbacks["abort_decline"] then return true end
+
+        local handle = string.match(line, "^(%a+) declines the abort request")
+        self:run_callback("abort_decline", handle)
 
     elseif string.find(line, "^%a+ would like to adjourn the game") then
         self:run_callback("line", "offer_adjourn", line)
@@ -681,13 +709,41 @@ function client:parseline(line) --{{{
         local handle = string.match(line, "^(%a+) would like to adjourn the game")
         self:run_callback("offer_adjourn", handle)
 
-    elseif string.find(line, "^a+ would like to take back %d+ half move") then
+    elseif string.find(line, "^%a+ accepts the adjourn request") then
+        self:run_callback("line", "adjourn_accept", line)
+        if not self.callbacks["adjourn_accept"] then return true end
+
+        local handle = string.match(line, "^(%a+) accepts the adjourn request")
+        self:run_callback("adjourn_accept", handle)
+
+    elseif string.find(line, "^%a+ declines the adjourn request") then
+        self:run_callback("line", "adjourn_decline", line)
+        if not self.callbacks["adjourn_decline"] then return true end
+
+        local handle = string.match(line, "^(%a+) declines the adjourn request")
+        self:run_callback("adjourn_decline", handle)
+
+    elseif string.find(line, "^%a+ would like to take back %d+ half move") then
         self:run_callback("line", "offer_takeback", line)
         if not self.callbacks["offer_takeback"] then return true end
 
         local handle, halfmoves = string.match(line, "^(%a+) would like to take back (%d+) half move")
         halfmoves = halfmoves + 0
         self:run_callback("offer_takeback", handle, halfmoves)
+
+    elseif string.find(line, "^%a+ accepts the takeback request") then
+        self:run_callback("line", "takeback_accept", line)
+        if not self.callbacks["takeback_accept"] then return true end
+
+        local handle = string.match(line, "^(%a+) accepts the takeback request")
+        self:run_callback("takeback_accept", handle)
+
+    elseif string.find(line, "^%a+ declines the takeback request") then
+        self:run_callback("line", "takeback_decline", line)
+        if not self.callbacks["takeback_decline"] then return true end
+
+        local handle = string.match(line, "^(%a+) declines the takeback request")
+        self:run_callback("takeback_decline", handle)
 
     -- Seeks
     elseif self.ivars[IV_SEEKINFO] and string.find(line, "^<s>") then

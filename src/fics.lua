@@ -43,10 +43,10 @@ _VERSION = 0.02
 client = {}
 
 --{{{ Telnet
-CR = "\r"
-LF = "\n"
-IAC_WILL_ECHO = string.char(255, 251, 1)
-IAC_WONT_ECHO = string.char(255, 252, 1)
+local CR = "\r"
+local LF = "\n"
+local IAC_WILL_ECHO = string.char(255, 251, 1)
+local IAC_WONT_ECHO = string.char(255, 252, 1)
 --}}}
 --{{{ FICS Interface Variables
 local IVARS_COUNT = 35

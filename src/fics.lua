@@ -42,8 +42,12 @@ _VERSION = 0.02
 
 client = {}
 
+--{{{ Telnet
 CR = "\r"
 LF = "\n"
+IAC_WILL_ECHO = string.char(255, 251, 1)
+IAC_WONT_ECHO = string.char(255, 252, 1)
+--}}}
 --{{{ FICS Interface Variables
 local IVARS_COUNT = 35
 IVARS_PREFIX = "%b"
@@ -798,6 +802,15 @@ function client:parseline(line) --{{{
     elseif self.ivars[IV_SEEKINFO] and string.find(line, "^<sc>") then
         self:run_callback("line", "seekclear", line)
         self:run_callback("seekclear")
+
+    -- Telnet
+    elseif line == IAC_WILL_ECHO then
+        self:run_callback("line", "iacwillecho", line)
+        self:run_callback("iacwillecho")
+
+    elseif line == IAC_WONT_ECHO then
+        self:run_callback("line", "iacwontecho", line)
+        self:run_callback("iacwontecho")
 
     -- The rest is unknown
     else

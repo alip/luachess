@@ -226,15 +226,7 @@ function client:recvline() --{{{
 
     local line = self._linebuf
     self._linebuf = ""
-    if line == "" then
-        if self._seen_magicgstr then
-            self._seen_magicgstr = false
-            return nil, "internal"
-        else
-            return ""
-        end
-    elseif self.timeseal and string.find(line, timeseal.MAGICGSTR) then
-        self._seen_magicgstr = true
+    if self.timeseal and string.find(line, timeseal.MAGICGSTR) then
         self:send(timeseal.GRESPONSE)
         return nil, "internal"
     else

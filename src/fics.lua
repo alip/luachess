@@ -553,7 +553,7 @@ function client:parseline(line) --{{{
         self:run_callback("line", "game_end", line)
         if not self.callbacks["game_end"] then return true end
 
-        local gameno, whandle, bhandle, reason, result = string.match("^{Game (%d+) %((%a+) vs%. (%a+)%) ([^}]+)} ([01%-%*]+)")
+        local gameno, whandle, bhandle, reason, result = string.match(line, "^{Game (%d+) %((%a+) vs%. (%a+)%) ([^}]+)} ([01%-%*]+)")
         gameno = gameno + 0
         self:run_callback("game_end", gameno, whandle, bhandle, reason, result)
 

@@ -233,7 +233,7 @@ function client:recvline() --{{{
 
     local line = self._linebuf
     self._linebuf = ""
-    if client._playing and line == "" then
+    if self._playing and line == "" then
         -- Beginning of timeseal gresponse
         return nil, "internal"
     elseif self.timeseal and string.find(line, timeseal.MAGICGSTR) then

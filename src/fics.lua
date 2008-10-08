@@ -139,7 +139,14 @@ function client:new(argtable) --{{{
     instance.ivars[IV_NOWRAP] = true
     instance.ivars[IV_LOCK] = true
 
-    return setmetatable(instance, { __index = client })
+    client_instance = setmetatable(instance, { __index = client })
+    client_instance:register_callback("game_start", function (client)
+        client._playing = true
+        end)
+    client_instance:register_callback("game_end", function (client)
+        client._playing = false
+        end)
+    return client_instance
 end --}}}
 function client:ivars_tostring() --{{{
     local ivstr = IVARS_PREFIX
@@ -226,7 +233,10 @@ function client:recvline() --{{{
 
     local line = self._linebuf
     self._linebuf = ""
-    if self.timeseal and string.find(line, timeseal.MAGICGSTR) then
+    if client._playing and line == "" then
+        -- Beginning of timeseal gresponse
+        return nil, "internal"
+    elseif self.timeseal and string.find(line, timeseal.MAGICGSTR) then
         self:send(timeseal.GRESPONSE)
         return nil, "internal"
     else

@@ -25,6 +25,7 @@ local error = error
 local ipairs = ipairs
 local pcall = pcall
 local setmetatable = setmetatable
+local tonumber = tonumber
 local type = type
 local unpack = unpack
 

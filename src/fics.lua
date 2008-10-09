@@ -24,6 +24,7 @@ local assert = assert
 local error = error
 local ipairs = ipairs
 local pcall = pcall
+local print = print
 local setmetatable = setmetatable
 local type = type
 local unpack = unpack
@@ -131,7 +132,9 @@ function client:new(argtable) --{{{
         _ivars_sent = false,
         _last_sent = 0,
         _seen_magicgstr = false,
-        _linebuf = ""
+        _linebuf = "",
+        _empty_lines = 0,
+        _got_gresponse = false,
     }
 
     -- Set necessary interface variables.
@@ -233,10 +236,8 @@ function client:recvline() --{{{
 
     local line = self._linebuf
     self._linebuf = ""
-    if self._playing and line == "" then
-        -- Beginning of timeseal gresponse
-        return nil, "internal"
-    elseif self.timeseal and string.find(line, timeseal.MAGICGSTR) then
+    if self.timeseal and string.find(line, timeseal.MAGICGSTR) then
+        self._got_gresponse = true
         self:send(timeseal.GRESPONSE)
         return nil, "internal"
     else
@@ -275,6 +276,24 @@ function client:run_callback(group, ...) --{{{
     end
 end --}}}
 function client:parseline(line) --{{{
+    -- FICS sends empty lines before timeseal gresponse.
+    if self.timeseal and self._playing then
+        if self._got_gresponse then
+            self._empty_lines = self._empty_lines - 2
+            self._got_gresponse = false
+        end
+
+        if line == "" then
+            self._empty_lines = self._empty_lines + 1
+            return true
+        else
+            while self._empty_lines > 0 do
+                self:run_callback("line", nil, "")
+                self._empty_lines = self._empty_lines - 1
+            end
+        end
+    end
+
     -- Prompts
     if string.find(line, self.login_prompt) then
         if self.send_ivars and self._ivars_sent == false then

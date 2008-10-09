@@ -24,7 +24,6 @@ local assert = assert
 local error = error
 local ipairs = ipairs
 local pcall = pcall
-local print = print
 local setmetatable = setmetatable
 local type = type
 local unpack = unpack

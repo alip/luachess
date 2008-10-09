@@ -371,8 +371,7 @@ function client:parseline(line) --{{{
 
         local no, date, subject = string.match(line, "^(%d+) %((.*)%) (.*)")
 
-        -- Convert to integer
-        no = no + 0
+        no = tonumber(no)
 
         self:run_callback("news", no, date, subject)
     elseif string.find(line, "^You have %d+ messages? %(%d+ unread%)") then
@@ -381,9 +380,8 @@ function client:parseline(line) --{{{
 
         local total, unread = string.match(line, "^You have (%d+) messages? %((%d+) unread%)")
 
-        -- Convert to integers
-        total = total + 0
-        unread = unread + 0
+        total = tonumber(total)
+        unread = tonumber(unread)
 
         self:run_callback("messages", total, unread)
 
@@ -437,7 +435,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["chantell"] then return true end
 
         local handle, tags, channel, message = string.match(line, "^(%a+)([%u%*%(%)]*)%((%d+)%): (.*)")
-        channel = channel + 0 -- Convert to integer
+        channel = tonumber(channel)
         self:run_callback("chantell", handle, totaglist(tags), channel, message)
     elseif string.find(line, "^:") then
         self:run_callback("line", "qtell", line)
@@ -515,14 +513,14 @@ function client:parseline(line) --{{{
 
         if self.__parse_chunk_game == nil then
             self.__parse_chunk_game = { update = false, type = gtype,
-                wtype = wildtype, rated = rated, time = time + 0,
-                inc = inc + 0, issued = issued }
+                wtype = wildtype, rated = rated, time = tonumber(time),
+                inc = tonumber(inc), issued = issued }
         else
             self.__parse_chunk_game.type = gtype
             self.__parse_chunk_game.wtype = wildtype
             self.__parse_chunk_game.rated = rated
-            self.__parse_chunk_game.time = time + 0
-            self.__parse_chunk_game.inc = inc + 0
+            self.__parse_chunk_game.time = tonumber(inc)
+            self.__parse_chunk_game.inc = tonumber(inc)
             self.__parse_chunk_game.issued = issued
         end
 
@@ -542,16 +540,15 @@ function client:parseline(line) --{{{
         self.__parse_chunk_game.draw,
         self.__parse_chunk_game.loss = string.match(line,
             "^Your %a+ rating will change:  Win: %+?([%d-%.]+),  Draw: %+?([%d-%.]+),  Loss: %+?([%d-%.]+)")
-        -- Convert to integers
-        self.__parse_chunk_game.win = self.__parse_chunk_game.win + 0
-        self.__parse_chunk_game.draw = self.__parse_chunk_game.draw + 0
-        self.__parse_chunk_game.loss = self.__parse_chunk_game.loss + 0
+        self.__parse_chunk_game.win = tonumber(self.__parse_chunk_game.win)
+        self.__parse_chunk_game.draw = tonumber(self.__parse_chunk_game.draw)
+        self.__parse_chunk_game.loss = tonumber(self.__parse_chunk_game.loss)
     elseif string.find(line, "^Your new RD will be") then
         self:run_callback("line", "challenge", line)
         -- Don't return here because parse chunks must be set to nil.
         -- if not self.callbacks["challenge"] then return true end
 
-        self.__parse_chunk_game.newrd = string.match(line, "^Your new RD will be ([%d%.]+)") + 0
+        self.__parse_chunk_game.newrd = tonumber(string.match(line, "^Your new RD will be ([%d%.]+)"))
         self:run_callback("challenge", self.__parse_chunk_player1,
             self.__parse_chunk_player2, self.__parse_chunk_game)
         self.__parse_chunk_game = nil
@@ -572,7 +569,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["game_end"] then return true end
 
         local gameno, whandle, bhandle, reason, result = string.match(line, "^{Game (%d+) %((%a+) vs%. (%a+)%) ([^}]+)} ([01%-%*]+)")
-        gameno = gameno + 0
+        gameno = tonumber(gameno)
         self:run_callback("game_end", gameno, whandle, bhandle, reason, result)
 
     elseif string.find(line, "^{Game %d+ %(%a+ vs%. %a+%) [^}]+}") then
@@ -580,7 +577,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["game_start"] then return true end
 
         local gameno, whandle, bhandle, reason = string.match(line, "^{Game (%d+) %((%a+) vs%. (%a+)%) ([^}]+)}")
-        gameno = gameno + 0
+        gameno = tonumber(gameno)
         self:run_callback("game_start", gameno, whandle, bhandle, reason)
 
     -- Style 12
@@ -620,7 +617,7 @@ function client:parseline(line) --{{{
 
         if self.ivars[IV_MS] then
             m.lastmin, m.lastsec, m.lastms = string.match(last_time, "(%d+):(%d+)%.(%d+)")
-            m.lastms = m.lastms + 0
+            m.lastms = tonumber(m.lastms)
         else
             m.lastmin, m.lastsec = string.match(last_time, "(%d+):(%d+)")
         end
@@ -656,20 +653,19 @@ function client:parseline(line) --{{{
             m.flip = true
         end
 
-        -- Convert to integer
-        m.doublepawn = m.doublepawn + 0
-        m.lastirr = m.lastirr + 0
-        m.gameno = m.gameno + 0
-        m.relation = m.relation + 0
-        m.itime = m.itime + 0
-        m.inc = m.inc + 0
-        m.wstrength = m.wstrength + 0
-        m.bstrength = m.bstrength + 0
-        m.wtime = m.wtime + 0
-        m.btime = m.btime + 0
-        m.moveno = m.moveno + 0
-        m.lastmin = m.lastmin + 0
-        m.lastsec = m.lastsec + 0
+        m.doublepawn = tonumber(m.doublepawn)
+        m.lastirr = tonumber(m.lastirr)
+        m.gameno = tonumber(m.gameno)
+        m.relation = tonumber(m.relation)
+        m.itime = tonumber(m.itime)
+        m.inc = tonumber(m.inc)
+        m.wstrength = tonumber(m.wstrength)
+        m.bstrength = tonumber(m.bstrength)
+        m.wtime = tonumber(m.wtime)
+        m.btime = tonumber(m.btime)
+        m.moveno = tonumber(m.moveno)
+        m.lastmin = tonumber(m.lastmin)
+        m.lastsec = tonumber(m.lastsec)
 
         self:run_callback("style12", m)
 
@@ -680,7 +676,7 @@ function client:parseline(line) --{{{
 
         local gameno, wname, bname, reason, result = string.match(line,
             "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)} ([%*%d%p]+)")
-        gameno = gameno + 0
+        gameno = tonumber(gameno)
         self:run_callback("game_end", gameno, wname, bname, reason, result)
     elseif string.find(line, "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)}") then
         self:run_callback("line", "game_start", line)
@@ -688,7 +684,7 @@ function client:parseline(line) --{{{
 
         local gameno, wname, bname, reason = string.match(line,
             "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)}")
-        gameno = gameno + 0
+        gameno = tonumber(gameno)
         self:run_callback("game_start", gameno, wname, bname, reason)
 
     -- Offers
@@ -760,7 +756,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["offer_takeback"] then return true end
 
         local handle, halfmoves = string.match(line, "^(%a+) would like to take back (%d+) half move")
-        halfmoves = halfmoves + 0
+        halfmoves = tonumber(halfmoves)
         self:run_callback("offer_takeback", handle, halfmoves)
 
     elseif string.find(line, "^%a+ accepts the takeback request") then
@@ -790,11 +786,10 @@ function client:parseline(line) --{{{
             "i=(%d+) r=([ru]) tp=(%a+) c=([%?WB]) rr=(%d+-%d+) " ..
             "a=([ft]) f=([ft])")
 
-        -- Convert to integers
-        seek.index = seek.index + 0
-        seek.titles = seek.titles + 0
-        seek.time = seek.time + 0
-        seek.increment = seek.increment + 0
+        seek.index = tonumber(seek.index)
+        seek.titles = tonumber(seek.titles)
+        seek.time = tonumber(seek.time)
+        seek.increment = tonumber(seek.increment)
 
         -- Convert to booleans
         if seek.rated == "r" then
@@ -823,7 +818,7 @@ function client:parseline(line) --{{{
         local indexes = {}
 
         for index in string.gmatch(line, "%d+") do
-            table.insert(indexes, index + 0)
+            table.insert(indexes, tonumber(index))
         end
 
         self:run_callback("seekremove", indexes)

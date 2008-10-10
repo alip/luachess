@@ -311,17 +311,17 @@ function client:parseline(line) --{{{
             end
         else
             self:run_callback("line", "login", line)
-            self:run_callback("login")
+            self:run_callback("login", line)
         end
     elseif string.find(line, self.password_prompt) then
         self:run_callback("line", "password", line)
-        self:run_callback("password")
+        self:run_callback("password", line)
     elseif string.find(line, self.prompt) then
         self:run_callback("line", "prompt", line)
         if not self.callbacks["prompt"] then return true end
 
         local ptime = string.match(line, self.prompt)
-        self:run_callback("prompt", ptime)
+        self:run_callback("prompt", line, ptime)
 
     -- Authentication
     elseif string.find(line, "^A name should be at least three characters long") then
@@ -334,14 +334,14 @@ function client:parseline(line) --{{{
     elseif string.find(line, "^Sorry, names may be at most 17 characters long") then
         self:run_callback("line", "handle_too_long", line)
         if self.callbacks["handle_too_long"] then
-            self:run_callback("handle_too_long")
+            self:run_callback("handle_too_long", line)
         else
             error("handle too long")
         end
     elseif string.find(line, "^Sorry, names can only consist of lower and upper case letters") then
         self:run_callback("line", "handle_not_alpha", line)
         if self.callbacks["handle_not_alpha"] then
-            self:run_callback("handle_not_alpha")
+            self:run_callback("handle_not_alpha", line)
         else
             error("handle not alpha")
         end
@@ -350,11 +350,11 @@ function client:parseline(line) --{{{
         if not self.callbacks["handle_not_registered"] then return true end
 
         local handle = string.match(line, "^\"(%w+)\"")
-        self:run_callback("handle_not_registered", handle)
+        self:run_callback("handle_not_registered", line, handle)
     elseif string.find(line, "^%*%*%*%* Invalid password! %*%*%*%*") then
         self:run_callback("line", "password_invalid", line)
         if self.callbacks["password_invalid"] then
-            self:run_callback("password_invalid")
+            self:run_callback("password_invalid", line)
         else
             error("invalid password")
         end
@@ -365,7 +365,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["session_start"] then return true end
 
         local handle, tags = string.match(line, "^%*%*%*%* Starting FICS session as (%a+)(.*)")
-        self:run_callback("session_start", handle, totaglist(tags))
+        self:run_callback("session_start", line, handle, totaglist(tags))
     elseif string.find(line, "^%d+ %(.*%) .*") then
         self:run_callback("line", "news", line)
         if not self.callbacks["news"] then return true end
@@ -374,7 +374,7 @@ function client:parseline(line) --{{{
 
         no = tonumber(no)
 
-        self:run_callback("news", no, date, subject)
+        self:run_callback("news", line, no, date, subject)
     elseif string.find(line, "^You have %d+ messages? %(%d+ unread%)") then
         self:run_callback("line", "messages", line)
         if not self.callbacks["messages"] then return true end
@@ -384,7 +384,7 @@ function client:parseline(line) --{{{
         total = tonumber(total)
         unread = tonumber(unread)
 
-        self:run_callback("messages", total, unread)
+        self:run_callback("messages", line, total, unread)
 
     -- Notifications
     elseif string.find(line, "^Present company includes:") then
@@ -392,37 +392,37 @@ function client:parseline(line) --{{{
         if not self.callbacks["notify_include"] then return true end
 
         local handles = string.match(line, "^Present company includes: ([%a ]+)%.")
-        self:run_callback("notify_include", tolist(handles))
+        self:run_callback("notify_include", line, tolist(handles))
     elseif string.find(line, "^Your arrival was noted by:") then
         self:run_callback("line", "notify_note", line)
         if not self.callbacks["notify_note"] then return true end
 
         local handles = string.match(line, "^Your arrival was noted by: ([%a ]+)%.")
-        self:run_callback("notify_note", tolist(handles))
+        self:run_callback("notify_note", line, tolist(handles))
     elseif string.find(line, "^Notification: %a+ has arrived and isn't on your notify list") then
         self:run_callback(line, "notify_arrive", line)
         if not self.callbacks["notify_arrive"] then return true end
 
         local handle = string.match(line, "^Notification: (%a+) has arrived")
-        self:run_callback("notify_arrive", handle, false)
+        self:run_callback("notify_arrive", line, handle, false)
     elseif string.find(line, "^Notification: %a+ has arrived") then
         self:run_callback("line", "notify_arrive", line)
         if not self.callbacks["notify_arrive"] then return true end
 
         local handle = string.match(line, "^Notification: (%a+) has arrived")
-        self:run_callback("notify_arrive", handle, true)
+        self:run_callback("notify_arrive", line, handle, true)
     elseif string.find(line, "^Notification: %a+ has departed and isn't on your notify list") then
         self:run_callback(line, "notify_arrive", line)
         if not self.callbacks["notify_depart"] then return true end
 
         local handle = string.match(line, "^Notification: (%a+) has departed")
-        self:run_callback("notify_depart", handle, false)
+        self:run_callback("notify_depart", line, handle, false)
     elseif string.find(line, "^Notification: %a+ has departed") then
         self:run_callback("line", "notify_depart", line)
         if not self.callbacks["notify_depart"] then return true end
 
         local handle = string.match(line, "^Notification: (%a+) has departed")
-        self:run_callback("notify_depart", handle, true)
+        self:run_callback("notify_depart", line, handle, true)
 
     -- Chat (may be wrapped by server.)
     elseif string.find(line, "^%a+[%u%*%(%)]* tells you:") then
@@ -432,7 +432,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["tell"] then return true end
 
         local handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) tells you: (.*)")
-        self:run_callback("tell", handle, totaglist(tags), message)
+        self:run_callback("tell", line, handle, totaglist(tags), message)
     elseif string.find(line, "^%a+[%u%*%(%)]*%(%d+%):") then
         self._last_wrapping_group = "chantell"
 
@@ -441,7 +441,7 @@ function client:parseline(line) --{{{
 
         local handle, tags, channel, message = string.match(line, "^(%a+)([%u%*%(%)]*)%((%d+)%): (.*)")
         channel = tonumber(channel)
-        self:run_callback("chantell", handle, totaglist(tags), channel, message)
+        self:run_callback("chantell", line, handle, totaglist(tags), channel, message)
     elseif string.find(line, "^:") then
         self._last_wrapping_group = "qtell"
 
@@ -449,7 +449,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["qtell"] then return true end
 
         local message = string.match(line, "^:(.*)")
-        self:run_callback("qtell", message)
+        self:run_callback("qtell", line, message)
     elseif string.find(line, "^--> %a+[%u%*%(%)]*.*") then
         self._last_wrapping_group = "it"
 
@@ -457,7 +457,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["it"] then return true end
 
         local handle, tags, message = string.match(line, "^--> (%a+)([%u%*%(%)]*)(.*)")
-        self:run_callback("it", handle, totaglist(tags), message)
+        self:run_callback("it", line, handle, totaglist(tags), message)
     elseif string.find(line, "^%a+[%u%*%(%)]* shouts:") then
         self._last_wrapping_group = "shout"
 
@@ -465,7 +465,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["shout"] then return true end
 
         local handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) shouts: (.*)")
-        self:run_callback("shout", handle, totaglist(tags), message)
+        self:run_callback("shout", line, handle, totaglist(tags), message)
     elseif string.find(line, "^%a+[%u%*%(%)]* c%-shouts:") then
         self._last_wrapping_group = "cshout"
 
@@ -473,7 +473,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["cshout"] then return true end
 
         local handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) c%-shouts: (.*)")
-        self:run_callback("cshout", handle, totaglist(tags), message)
+        self:run_callback("cshout", line, handle, totaglist(tags), message)
     elseif string.find(line, "^ +%*%*ANNOUNCEMENT%*%*") then
         self._last_wrapping_group = "announcement"
 
@@ -481,10 +481,10 @@ function client:parseline(line) --{{{
         if not self.callbacks["announcement"] then return true end
 
         local handle, message = string.match(line, "^ +%*%*ANNOUNCEMENT%*%* from (%a+): (.*)")
-        self:run_callback("announcement", handle, message)
+        self:run_callback("announcement", line, handle, message)
     elseif not self.ivars[IV_NOWRAP] and string.find(line, "^\\   ") then
         self:run_callback("line", "wrap", line)
-        self:run_callback("wrap", self._last_wrapping_group)
+        self:run_callback("wrap", line, self._last_wrapping_group)
 
     -- Challenge
     elseif string.find(line, "^%a+ updates the match request.") then
@@ -544,7 +544,7 @@ function client:parseline(line) --{{{
 
         if rated == false then
             -- Don't wait for the next line to call the callback
-            self:run_callback("challenge", self.__parse_chunk_player1,
+            self:run_callback("challenge", line, self.__parse_chunk_player1,
                 self.__parse_chunk_player2, self.__parse_chunk_game)
             self.__parse_chunk_game = nil
             self.__parse_chunk_player1 = nil
@@ -567,7 +567,7 @@ function client:parseline(line) --{{{
         -- if not self.callbacks["challenge"] then return true end
 
         self.__parse_chunk_game.newrd = tonumber(string.match(line, "^Your new RD will be ([%d%.]+)"))
-        self:run_callback("challenge", self.__parse_chunk_player1,
+        self:run_callback("challenge", line, self.__parse_chunk_player1,
             self.__parse_chunk_player2, self.__parse_chunk_game)
         self.__parse_chunk_game = nil
         self.__parse_chunk_player1 = nil
@@ -579,7 +579,7 @@ function client:parseline(line) --{{{
         if not self.callbacks["partner"] then return true end
 
         local handle = string.match(line, "^(%a+) ")
-        self:run_callback("partner", handle)
+        self:run_callback("partner", line, handle)
 
     -- Game start/end
     elseif string.find(line, "^{Game %d+ %(%a+ vs%. %a+%) [^}]+} [01%-%*]+") then
@@ -588,7 +588,7 @@ function client:parseline(line) --{{{
 
         local gameno, whandle, bhandle, reason, result = string.match(line, "^{Game (%d+) %((%a+) vs%. (%a+)%) ([^}]+)} ([01%-%*]+)")
         gameno = tonumber(gameno)
-        self:run_callback("game_end", gameno, whandle, bhandle, reason, result)
+        self:run_callback("game_end", line, gameno, whandle, bhandle, reason, result)
 
     elseif string.find(line, "^{Game %d+ %(%a+ vs%. %a+%) [^}]+}") then
         self:run_callback("line", "game_start", line)
@@ -596,7 +596,7 @@ function client:parseline(line) --{{{
 
         local gameno, whandle, bhandle, reason = string.match(line, "^{Game (%d+) %((%a+) vs%. (%a+)%) ([^}]+)}")
         gameno = tonumber(gameno)
-        self:run_callback("game_start", gameno, whandle, bhandle, reason)
+        self:run_callback("game_start", line ,gameno, whandle, bhandle, reason)
 
     -- Style 12
     elseif string.find(line, "^<12>") then
@@ -685,7 +685,7 @@ function client:parseline(line) --{{{
         m.lastmin = tonumber(m.lastmin)
         m.lastsec = tonumber(m.lastsec)
 
-        self:run_callback("style12", m)
+        self:run_callback("style12", line, m)
 
     -- Game start, end
     elseif string.find(line, "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)} ([%*%d%p]+)") then
@@ -703,7 +703,7 @@ function client:parseline(line) --{{{
         local gameno, wname, bname, reason = string.match(line,
             "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)}")
         gameno = tonumber(gameno)
-        self:run_callback("game_start", gameno, wname, bname, reason)
+        self:run_callback("game_start", line, gameno, wname, bname, reason)
 
     -- Offers
     elseif string.find(line, "^%a+ offers you a draw%.") then
@@ -711,63 +711,63 @@ function client:parseline(line) --{{{
         if not self.callbacks["offer_draw"] then return true end
 
         local handle = string.match(line, "^(%a+) offers you a draw%.")
-        self:run_callback("offer_draw", handle)
+        self:run_callback("offer_draw", line, handle)
 
     elseif string.find(line, "^%a+ accepts the draw request") then
         self:run_callback("line", "draw_accept", line)
         if not self.callbacks["draw_accept"] then return true end
 
         local handle = string.match(line, "^(%a+) accepts the draw request")
-        self:run_callback("draw_accept", handle)
+        self:run_callback("draw_accept", line, handle)
 
     elseif string.find(line, "^%a+ declines the draw request") then
         self:run_callback("line", "draw_decline", line)
         if not self.callbacks["draw_decline"] then return true end
 
         local handle = string.match(line, "^(%a+) declines the draw request")
-        self:run_callback("draw_decline", handle)
+        self:run_callback("draw_decline", line, handle)
 
     elseif string.find(line, "^%a+ would like to abort the game") then
         self:run_callback("line", "offer_abort", line)
         if not self.callbacks["offer_abort"] then return true end
 
         local handle = string.match(line, "^(%a+) would like to abort the game")
-        self:run_callback("offer_abort", handle)
+        self:run_callback("offer_abort", line, handle)
 
     elseif string.find(line, "^%a+ accepts the abort request") then
         self:run_callback("line", "abort_accept", line)
         if not self.callbacks["abort_accept"] then return true end
 
         local handle = string.match(line, "^(%a+) accepts the abort request")
-        self:run_callback("abort_accept", handle)
+        self:run_callback("abort_accept", line, handle)
 
     elseif string.find(line, "^%a+ declines the abort request") then
         self:run_callback("line", "abort_decline", line)
         if not self.callbacks["abort_decline"] then return true end
 
         local handle = string.match(line, "^(%a+) declines the abort request")
-        self:run_callback("abort_decline", handle)
+        self:run_callback("abort_decline", line, handle)
 
     elseif string.find(line, "^%a+ would like to adjourn the game") then
         self:run_callback("line", "offer_adjourn", line)
         if not self.callbacks["offer_adjourn"] then return true end
 
         local handle = string.match(line, "^(%a+) would like to adjourn the game")
-        self:run_callback("offer_adjourn", handle)
+        self:run_callback("offer_adjourn", line, handle)
 
     elseif string.find(line, "^%a+ accepts the adjourn request") then
         self:run_callback("line", "adjourn_accept", line)
         if not self.callbacks["adjourn_accept"] then return true end
 
         local handle = string.match(line, "^(%a+) accepts the adjourn request")
-        self:run_callback("adjourn_accept", handle)
+        self:run_callback("adjourn_accept", line, handle)
 
     elseif string.find(line, "^%a+ declines the adjourn request") then
         self:run_callback("line", "adjourn_decline", line)
         if not self.callbacks["adjourn_decline"] then return true end
 
         local handle = string.match(line, "^(%a+) declines the adjourn request")
-        self:run_callback("adjourn_decline", handle)
+        self:run_callback("adjourn_decline", line, handle)
 
     elseif string.find(line, "^%a+ would like to take back %d+ half move") then
         self:run_callback("line", "offer_takeback", line)
@@ -775,21 +775,21 @@ function client:parseline(line) --{{{
 
         local handle, halfmoves = string.match(line, "^(%a+) would like to take back (%d+) half move")
         halfmoves = tonumber(halfmoves)
-        self:run_callback("offer_takeback", handle, halfmoves)
+        self:run_callback("offer_takeback", line, handle, halfmoves)
 
     elseif string.find(line, "^%a+ accepts the takeback request") then
         self:run_callback("line", "takeback_accept", line)
         if not self.callbacks["takeback_accept"] then return true end
 
         local handle = string.match(line, "^(%a+) accepts the takeback request")
-        self:run_callback("takeback_accept", handle)
+        self:run_callback("takeback_accept", line, handle)
 
     elseif string.find(line, "^%a+ declines the takeback request") then
         self:run_callback("line", "takeback_decline", line)
         if not self.callbacks["takeback_decline"] then return true end
 
         local handle = string.match(line, "^(%a+) declines the takeback request")
-        self:run_callback("takeback_decline", handle)
+        self:run_callback("takeback_decline", line, handle)
 
     -- Seeks
     elseif self.ivars[IV_SEEKINFO] and string.find(line, "^<s>") then
@@ -828,7 +828,7 @@ function client:parseline(line) --{{{
             seek.formula_checked = false
         end
 
-        self:run_callback("seek", seek)
+        self:run_callback("seek", line, seek)
     elseif (self.ivars[IV_SEEKINFO] or self.ivars[IV_SEEKREMOVE]) and string.find(line, "^<sr>") then
         self:run_callback("line", "seekremove", line)
         if not self.callbacks["seekremove"] then return true end
@@ -839,19 +839,19 @@ function client:parseline(line) --{{{
             table.insert(indexes, tonumber(index))
         end
 
-        self:run_callback("seekremove", indexes)
+        self:run_callback("seekremove", line, indexes)
     elseif self.ivars[IV_SEEKINFO] and string.find(line, "^<sc>") then
         self:run_callback("line", "seekclear", line)
-        self:run_callback("seekclear")
+        self:run_callback("seekclear", line)
 
     -- Telnet
     elseif line == IAC_WILL_ECHO then
         self:run_callback("line", "iacwillecho", line)
-        self:run_callback("iacwillecho")
+        self:run_callback("iacwillecho", line)
 
     elseif line == IAC_WONT_ECHO then
         self:run_callback("line", "iacwontecho", line)
-        self:run_callback("iacwontecho")
+        self:run_callback("iacwontecho", line)
 
     -- The rest is unknown
     else

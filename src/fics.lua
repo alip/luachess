@@ -135,11 +135,11 @@ function client:new(argtable) --{{{
         _linebuf = "",
         _empty_lines = 0,
         _got_gresponse = false,
+        _last_wrapping_group = nil,
     }
 
     -- Set necessary interface variables.
     instance.ivars[IV_DEFPROMPT] = true
-    instance.ivars[IV_NOWRAP] = true
     instance.ivars[IV_LOCK] = true
 
     client_instance = setmetatable(instance, { __index = client })
@@ -424,14 +424,18 @@ function client:parseline(line) --{{{
         local handle = string.match(line, "^Notification: (%a+) has departed")
         self:run_callback("notify_depart", handle, true)
 
-    -- Chat
+    -- Chat (may be wrapped by server.)
     elseif string.find(line, "^%a+[%u%*%(%)]* tells you:") then
+        self._last_wrapping_group = "tell"
+
         self:run_callback("line", "tell", line)
         if not self.callbacks["tell"] then return true end
 
         local handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) tells you: (.*)")
         self:run_callback("tell", handle, totaglist(tags), message)
     elseif string.find(line, "^%a+[%u%*%(%)]*%(%d+%):") then
+        self._last_wrapping_group = "chantell"
+
         self:run_callback("line", "chantell", line)
         if not self.callbacks["chantell"] then return true end
 
@@ -439,35 +443,48 @@ function client:parseline(line) --{{{
         channel = tonumber(channel)
         self:run_callback("chantell", handle, totaglist(tags), channel, message)
     elseif string.find(line, "^:") then
+        self._last_wrapping_group = "qtell"
+
         self:run_callback("line", "qtell", line)
         if not self.callbacks["qtell"] then return true end
 
         local message = string.match(line, "^:(.*)")
         self:run_callback("qtell", message)
     elseif string.find(line, "^--> %a+[%u%*%(%)]*.*") then
+        self._last_wrapping_group = "it"
+
         self:run_callback("line", "it", line)
         if not self.callbacks["it"] then return true end
 
         local handle, tags, message = string.match(line, "^--> (%a+)([%u%*%(%)]*)(.*)")
         self:run_callback("it", handle, totaglist(tags), message)
     elseif string.find(line, "^%a+[%u%*%(%)]* shouts:") then
+        self._last_wrapping_group = "shout"
+
         self:run_callback("line", "shout", line)
         if not self.callbacks["shout"] then return true end
 
         local handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) shouts: (.*)")
         self:run_callback("shout", handle, totaglist(tags), message)
     elseif string.find(line, "^%a+[%u%*%(%)]* c%-shouts:") then
+        self._last_wrapping_group = "cshout"
+
         self:run_callback("line", "cshout", line)
         if not self.callbacks["cshout"] then return true end
 
         local handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) c%-shouts: (.*)")
         self:run_callback("cshout", handle, totaglist(tags), message)
     elseif string.find(line, "^ +%*%*ANNOUNCEMENT%*%*") then
+        self._last_wrapping_group = "announcement"
+
         self:run_callback("line", "announcement", line)
         if not self.callbacks["announcement"] then return true end
 
         local handle, message = string.match(line, "^ +%*%*ANNOUNCEMENT%*%* from (%a+): (.*)")
         self:run_callback("announcement", handle, message)
+    elseif not self.ivars[IV_NOWRAP] and string.find(line, "^\\   ") then
+        self:run_callback("line", "wrap", line)
+        self:run_callback("wrap", self._last_wrapping_group)
 
     -- Challenge
     elseif string.find(line, "^%a+ updates the match request.") then

@@ -67,7 +67,7 @@ client:register_callback("line", function (client, group, line)
     end
     io.flush()
     end)
-client:register_callback("password", function(client)
+client:register_callback("password", function(client, line)
     SENDING_PASSWORD = true
     end)
 --}}}

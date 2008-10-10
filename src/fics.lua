@@ -258,18 +258,21 @@ function client:run_callback(group, ...) --{{{
     assert(type(self.callbacks[group]) == "table", "callback group not table")
 
     for index, func in ipairs(self.callbacks[group]) do
+        local status, value
         if type(func) == "function" then
-            local status, value = pcall(func, self, unpack(arg))
+            status, value = pcall(func, self, unpack(arg))
         elseif type(func) == "thread" then
-            local status, value = coroutine.resume(func, self, unpack(arg))
+            status, value = coroutine.resume(func, self, unpack(arg))
         else
             error("callback is neither a function nor a coroutine.")
         end
 
-        if status == false then
+        if not status then
             if self.sock ~= nil then self:disconnect() end
-            error("Error: Callback group: " .. group .. " index: " .. index .. " failed: " .. value)
-        elseif value == false then
+            error(string.format("callback failed, group: %s index: %d\n%s",
+                group, index, value))
+        end
+        if value == false then
             -- Callback returned/yielded false, don't run any other callback.
             break
         end

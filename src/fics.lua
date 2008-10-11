@@ -847,6 +847,21 @@ function client:parseline(line) --{{{
         self:run_callback("line", "seekclear", line)
         self:run_callback("seekclear", line)
 
+    -- Examined/Observed
+    elseif string.find(line, "^Game %d+: %a+ moves:") then
+        self:run_callback("line", "move", line)
+        if not self.callbacks["move"] then return true end
+
+        local gameno, handle, move = string.match(line, "^Game (%d+): (%a+) moves: (.*)")
+        self:run_callback("move", line, tonumber(gameno), handle, move)
+
+    elseif string.find(line, "^%a+ is examining a game%.") then
+        self:run_callback("line", "examining", line)
+        if not self.callbacks["examining"] then return true end
+
+        local handle = string.match(line, "^(%a+) is examining a game%.")
+        self:run_callback("examining", line, handle)
+
     -- Telnet
     elseif line == IAC_WILL_ECHO then
         self:run_callback("line", "iacwillecho", line)

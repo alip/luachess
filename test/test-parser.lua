@@ -29,7 +29,7 @@ function test_prompt_login()
 
     local called = false
 
-    c:register_callback("login", function (client) called = true end)
+    c:register_callback("login", function () called = true end)
     c:parseline("login: ")
 
     assert(called == true, "parsing login failed")
@@ -40,7 +40,7 @@ function test_prompt_password()
 
     local called = false
 
-    c:register_callback("password", function (client) called = true end)
+    c:register_callback("password", function () called = true end)
     c:parseline("password: ")
 
     assert(called == true, "parsing password failed")
@@ -51,7 +51,7 @@ function test_prompt_server()
 
     local called = false
 
-    c:register_callback("prompt", function (client) called = true end)
+    c:register_callback("prompt", function () called = true end)
     c:parseline("fics% ")
 
     assert(called == true, "parsing prompt failed")
@@ -62,7 +62,7 @@ function test_handle_too_short()
 
     local called = false
 
-    c:register_callback("handle_too_short", function (client) called = true end)
+    c:register_callback("handle_too_short", function () called = true end)
     c:parseline("A name should be at least three characters long. Please try again.")
 
     assert(called == true, "parsing handle_too_short failed")
@@ -73,7 +73,7 @@ function test_handle_too_long()
 
     local called = false
 
-    c:register_callback("handle_too_long", function (client) called = true end)
+    c:register_callback("handle_too_long", function () called = true end)
     c:parseline("Sorry, names may be at most 17 characters long. Please try again.")
 
     assert(called == true, "parsing handle_too_long failed")
@@ -85,7 +85,7 @@ function test_handle_not_registered()
     local called = false
     local phandle
 
-    c:register_callback("handle_not_registered", function (client, handle)
+    c:register_callback("handle_not_registered", function (client, line, handle)
         called = true
         phandle = handle
         end)
@@ -100,7 +100,7 @@ function test_invalid_password()
 
     local called = false
 
-    c:register_callback("password_invalid", function (client) called = true end)
+    c:register_callback("password_invalid", function () called = true end)
     c:parseline("**** Invalid password! **** RANDOM DATA ATAD MODNAR")
 
     assert(called == true, "parsing password_invalid failed")
@@ -112,7 +112,7 @@ function test_session_start()
     local called = false
     local phandle, ptags
 
-    c:register_callback("session_start", function (client, handle, tags)
+    c:register_callback("session_start", function (client, line, handle, tags)
         called = true
         phandle = handle
         ptags = tags
@@ -133,7 +133,7 @@ function test_news()
     local called = false
     local pno, pdate, psubject
 
-    c:register_callback("news", function (client, no, date, subject)
+    c:register_callback("news", function (client, line, no, date, subject)
         called = true
         pno = no
         pdate = date
@@ -154,7 +154,7 @@ function test_messages()
     local called = false
     local ptotal, punread
 
-    c:register_callback("messages", function (client, total, unread)
+    c:register_callback("messages", function (client, line, total, unread)
         called = true
         ptotal = total
         punread = unread
@@ -172,7 +172,7 @@ function test_notify_include()
     local called = false
     local phandles
 
-    c:register_callback("notify_include", function (client, handles)
+    c:register_callback("notify_include", function (client, line, handles)
         called = true
         phandles = handles
         end)
@@ -190,7 +190,7 @@ function test_notify_note()
     local called = false
     local phandles
 
-    c:register_callback("notify_note", function (client, handles)
+    c:register_callback("notify_note", function (client, line, handles)
         called = true
         phandles = handles
         end)
@@ -208,7 +208,7 @@ function test_notify_arrive1()
     local called = false
     local phandle, pinlist
 
-    c:register_callback("notify_arrive", function (client, handle, inlist)
+    c:register_callback("notify_arrive", function (client, line, handle, inlist)
         called = true
         phandle = handle
         pinlist = inlist
@@ -226,7 +226,7 @@ function test_notify_arrive2()
     local called = false
     local phandle, pinlist
 
-    c:register_callback("notify_arrive", function (client, handle, inlist)
+    c:register_callback("notify_arrive", function (client, line, handle, inlist)
         called = true
         phandle = handle
         pinlist = inlist
@@ -244,7 +244,7 @@ function test_notify_depart1()
     local called = false
     local phandle, pinlist
 
-    c:register_callback("notify_depart", function (client, handle, inlist)
+    c:register_callback("notify_depart", function (client, line, handle, inlist)
         called = true
         phandle = handle
         pinlist = inlist
@@ -262,7 +262,7 @@ function test_notify_depart2()
     local called = false
     local phandle, pinlist
 
-    c:register_callback("notify_depart", function (client, handle, inlist)
+    c:register_callback("notify_depart", function (client, line, handle, inlist)
         called = true
         phandle = handle
         pinlist = inlist
@@ -280,7 +280,7 @@ function test_tell()
     local called = false
     local phandle, ptags, pmessage
 
-    c:register_callback("tell", function (client, handle, tags, message)
+    c:register_callback("tell", function (client, line, handle, tags, message)
         called = true
         phandle = handle
         ptags = tags
@@ -302,7 +302,7 @@ function test_chantell()
     local called = false
     local phandle, ptags, pchannel, pmessage
 
-    c:register_callback("chantell", function (client, handle, tags, channel, message)
+    c:register_callback("chantell", function (client, line, handle, tags, channel, message)
         called = true
         phandle = handle
         ptags = tags
@@ -326,7 +326,7 @@ function test_qtell()
     local called = false
     local pmessage
 
-    c:register_callback("qtell", function (client, message)
+    c:register_callback("qtell", function (client, line, message)
         called = true
         pmessage = message
         end)
@@ -342,7 +342,7 @@ function test_it()
     local called = false
     local phandle, ptags, pmessage
 
-    c:register_callback("it", function (client, handle, tags, message)
+    c:register_callback("it", function (client, line, handle, tags, message)
         called = true
         phandle = handle
         ptags = tags
@@ -364,7 +364,7 @@ function test_shout()
     local called = false
     local phandle, ptags, pmessage
 
-    c:register_callback("shout", function (client, handle, tags, message)
+    c:register_callback("shout", function (client, line, handle, tags, message)
         called = true
         phandle = handle
         ptags = tags
@@ -386,7 +386,7 @@ function test_cshout()
     local called = false
     local phandle, ptags, pmessage
 
-    c:register_callback("cshout", function (client, handle, tags, message)
+    c:register_callback("cshout", function (client, line, handle, tags, message)
         called = true
         phandle = handle
         ptags = tags
@@ -408,7 +408,7 @@ function test_announcement()
     local called = false
     local phandle, pmessage
 
-    c:register_callback("announcement", function (client, handle, message)
+    c:register_callback("announcement", function (client, line, handle, message)
         called = true
         phandle = handle
         pmessage = message
@@ -426,7 +426,7 @@ function test_challenge_unrated()
     local called = false
     local p1, p2, pgame
 
-    c:register_callback("challenge", function (client, player1, player2, game)
+    c:register_callback("challenge", function (client, line, player1, player2, game)
         called = true
         p1 = player1
         p2 = player2
@@ -455,7 +455,7 @@ function test_challenge_updated()
     local called = false
     local p1, p2, pgame
 
-    c:register_callback("challenge", function (client, player1, player2, game)
+    c:register_callback("challenge", function (client, line, player1, player2, game)
         called = true
         p1 = player1
         p2 = player2
@@ -474,7 +474,7 @@ function test_challenge_issued()
     local called = false
     local p1, p2, pgame
 
-    c:register_callback("challenge", function (client, player1, player2, game)
+    c:register_callback("challenge", function (client, line, player1, player2, game)
         called = true
         p1 = player1
         p2 = player2
@@ -492,7 +492,7 @@ function test_challenge_colour()
     local called = false
     local p1, p2, pgame
 
-    c:register_callback("challenge", function (client, player1, player2, game)
+    c:register_callback("challenge", function (client, line, player1, player2, game)
         called = true
         p1 = player1
         p2 = player2
@@ -510,7 +510,7 @@ function test_challenge_rated()
     local called = false
     local p1, p2, pgame
 
-    c:register_callback("challenge", function (client, player1, player2, game)
+    c:register_callback("challenge", function (client, line, player1, player2, game)
         called = true
         p1 = player1
         p2 = player2
@@ -533,7 +533,7 @@ function test_partner()
     local called = false
     local phandle
 
-    c:register_callback("partner", function (client, handle)
+    c:register_callback("partner", function (client, line, handle)
         called = true
         phandle = handle
         end)
@@ -549,7 +549,7 @@ function test_style12()
     local called = false
     local pmatch
 
-    c:register_callback("style12", function (client, match)
+    c:register_callback("style12", function (client, line, match)
         called = true
         pmatch = match
         end)
@@ -605,7 +605,7 @@ function test_style12_ms()
     local called = false
     local pmatch
 
-    c:register_callback("style12", function (client, match)
+    c:register_callback("style12", function (client, line, match)
         called = true
         pmatch = match
         end)

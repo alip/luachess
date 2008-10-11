@@ -485,6 +485,24 @@ function client:parseline(line) --{{{
 
         local handle, message = string.match(line, "^ +%*%*ANNOUNCEMENT%*%* from (%a+): (.*)")
         self:run_callback("announcement", line, handle, message)
+    elseif string.find(line, "^%a+[%u%*%(%)]*%([%d%-EP]+%)%[%d+%] kibitzes:") then
+        self._last_wrapping_group = "kibitz"
+
+        self:run_callback("line", "kibitz", line)
+        if not self.callbacks["kibitz"] then return true end
+
+        local handle, tags, rating, gameno, message = string.match(line,
+            "^(%a+)([%u%*%(%)]*)%(([%d%-EP]+)%)%[(%d+)%] kibitzes: (.*)")
+        self:run_callback("kibitz", line, handle, totaglist(tags), rating, tonumber(gameno), message)
+    elseif string.find(line, "^%a+[%u%*%(%)]*%([%d%-EP]+%)%[%d+%] whispers:") then
+        self._last_wrapping_group = "whisper"
+
+        self:run_callback("line", "whisper", line)
+        if not self.callbacks["whisper"] then return true end
+
+        local handle, tags, rating, gameno, message = string.match(line,
+            "^(%a+)([%u%*%(%)]*)%(([%d%-EP]+)%)%[(%d+)%] whispers: (.*)")
+        self:run_callback("whisper", line, handle, totaglist(tags), rating, tonumber(gameno), message)
     elseif not self.ivars[IV_NOWRAP] and string.find(line, "^\\   ") then
         self:run_callback("line", "wrap", line)
         self:run_callback("wrap", line, self._last_wrapping_group)

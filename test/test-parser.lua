@@ -420,6 +420,54 @@ function test_announcement()
     assert(pmessage == "can has cheeseburger?", "announcement failed to grab message")
 end
 
+function test_kibitz()
+    c = fics.client:new{}
+
+    local called = false
+    local phandle, ptags, prating, pgameno, pmessage
+
+    c:register_callback("kibitz", function (client, line, handle, tags, rating, gameno, message)
+        called = true
+        phandle = handle
+        ptags = tags
+        prating = rating
+        pgameno = gameno
+        pmessage = message
+        end)
+    c:parseline("thespiritofTAL(CA)(66)[666] kibitzes: goodbye cruel world")
+
+    assert(called == true, "parsing kibitz failed")
+    assert(phandle == "thespiritofTAL", "kibitz failed to grab handle")
+    assert(ptags[1] == "CA", "kibitz failed to grab tags")
+    assert(prating == "66", "kibitz failed to grab rating")
+    assert(pgameno == 666, "kibitz failed to grab gameno")
+    assert(pmessage == "goodbye cruel world", "kibitz failed to grab message")
+end
+
+function test_whisper()
+    c = fics.client:new{}
+
+    local called = false
+    local phandle, ptags, prating, pgameno, pmessage
+
+    c:register_callback("whisper", function (client, line, handle, tags, rating, gameno, message)
+        called = true
+        phandle = handle
+        ptags = tags
+        prating = rating
+        pgameno = gameno
+        pmessage = message
+        end)
+    c:parseline("thespiritofTAL(CA)(66)[666] whispers: goodbye cruel world")
+
+    assert(called == true, "parsing whisper failed")
+    assert(phandle == "thespiritofTAL", "whisper failed to grab handle")
+    assert(ptags[1] == "CA", "whisper failed to grab tags")
+    assert(prating == "66", "whisper failed to grab rating")
+    assert(pgameno == 666, "whisper failed to grab gameno")
+    assert(pmessage == "goodbye cruel world", "whisper failed to grab message")
+end
+
 function test_challenge_unrated()
     c = fics.client:new{}
 

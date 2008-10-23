@@ -191,6 +191,8 @@ function client:disconnect() --{{{
     self.sock = nil
 end --}}}
 function client:send(data) --{{{
+    assert(self.sock ~= nil, "not connected")
+
     if self.timeseal then
         data, errmsg = timeseal.encode(data)
         if data == nil then

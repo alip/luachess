@@ -39,6 +39,6 @@ upload-www: doc
 	rsync --delete -avze ssh doc/* shell.nonlogic.org:htdocs/html/projects/luafics
 	ssh shell.nonlogic.org chmod -R o+r htdocs/html/projects/luafics
 
-.phony: all clean install uninstall doc
-.default: all
+.PHONY: all clean install uninstall doc
+.DEFAULT: all
 

@@ -891,6 +891,7 @@ function client:parseline(line) --{{{
 
     -- The rest is unknown
     else
+        self._last_wrapping_group = nil
         self:run_callback("line", nil, line)
     end
 

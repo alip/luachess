@@ -1,0 +1,36 @@
+LuaFics
+=======
+:Author: Ali Polatel
+:Email: polatel@itu.edu.tr
+
+Lua module to interact with the Free Internet Chess Server.
+It provides a simple, callback-driven way to interact with the chess server with
+builtin timeseal.
+
+Simple example:
+[code,lua]
+~~~~~~~~~~~~~~~~~~~~
+require("fics")
+
+bot = fics.client{ timeseal = true }
+bot:register_callback("login", function(client)
+    client:send("handle")
+    end)
+bot:register_callback("password", function (client)
+    client:send("password")
+    end)
+bot:register_callback("tell", function (client, line, handle, tags, message)
+    client:send("tell " .. handle .. " what's up?")
+    end)
+
+status, errmsg = bot:connect()
+if status == nil then error(errmsg) end
+
+status, errmsg = bot:loop()
+if status == nil and errormsg ~= "closed" then
+    error(errormsg)
+else
+    print("* Connection closed")
+end
+~~~~~~~~~~~~~~~~~~~~
+

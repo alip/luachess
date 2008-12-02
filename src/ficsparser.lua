@@ -50,6 +50,7 @@ HANDLE_NOT_REGISTERED = 7
 PASSWORD_INVALID = 8
 WELCOME = 10
 NEWS = 11
+MESSAGES = 12
 
 -- Tags
 TAG_ADMIN = -1
@@ -107,7 +108,10 @@ welcome = (P"**** Starting FICS session as " * handle_tags) / function (...)
 news = (number * P" (" * C((t.print - P")")^1) * P") " * C(t.print^1) * e) / function (...)
     return {NEWS, unpack(arg)}
     end
+messages = (P"You have " * number * P" messages (" * number * " unread)." * e) / function (...)
+    return {MESSAGES, unpack(arg)}
+    end
 
-session_start = welcome + news
+session_start = welcome + news + messages
 
 p = prompts + authentication + session_start

@@ -374,21 +374,14 @@ function client:parseline(line) --{{{
     elseif parsed[1] == parser.NEWS then
         self:run_callback("line", "news", line)
         self:run_callback("news", line, parsed[2], parsed[3], parsed[4])
+
+    elseif parsed[1] == parser.MESSAGES then
+        self:run_callback("line", "messages", line)
+        self:run_callback("messages", line, parsed[2], parsed[3])
     end
 
-    if string.find(line, "^You have %d+ messages? %(%d+ unread%)") then
-        self:run_callback("line", "messages", line)
-        if not self.callbacks["messages"] then return true end
-
-        local total, unread = string.match(line, "^You have (%d+) messages? %((%d+) unread%)")
-
-        total = tonumber(total)
-        unread = tonumber(unread)
-
-        self:run_callback("messages", line, total, unread)
-
     -- Notifications
-    elseif string.find(line, "^Present company includes:") then
+    if string.find(line, "^Present company includes:") then
         self:run_callback("line", "notify_include", line)
         if not self.callbacks["notify_include"] then return true end
 

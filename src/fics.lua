@@ -385,91 +385,69 @@ function client:parseline(line) --{{{
         self:run_callback("line", "notify_note", line)
         self:run_callback("notify_note", line, parsed[2])
 
-    elseif parser[1] == parser.NOTIFY_ARRIVE then
+    elseif parsed[1] == parser.NOTIFY_ARRIVE then
         self:run_callback(line, "notify_arrive", line)
         self:run_callback("notify_arrive", line, parsed[2], parsed[3])
 
-    elseif parser[1]== parser.NOTIFY_DEPART then
+    elseif parsed[1] == parser.NOTIFY_DEPART then
         self:run_callback(line, "notify_depart", line)
         self:run_callback("notify_depart", line, parsed[2], parsed[3])
-    end
 
     -- Chat (may be wrapped by server.)
-    if string.find(line, "^%a+[%u%*%(%)]* tells you:") then
+    elseif parsed[1] == parser.TELL then
         self._last_wrapping_group = "tell"
 
         self:run_callback("line", "tell", line)
-        if not self.callbacks["tell"] then return true end
+        self:run_callback("tell", line, parsed[2], parsed[3], parsed[4])
 
-        local handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) tells you: (.*)")
-        self:run_callback("tell", line, handle, totaglist(tags), message)
-    elseif string.find(line, "^%a+[%u%*%(%)]*%(%d+%):") then
+    elseif parsed[1] == parser.CHANTELL then
         self._last_wrapping_group = "chantell"
 
         self:run_callback("line", "chantell", line)
-        if not self.callbacks["chantell"] then return true end
+        self:run_callback("chantell", line, parsed[2], parsed[3], parsed[4], parsed[5])
 
-        local handle, tags, channel, message = string.match(line, "^(%a+)([%u%*%(%)]*)%((%d+)%): (.*)")
-        channel = tonumber(channel)
-        self:run_callback("chantell", line, handle, totaglist(tags), channel, message)
-    elseif string.find(line, "^:") then
+    elseif parsed[1] == parser.QTELL then
         self._last_wrapping_group = "qtell"
 
         self:run_callback("line", "qtell", line)
-        if not self.callbacks["qtell"] then return true end
+        self:run_callback("qtell", line, parsed[2])
 
-        local message = string.match(line, "^:(.*)")
-        self:run_callback("qtell", line, message)
-    elseif string.find(line, "^--> %a+[%u%*%(%)]*.*") then
+    elseif parsed[1] == parser.IT then
         self._last_wrapping_group = "it"
 
         self:run_callback("line", "it", line)
-        if not self.callbacks["it"] then return true end
+        self:run_callback("it", line, parsed[1], parsed[2], parsed[3])
 
-        local handle, tags, message = string.match(line, "^--> (%a+)([%u%*%(%)]*)(.*)")
-        self:run_callback("it", line, handle, totaglist(tags), message)
-    elseif string.find(line, "^%a+[%u%*%(%)]* shouts:") then
+    elseif parsed[1] == parser.SHOUT then
         self._last_wrapping_group = "shout"
 
         self:run_callback("line", "shout", line)
-        if not self.callbacks["shout"] then return true end
+        self:run_callback("shout", line, parsed[1], parsed[2], parsed[3])
 
-        local handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) shouts: (.*)")
-        self:run_callback("shout", line, handle, totaglist(tags), message)
-    elseif string.find(line, "^%a+[%u%*%(%)]* c%-shouts:") then
+    elseif parsed[1] == parser.CSHOUT then
         self._last_wrapping_group = "cshout"
 
         self:run_callback("line", "cshout", line)
-        if not self.callbacks["cshout"] then return true end
+        self:run_callback("cshout", line, parsed[1], parsed[2], parsed[3])
 
-        local handle, tags, message = string.match(line, "^(%a+)([%u%*%(%)]*) c%-shouts: (.*)")
-        self:run_callback("cshout", line, handle, totaglist(tags), message)
-    elseif string.find(line, "^ +%*%*ANNOUNCEMENT%*%*") then
+    elseif parsed[1] == parser.ANNOUNCEMENT then
         self._last_wrapping_group = "announcement"
 
         self:run_callback("line", "announcement", line)
-        if not self.callbacks["announcement"] then return true end
+        self:run_callback("announcement", line, parsed[1], parsed[2])
 
-        local handle, message = string.match(line, "^ +%*%*ANNOUNCEMENT%*%* from (%a+): (.*)")
-        self:run_callback("announcement", line, handle, message)
-    elseif string.find(line, "^%a+[%u%*%(%)]*%([%d%-EP]+%)%[%d+%] kibitzes:") then
+    elseif parsed[1] == parser.KIBITZ then
         self._last_wrapping_group = "kibitz"
 
         self:run_callback("line", "kibitz", line)
-        if not self.callbacks["kibitz"] then return true end
+        self:run_callback("kibitz", line, parsed[1], parsed[2], parsed[3], parsed[4], parsed[5])
 
-        local handle, tags, rating, gameno, message = string.match(line,
-            "^(%a+)([%u%*%(%)]*)%(([%d%-EP]+)%)%[(%d+)%] kibitzes: (.*)")
-        self:run_callback("kibitz", line, handle, totaglist(tags), rating, tonumber(gameno), message)
-    elseif string.find(line, "^%a+[%u%*%(%)]*%([%d%-EP]+%)%[%d+%] whispers:") then
+    elseif parsed[1] == parser.WHISPER then
         self._last_wrapping_group = "whisper"
 
         self:run_callback("line", "whisper", line)
-        if not self.callbacks["whisper"] then return true end
+        self:run_callback("whisper", line, parsed[1], parsed[2], parsed[3], parsed[4], parsed[5])
 
-        local handle, tags, rating, gameno, message = string.match(line,
-            "^(%a+)([%u%*%(%)]*)%(([%d%-EP]+)%)%[(%d+)%] whispers: (.*)")
-        self:run_callback("whisper", line, handle, totaglist(tags), rating, tonumber(gameno), message)
     elseif not self.ivars[IV_NOWRAP] and string.find(line, "^\\   ") then
         self:run_callback("line", "wrap", line)
         self:run_callback("wrap", line, self._last_wrapping_group)

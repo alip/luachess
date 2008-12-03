@@ -378,48 +378,27 @@ function client:parseline(line) --{{{
     elseif parsed[1] == parser.MESSAGES then
         self:run_callback("line", "messages", line)
         self:run_callback("messages", line, parsed[2], parsed[3])
-    end
 
     -- Notifications
-    if string.find(line, "^Present company includes:") then
+    elseif parsed[1] == parser.NOTIFY_INCLUDE then
         self:run_callback("line", "notify_include", line)
-        if not self.callbacks["notify_include"] then return true end
+        self:run_callback("notify_include", line, parsed[2])
 
-        local handles = string.match(line, "^Present company includes: ([%a ]+)%.")
-        self:run_callback("notify_include", line, tolist(handles))
-    elseif string.find(line, "^Your arrival was noted by:") then
+    elseif parsed[1] == parser.NOTIFY_NOTE then
         self:run_callback("line", "notify_note", line)
-        if not self.callbacks["notify_note"] then return true end
+        self:run_callback("notify_note", line, parsed[2])
 
-        local handles = string.match(line, "^Your arrival was noted by: ([%a ]+)%.")
-        self:run_callback("notify_note", line, tolist(handles))
-    elseif string.find(line, "^Notification: %a+ has arrived and isn't on your notify list") then
+    elseif parser[1] == parser.NOTIFY_ARRIVE then
         self:run_callback(line, "notify_arrive", line)
-        if not self.callbacks["notify_arrive"] then return true end
+        self:run_callback("notify_arrive", line, parsed[2], parsed[3])
 
-        local handle = string.match(line, "^Notification: (%a+) has arrived")
-        self:run_callback("notify_arrive", line, handle, false)
-    elseif string.find(line, "^Notification: %a+ has arrived") then
-        self:run_callback("line", "notify_arrive", line)
-        if not self.callbacks["notify_arrive"] then return true end
-
-        local handle = string.match(line, "^Notification: (%a+) has arrived")
-        self:run_callback("notify_arrive", line, handle, true)
-    elseif string.find(line, "^Notification: %a+ has departed and isn't on your notify list") then
-        self:run_callback(line, "notify_arrive", line)
-        if not self.callbacks["notify_depart"] then return true end
-
-        local handle = string.match(line, "^Notification: (%a+) has departed")
-        self:run_callback("notify_depart", line, handle, false)
-    elseif string.find(line, "^Notification: %a+ has departed") then
-        self:run_callback("line", "notify_depart", line)
-        if not self.callbacks["notify_depart"] then return true end
-
-        local handle = string.match(line, "^Notification: (%a+) has departed")
-        self:run_callback("notify_depart", line, handle, true)
+    elseif parser[1]== parser.NOTIFY_DEPART then
+        self:run_callback(line, "notify_depart", line)
+        self:run_callback("notify_depart", line, parsed[2], parsed[3])
+    end
 
     -- Chat (may be wrapped by server.)
-    elseif string.find(line, "^%a+[%u%*%(%)]* tells you:") then
+    if string.find(line, "^%a+[%u%*%(%)]* tells you:") then
         self._last_wrapping_group = "tell"
 
         self:run_callback("line", "tell", line)

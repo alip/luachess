@@ -34,6 +34,7 @@ local Cmt = lpeg.Cmt
 local Ct = lpeg.Ct
 local P = lpeg.P
 local R = lpeg.R
+local S = lpeg.S
 local match = lpeg.match
 local t = lpeg.locale()
 
@@ -48,9 +49,13 @@ HANDLE_TOO_LONG = 5
 HANDLE_NOT_ALPHA = 6
 HANDLE_NOT_REGISTERED = 7
 PASSWORD_INVALID = 8
-WELCOME = 10
-NEWS = 11
-MESSAGES = 12
+WELCOME = 9
+NEWS = 10
+MESSAGES = 11
+NOTIFY_INCLUDE = 12
+NOTIFY_NOTE = 13
+NOTIFY_ARRIVE = 14
+NOTIFY_DEPART = 15
 
 -- Tags
 TAG_ADMIN = -1
@@ -114,4 +119,34 @@ messages = (P"You have " * number * P" messages (" * number * " unread)." * e) /
 
 session_start = welcome + news + messages
 
-p = prompts + authentication + session_start
+-- Notifications
+notify_include = (P"Present company includes: " * (handle * S" .")^1 * e) / function (...)
+    return {NOTIFY_INCLUDE, arg}
+    end
+notify_note = (P"Your arrival was noted by: " * (handle * S" .")^1 * e) / function (...)
+    return {NOTIFY_NOTE, arg}
+    end
+notify_arrive = P"Notification: " * handle * P" has arrived"  * C(P" and isn't on your notify list"^0) /
+    function (c1, c2)
+        local ret = {NOTIFY_ARRIVE, c1}
+        if c2 == "" then
+            table.insert(ret, true)
+        else
+            table.insert(ret, false)
+        end
+        return ret
+    end
+notify_depart = P"Notification: " * handle * P" has departed"  * C(P" and isn't on your notify list"^0) /
+    function (c1, c2)
+        local ret = {NOTIFY_DEPART, c1}
+        if c2 == "" then
+            table.insert(ret, true)
+        else
+            table.insert(ret, false)
+        end
+        return ret
+    end
+
+notification = notify_include + notify_note + notify_arrive + notify_depart
+
+p = prompts + authentication + session_start + notification

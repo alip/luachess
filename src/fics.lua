@@ -354,10 +354,7 @@ function client:parseline(line) --{{{
         end
     elseif parsed[1] == parser.HANDLE_NOT_REGISTERED then
         self:run_callback("line", "handle_not_registered", line)
-        if not self.callbacks["handle_not_registered"] then return true end
-
-        local handle = string.match(line, "^\"(%w+)\"")
-        self:run_callback("handle_not_registered", line, handle)
+        self:run_callback("handle_not_registered", line, parsed[2])
     elseif parsed[1] == parser.PASSWORD_INVALID then
         self:run_callback("line", "password_invalid", line)
         if self.callbacks["password_invalid"] then

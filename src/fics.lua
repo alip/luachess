@@ -453,94 +453,53 @@ function client:parseline(line) --{{{
         self:run_callback("wrap", line, self._last_wrapping_group)
 
     -- Challenge
-    elseif string.find(line, "^%a+ updates the match request.") then
+    elseif parsed[1] == parser.CHALLENGE_UPDATE then
         self:run_callback("line", "challenge", line)
         if not self.callbacks["challenge"] then return true end
-        self.__parse_chunk_game = { update = true }
-    elseif string.find(line, "^Challenge:") or string.find(line, "^Issuing:") or string.find(line, "^Your game will be:") then
+        self.__parse_chunk_game_update = true
+
+    elseif parsed[1] == parser.MATCH_REQUEST then
         self:run_callback("line", "challenge", line)
-        if not self.callbacks["challenge"] then return true end
 
-        local pattern, issued
-        if string.find(line, "^Challenge:") then
-            pattern = "^Challenge: "
-            issued = false
-        elseif string.find(line, "^Issuing:") then
-            pattern = "^Issuing: "
-            issued = true
+        if self.__parse_chunk_game_update then
+            parsed[2].update = true
         else
-            pattern = "^Your game will be:"
+            parsed[2].update = false
         end
-        pattern = pattern .. "(%a+) %(([%dEP-]+)%) ?(%[?%a*%]?) (%a+) %(([%dEP-]+)%) (%a+) (%a+) (%d+) (%d+)(.*)%."
+        self.__parse_chunk_game_update = nil
 
-        local handle1, rating1, colour, handle2, rating2, rated, gtype, time, inc, chunk = string.match(line, pattern)
-
-        -- if rating1 == "----" then rating1 = nil end
-        -- if rating2 == "----" then rating2 = nil end
-
-        if rated == "rated" then rated = true
-        elseif rated == "unrated" then rated = false
-        else error("unknown rated value '" .. rated .. "'") end
-
-        if colour ~= nil then
-            colour = string.match(colour, "%[(%a+)%]")
-        end
-
-        if chunk ~= "" then
-            if string.find(chunk, "^ Loaded from wild/") then
-                wildtype = string.match(chunk, "^ Loaded from wild/(%d+)")
-            end
-        end
-
-        self.__parse_chunk_player1 = { handle = handle1, rating = rating1, colour = colour }
-        self.__parse_chunk_player2 = { handle = handle2, rating = rating2 }
-
-        if self.__parse_chunk_game == nil then
-            self.__parse_chunk_game = { update = false, type = gtype,
-                wtype = wildtype, rated = rated, time = tonumber(time),
-                inc = tonumber(inc), issued = issued }
-        else
-            self.__parse_chunk_game.type = gtype
-            self.__parse_chunk_game.wtype = wildtype
-            self.__parse_chunk_game.rated = rated
-            self.__parse_chunk_game.time = tonumber(inc)
-            self.__parse_chunk_game.inc = tonumber(inc)
-            self.__parse_chunk_game.issued = issued
-        end
-
-        if rated == false then
+        if parsed[2].rated == false then
             -- Don't wait for the next line to call the callback
-            self:run_callback("challenge", line, self.__parse_chunk_player1,
-                self.__parse_chunk_player2, self.__parse_chunk_game)
-            self.__parse_chunk_game = nil
-            self.__parse_chunk_player1 = nil
-            self.__parse_chunk_player2 = nil
+            self:run_callback("challenge", line, parsed[3], parsed[4], parsed[2])
+        else
+            self.__parse_chunk_game = parsed[2]
+            self.__parse_chunk_player1 = parsed[3]
+            self.__parse_chunk_player2 = parsed[4]
         end
-    elseif string.find(line, "^Your %a+ rating will change:") then
+
+    elseif parsed[1] == parser.RATING_CHANGE then
         self:run_callback("line", "challenge", line)
         if not self.callbacks["challenge"] then return true end
 
-        self.__parse_chunk_game.win,
-        self.__parse_chunk_game.draw,
-        self.__parse_chunk_game.loss = string.match(line,
-            "^Your %a+ rating will change:  Win: %+?([%d-%.]+),  Draw: %+?([%d-%.]+),  Loss: %+?([%d-%.]+)")
-        self.__parse_chunk_game.win = tonumber(self.__parse_chunk_game.win)
-        self.__parse_chunk_game.draw = tonumber(self.__parse_chunk_game.draw)
-        self.__parse_chunk_game.loss = tonumber(self.__parse_chunk_game.loss)
-    elseif string.find(line, "^Your new RD will be") then
+        self.__parse_chunk_game.win = parsed[3]
+        self.__parse_chunk_game.draw = parsed[4]
+        self.__parse_chunk_game.loss = parsed[5]
+
+    elseif parsed[1] == parser.NEWRD then
         self:run_callback("line", "challenge", line)
         -- Don't return here because parse chunks must be set to nil.
         -- if not self.callbacks["challenge"] then return true end
 
-        self.__parse_chunk_game.newrd = tonumber(string.match(line, "^Your new RD will be ([%d%.]+)"))
+        self.__parse_chunk_game.newrd = parsed[2]
         self:run_callback("challenge", line, self.__parse_chunk_player1,
             self.__parse_chunk_player2, self.__parse_chunk_game)
         self.__parse_chunk_game = nil
         self.__parse_chunk_player1 = nil
         self.__parse_chunk_player2 = nil
+    end
 
     -- Bughouse
-    elseif string.find(line, "^%a+ offers to be your bughouse partner") then
+    if string.find(line, "^%a+ offers to be your bughouse partner") then
         self:run_callback("line", "partner", line)
         if not self.callbacks["partner"] then return true end
 

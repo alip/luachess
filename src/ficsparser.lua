@@ -26,6 +26,7 @@ local tonumber = tonumber
 local type = type
 local unpack = unpack
 
+local string = string
 local table = table
 
 local C = lpeg.C
@@ -65,6 +66,10 @@ CSHOUT = 21
 ANNOUNCEMENT = 22
 KIBITZ = 23
 WHISPER = 24
+CHALLENGE_UPDATE = 25
+MATCH_REQUEST = 26
+RATING_CHANGE = 27
+NEWRD = 28
 
 -- Tags
 TAG_ADMIN = -1
@@ -106,7 +111,7 @@ function tag_concat(t)
     return tstr
 end
 
-number = R"09" ^ 1 / tonumber
+number = (t.digit + S"+-.")^1 / tonumber
 e = -P(1)
 handle = C(t.alnum^-17)
 admin = P"*" / function () return TAG_ADMIN end
@@ -241,4 +246,67 @@ whisper = handle * tags^0 * P"(" * rating * P")[" * number * P"] whispers: " * C
 
 chat = tell + chantell + qtell + it + shout + cshout + announcement + kibitz + whisper
 
-p = prompts + authentication + session_start + notification + chat
+-- Challenges
+challenge_update = (handle * " updates the match request.") / function (c)
+    return {CHALLENGE_UPDATE, c}
+    end
+match_request = C(P"Challenge" + P"Issuing" + P"Your game will be") * P": " *
+    handle * P" (" * rating * P") " * (C(P"[white" + P"[black") * P"] ")^0 *
+    handle * P" (" * rating * P") " * C(P"rated" + P"unrated") * P" " *
+    C(t.alpha^1) * P" " * number * P" " * number *
+    (P" Loaded from wild/" * number)^0 / function (...)
+        local game = {}
+
+        if arg[1] == "Challenge" then
+            game.issued = false
+        elseif arg[1]== "Issuing" then
+            game.issued = true
+        end
+
+        local colour
+        if arg[4] == "[white" or arg[4] == "[black" then
+            colour = string.sub(arg[4], 2)
+        end
+
+        local player1, player2
+        player1 = {handle = arg[2], rating = arg[3], colour = colour}
+        if colour then
+            player2 = {handle = arg[5], rating = arg[6]}
+
+            if arg[7] == "rated" then
+                game.rated = true
+            else
+                game.rated = false
+            end
+
+            game.type = arg[8]
+            game.time = arg[9]
+            game.increment = arg[10]
+            game.wild_type = arg[11]
+        else
+            player2 = {handle = arg[4], rating = arg[5]}
+
+            if arg[6] == "rated" then
+                game.rated = true
+            else
+                game.rated = false
+            end
+
+            game.type = arg[7]
+            game.time = arg[8]
+            game.increment = arg[9]
+            game.wild_type = arg[10]
+        end
+
+        return {MATCH_REQUEST, game, player1, player2}
+    end
+rating_change = (P"Your " * C(t.alpha^1) * P" rating will change:  Win: " *
+    number * P",  Draw: " * number * P",  Loss: " * number) / function (...)
+        return {RATING_CHANGE, unpack(arg)}
+    end
+newrd = (P"Your new RD will be " * number) / function (c)
+    return {NEWRD, c} end
+
+challenge = challenge_update + match_request + rating_change + newrd
+
+p = prompts + authentication + session_start + notification + chat + challenge

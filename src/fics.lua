@@ -34,12 +34,12 @@ local io = io
 local os = os
 local string = string
 local table = table
-local socket = require("socket")
-local timeseal = require("timeseal")
-local parser = require("ficsparser")
+local socket = require "socket"
+local timeseal = require "timeseal"
+local parser = require "ficsparser"
 --}}}
 --{{{ Variables
-module("fics")
+module "fics"
 _VERSION = 0.02
 
 client = {}
@@ -263,7 +263,7 @@ function client:run_callback(group, ...) --{{{
         elseif type(func) == "thread" then
             status, value = coroutine.resume(func, self, unpack(arg))
         else
-            error("callback is neither a function nor a coroutine.")
+            error "callback is neither a function nor a coroutine."
         end
 
         if not status then
@@ -312,7 +312,7 @@ function client:parseline(line) --{{{
             end
 
             -- Send another newline to get login prompt back.
-            bytes, errmsg = self:send("")
+            bytes, errmsg = self:send ""
             if errmsg ~= nil then
                 return nil, errmsg
             end
@@ -336,21 +336,21 @@ function client:parseline(line) --{{{
         if self.callbacks["handle_too_short"] then
             self:run_callback("handle_too_short")
         else
-            error("handle too short")
+            error "handle too short"
         end
     elseif parsed[1] == parser.HANDLE_TOO_LONG then
         self:run_callback("line", "handle_too_long", line)
         if self.callbacks["handle_too_long"] then
             self:run_callback("handle_too_long", line)
         else
-            error("handle too long")
+            error "handle too long"
         end
     elseif parsed[1] == parser.HANDLE_NOT_ALPHA then
         self:run_callback("line", "handle_not_alpha", line)
         if self.callbacks["handle_not_alpha"] then
             self:run_callback("handle_not_alpha", line)
         else
-            error("handle not alpha")
+            error "handle not alpha"
         end
     elseif parsed[1] == parser.HANDLE_NOT_REGISTERED then
         self:run_callback("line", "handle_not_registered", line)
@@ -360,7 +360,7 @@ function client:parseline(line) --{{{
         if self.callbacks["password_invalid"] then
             self:run_callback("password_invalid", line)
         else
-            error("invalid password")
+            error "invalid password"
         end
 
     -- Session start

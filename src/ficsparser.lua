@@ -70,6 +70,10 @@ CHALLENGE_UPDATE = 25
 MATCH_REQUEST = 26
 RATING_CHANGE = 27
 NEWRD = 28
+PARTNER_OFFER = 29
+GAME_START = 30
+GAME_END = 31
+STYLE12 = 32
 
 -- Tags
 TAG_ADMIN = -1
@@ -309,4 +313,78 @@ newrd = (P"Your new RD will be " * number) / function (c)
 
 challenge = challenge_update + match_request + rating_change + newrd
 
-p = prompts + authentication + session_start + notification + chat + challenge
+-- Bughouse
+partner_offer = (handle * P" offers to be your bughouse partner") / function (c)
+    return {PARTNER_OFFER, c} end
+
+bughouse = partner_offer
+
+-- Game start/end
+game_start = (P"{Game " * number * P" (" * handle * P" vs. " * handle * P") " *
+    C((t.print - P"}")^1) * P"}" * e) / function (...)
+        return {GAME_START, unpack(arg)} end
+game_end = (P"{Game " * number * P" (" * handle * P" vs. " * handle * P") " *
+    C((t.print - P"}")^1) * P"} " * C(S"012-/*"^1) * e) / function (...)
+    return {GAME_END, unpack(arg)} end
+
+-- Style 12
+piece = S"rnbqkbnrpRNBQKBNRP-"
+rank = C(piece^8)
+boolean = S"01" / function (c)
+    if c == "0" then return false end
+    return true end
+not_space = C((t.print - P" ")^1)
+digit = t.digit^1 / tonumber
+time = digit * P":" * digit * (P"." * digit)^0
+style12 = (P"<12> " * (rank * P" ")^8 * C(S"WB") * P" " * number * P" " *
+    boolean * P" " * boolean * P" " * boolean * P" " * boolean * P" " *
+    number * P" " * number * P" " * handle * P" " * handle * P" " *
+    number * P" " * number * P" " * number * P" " * number * P" " *
+    number * P" " * number * P" " * number * P" " * number * P" " *
+    not_space * P" (" * time * P") " * not_space * P" " * (S"01" / tonumber)) / function (...)
+        local m = {}
+
+        -- Ranks
+        local i=1
+        for j=8,1,-1 do
+            m["rank" .. j] = arg[i]
+            i = i + 1
+        end
+
+        m.tomove = arg[9]
+        m.double_pawn_push = arg[10]
+        m.white_castle = arg[11]
+        m.white_long_castle = arg[12]
+        m.black_castle = arg[13]
+        m.black_long_castle = arg[14]
+        m.last_irreversible = arg[15]
+        m.game_no = arg[16]
+        m.white_name = arg[17]
+        m.black_name = arg[18]
+        m.relation = arg[19]
+        m.time = arg[20]
+        m.increment = arg[21]
+        m.white_strength = arg[22]
+        m.black_strength = arg[23]
+        m.white_time = arg[24]
+        m.black_time = arg[25]
+        m.move_no = arg[26]
+        m.last_move_long = arg[27]
+        m.last_minute = arg[28]
+        m.last_second = arg[29]
+        if type(arg[30]) == "number" then
+            m.last_ms = arg[30]
+            m.last_move = arg[31]
+            m.flip = arg[32]
+        else
+            m.last_ms = 0
+            m.last_move = arg[30]
+            m.flip = arg[31]
+        end
+
+        return {STYLE12, m}
+    end
+
+game = game_end + game_start + style12
+
+p = prompts + authentication + session_start + notification + chat + challenge + bughouse + game

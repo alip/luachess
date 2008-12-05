@@ -496,142 +496,29 @@ function client:parseline(line) --{{{
         self.__parse_chunk_game = nil
         self.__parse_chunk_player1 = nil
         self.__parse_chunk_player2 = nil
-    end
 
     -- Bughouse
-    if string.find(line, "^%a+ offers to be your bughouse partner") then
+    elseif parsed[1] == parser.PARTNER_OFFER then
         self:run_callback("line", "partner", line)
-        if not self.callbacks["partner"] then return true end
-
-        local handle = string.match(line, "^(%a+) ")
-        self:run_callback("partner", line, handle)
+        self:run_callback("partner", line, parsed[2])
 
     -- Game start/end
-    elseif string.find(line, "^{Game %d+ %(%a+ vs%. %a+%) [^}]+} [01%-%*]+") then
-        self:run_callback("line", "game_end", line)
-        if not self.callbacks["game_end"] then return true end
-
-        local gameno, whandle, bhandle, reason, result = string.match(line, "^{Game (%d+) %((%a+) vs%. (%a+)%) ([^}]+)} ([01%-%*]+)")
-        gameno = tonumber(gameno)
-        self:run_callback("game_end", line, gameno, whandle, bhandle, reason, result)
-
-    elseif string.find(line, "^{Game %d+ %(%a+ vs%. %a+%) [^}]+}") then
+    elseif parsed[1] == parser.GAME_START then
         self:run_callback("line", "game_start", line)
-        if not self.callbacks["game_start"] then return true end
+        self:run_callback("game_start", line, parsed[2], parsed[3], parsed[4], parsed[5])
 
-        local gameno, whandle, bhandle, reason = string.match(line, "^{Game (%d+) %((%a+) vs%. (%a+)%) ([^}]+)}")
-        gameno = tonumber(gameno)
-        self:run_callback("game_start", line ,gameno, whandle, bhandle, reason)
+    elseif parsed[1] == parser.GAME_END then
+        self:run_callback("line", "game_end", line)
+        self:run_callback("game_end", line, parsed[2], parsed[3], parsed[4], parsed[5], parsed[6])
 
     -- Style 12
-    elseif string.find(line, "^<12>") then
+    elseif parsed[1] == parser.STYLE12 then
         self:run_callback("line", "style12", line)
-        if not self.callbacks["style12"] then return true end
-
-        local pattern = "^<12> " ..
-            "([%a%-]+) ([%a%-]+) ([%a%-]+) ([%a%-]+) " ..
-            "([%a%-]+) ([%a%-]+) ([%a%-]+) ([%a%-]+) " ..
-            "([BW]) ([%d%l-]+) " ..
-            "([01]) ([01]) ([01]) ([01]) " ..
-            "(%d+) (%d+) (%a+) (%a+) " ..
-            "([%d%-]+) (%d+) (%d+) " ..
-            "(%d+) (%d+) ([%d%-]+) ([%d%-]+) " ..
-            "(%d+) ([%a%d%p]+) "
-
-        if self.ivars[IV_MS] then
-            pattern = pattern .. "%((%d+:%d+%.%d+)%) "
-        else
-            pattern = pattern .. "%((%d+:%d+)%) "
-        end
-
-        pattern = pattern .. "([%a%d%p]+) ([01])"
-
-        local last_time
-        local m = {}
-        m.rank8, m.rank7, m.rank6, m.rank5,
-        m.rank4, m.rank3, m.rank2, m.rank1,
-        m.tomove, m.doublepawn,
-        m.wcastle, m.wlcastle, m.bcastle, m.blcastle,
-        m.lastirr, m.gameno, m.wname, m.bname,
-        m.relation, m.itime, m.inc,
-        m.wstrength, m.bstrength, m.wtime, m.btime,
-        m.moveno, m.llastmove, last_time, m.lastmove,
-        m.flip = string.match(line, pattern)
-
-        if self.ivars[IV_MS] then
-            m.lastmin, m.lastsec, m.lastms = string.match(last_time, "(%d+):(%d+)%.(%d+)")
-            m.lastms = tonumber(m.lastms)
-        else
-            m.lastmin, m.lastsec = string.match(last_time, "(%d+):(%d+)")
-        end
-
-        -- Convert to boolean
-        if m.wcastle == 0 then
-            m.wcastle = false
-        else
-            m.wcastle = true
-        end
-
-        if m.wlcastle == 0 then
-            m.wlcastle = false
-        else
-            m.wlcastle = true
-        end
-
-        if m.bcastle == 0 then
-            m.bcastle = false
-        else
-            m.bcastle = true
-        end
-
-        if m.blcastle == 0 then
-            m.blcastle = false
-        else
-            m.blcastle = true
-        end
-
-        if m.flip == 0 then
-            m.flip = false
-        else
-            m.flip = true
-        end
-
-        m.doublepawn = tonumber(m.doublepawn)
-        m.lastirr = tonumber(m.lastirr)
-        m.gameno = tonumber(m.gameno)
-        m.relation = tonumber(m.relation)
-        m.itime = tonumber(m.itime)
-        m.inc = tonumber(m.inc)
-        m.wstrength = tonumber(m.wstrength)
-        m.bstrength = tonumber(m.bstrength)
-        m.wtime = tonumber(m.wtime)
-        m.btime = tonumber(m.btime)
-        m.moveno = tonumber(m.moveno)
-        m.lastmin = tonumber(m.lastmin)
-        m.lastsec = tonumber(m.lastsec)
-
-        self:run_callback("style12", line, m)
-
-    -- Game start, end
-    elseif string.find(line, "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)} ([%*%d%p]+)") then
-        self:run_callback("line", "game_end", line)
-        if not self.callbacks["game_end"] then return true end
-
-        local gameno, wname, bname, reason, result = string.match(line,
-            "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)} ([%*%d%p]+)")
-        gameno = tonumber(gameno)
-        self:run_callback("game_end", gameno, wname, bname, reason, result)
-    elseif string.find(line, "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)}") then
-        self:run_callback("line", "game_start", line)
-        if not self.callbacks["game_start"] then return true end
-
-        local gameno, wname, bname, reason = string.match(line,
-            "^{Game (%d+) %((%a+) vs. (%a+)%) (.*)}")
-        gameno = tonumber(gameno)
-        self:run_callback("game_start", line, gameno, wname, bname, reason)
+        self:run_callback("style12", line, parsed[2])
+    end
 
     -- Offers
-    elseif string.find(line, "^%a+ offers you a draw%.") then
+    if string.find(line, "^%a+ offers you a draw%.") then
         self:run_callback("line", "offer_draw", line)
         if not self.callbacks["offer_draw"] then return true end
 

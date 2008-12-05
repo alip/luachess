@@ -74,6 +74,18 @@ PARTNER_OFFER = 29
 GAME_START = 30
 GAME_END = 31
 STYLE12 = 32
+DRAW = 33
+DRAW_ACCEPT = 34
+DRAW_DECLINE = 35
+ABORT = 36
+ABORT_ACCEPT = 37
+ABORT_DECLINE = 38
+ADJOURN = 39
+ADJOURN_ACCEPT = 40
+ADJOURN_DECLINE = 41
+TAKEBACK = 42
+TAKEBACK_ACCEPT = 43
+TAKEBACK_DECLINE = 44
 
 -- Tags
 TAG_ADMIN = -1
@@ -387,4 +399,34 @@ style12 = (P"<12> " * (rank * P" ")^8 * C(S"WB") * P" " * number * P" " *
 
 game = game_end + game_start + style12
 
-p = prompts + authentication + session_start + notification + chat + challenge + bughouse + game
+-- Offers
+draw = (handle * P" offers you a draw") / function (c)
+    return {DRAW, c} end
+draw_accept = (handle * P" accepts the draw request") / function (c)
+    return {DRAW_ACCEPT, c} end
+draw_decline = (handle * P" declines the draw request") / function (c)
+    return {DRAW_DECLINE, c} end
+abort = (handle * " would like to abort the game") / function (c)
+    return {ABORT, c} end
+abort_accept = (handle * " accepts the abort request") / function (c)
+    return {ABORT_ACCEPT, c} end
+abort_decline = (handle * " declines the abort request") / function (c)
+    return {ABORT_DECLINE, c} end
+adjourn = (handle * " would like to adjourn the game") / function (c)
+    return {ADJOURN, c} end
+adjourn_accept = (handle * " accepts the adjourn request") / function (c)
+    return {ADJOURN_ACCEPT, c} end
+adjourn_decline = (handle * " declines the adjourn request") / function (c)
+    return {ADJOURN_DECLINE, c} end
+takeback = (handle * " would like to take back " * number * " half move") / function (c1, c2)
+    return {TAKEBACK, c1, c2} end
+takeback_accept = (handle * " accepts the takeback request") / function (c)
+    return {TAKEBACK_ACCEPT, c} end
+takeback_decline = (handle * " declines the takeback request") / function (c)
+    return {TAKEBACK_DECLINE, c} end
+
+offer = draw + draw_accept + draw_decline + abort + abort_accept + abort_decline +
+    adjourn + adjourn_accept + adjourn_decline +
+    takeback + takeback_accept + takeback_decline
+
+p = prompts + authentication + session_start + notification + chat + challenge + bughouse + game + offer

@@ -515,96 +515,59 @@ function client:parseline(line) --{{{
     elseif parsed[1] == parser.STYLE12 then
         self:run_callback("line", "style12", line)
         self:run_callback("style12", line, parsed[2])
-    end
 
     -- Offers
-    if string.find(line, "^%a+ offers you a draw%.") then
+    elseif parsed[1] == parser.DRAW then
         self:run_callback("line", "offer_draw", line)
-        if not self.callbacks["offer_draw"] then return true end
+        self:run_callback("offer_draw", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) offers you a draw%.")
-        self:run_callback("offer_draw", line, handle)
-
-    elseif string.find(line, "^%a+ accepts the draw request") then
+    elseif parsed[1] == parser.DRAW_ACCEPT then
         self:run_callback("line", "draw_accept", line)
-        if not self.callbacks["draw_accept"] then return true end
+        self:run_callback("draw_accept", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) accepts the draw request")
-        self:run_callback("draw_accept", line, handle)
-
-    elseif string.find(line, "^%a+ declines the draw request") then
+    elseif parsed[1] == parser.DRAW_DECLINE then
         self:run_callback("line", "draw_decline", line)
-        if not self.callbacks["draw_decline"] then return true end
+        self:run_callback("draw_decline", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) declines the draw request")
-        self:run_callback("draw_decline", line, handle)
-
-    elseif string.find(line, "^%a+ would like to abort the game") then
+    elseif parsed[1] == parser.ABORT then
         self:run_callback("line", "offer_abort", line)
-        if not self.callbacks["offer_abort"] then return true end
+        self:run_callback("offer_abort", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) would like to abort the game")
-        self:run_callback("offer_abort", line, handle)
-
-    elseif string.find(line, "^%a+ accepts the abort request") then
+    elseif parsed[1] == parser.ABORT_ACCEPT then
         self:run_callback("line", "abort_accept", line)
-        if not self.callbacks["abort_accept"] then return true end
+        self:run_callback("abort_accept", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) accepts the abort request")
-        self:run_callback("abort_accept", line, handle)
-
-    elseif string.find(line, "^%a+ declines the abort request") then
+    elseif parsed[1] == parser.ABORT_DECLINE then
         self:run_callback("line", "abort_decline", line)
-        if not self.callbacks["abort_decline"] then return true end
+        self:run_callback("abort_decline", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) declines the abort request")
-        self:run_callback("abort_decline", line, handle)
-
-    elseif string.find(line, "^%a+ would like to adjourn the game") then
+    elseif parsed[1] == parser.ADJOURN then
         self:run_callback("line", "offer_adjourn", line)
-        if not self.callbacks["offer_adjourn"] then return true end
+        self:run_callback("offer_adjourn", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) would like to adjourn the game")
-        self:run_callback("offer_adjourn", line, handle)
-
-    elseif string.find(line, "^%a+ accepts the adjourn request") then
+    elseif parsed[1] == parser.ADJOURN_ACCEPT then
         self:run_callback("line", "adjourn_accept", line)
-        if not self.callbacks["adjourn_accept"] then return true end
+        self:run_callback("adjourn_accept", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) accepts the adjourn request")
-        self:run_callback("adjourn_accept", line, handle)
-
-    elseif string.find(line, "^%a+ declines the adjourn request") then
+    elseif parsed[1] == parser.ADJOURN_DECLINE then
         self:run_callback("line", "adjourn_decline", line)
-        if not self.callbacks["adjourn_decline"] then return true end
+        self:run_callback("adjourn_decline", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) declines the adjourn request")
-        self:run_callback("adjourn_decline", line, handle)
-
-    elseif string.find(line, "^%a+ would like to take back %d+ half move") then
+    elseif parsed[1] == parser.TAKEBACK then
         self:run_callback("line", "offer_takeback", line)
-        if not self.callbacks["offer_takeback"] then return true end
+        self:run_callback("offer_takeback", line, parsed[2], parsed[3])
 
-        local handle, halfmoves = string.match(line, "^(%a+) would like to take back (%d+) half move")
-        halfmoves = tonumber(halfmoves)
-        self:run_callback("offer_takeback", line, handle, halfmoves)
-
-    elseif string.find(line, "^%a+ accepts the takeback request") then
+    elseif parsed[1] == parser.TAKEBACK_ACCEPT then
         self:run_callback("line", "takeback_accept", line)
-        if not self.callbacks["takeback_accept"] then return true end
+        self:run_callback("takeback_accept", line, parsed[2])
 
-        local handle = string.match(line, "^(%a+) accepts the takeback request")
-        self:run_callback("takeback_accept", line, handle)
-
-    elseif string.find(line, "^%a+ declines the takeback request") then
+    elseif parsed[1] == parser.TAKEBACK_DECLINE then
         self:run_callback("line", "takeback_decline", line)
-        if not self.callbacks["takeback_decline"] then return true end
-
-        local handle = string.match(line, "^(%a+) declines the takeback request")
-        self:run_callback("takeback_decline", line, handle)
+        self:run_callback("takeback_decline", line, parsed[2])
+    end
 
     -- Seeks
-    elseif self.ivars[IV_SEEKINFO] and string.find(line, "^<s>") then
+    if self.ivars[IV_SEEKINFO] and string.find(line, "^<s>") then
         self:run_callback("line", "seek", line)
         if not self.callbacks["style12"] then return true end
 

@@ -19,11 +19,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef LUAFICS_GUARD_TIMESEAL_H
-#define LUAFICS_GUARD_TIMESEAL_H 1
+#ifndef LUAFICS_GUARD_FICSUTILS_H
+#define LUAFICS_GUARD_FICSUTILS_H 1
 
 #define MODNAME "ficsutils"
-#define VERSION "0.01"
+#define VERSION "0.02"
 
 #define BUF_SIZE 8192
 #define TIMESTAMP_SIZE 64
@@ -53,5 +53,5 @@ static const luaL_reg R[] = {
     {NULL,              NULL}
 };
 
-#endif /* LUAFICS_GUARD_TIMESEAL_H */
+#endif /* LUAFICS_GUARD_FICSUTILS_H */
 

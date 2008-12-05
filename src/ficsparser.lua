@@ -39,7 +39,7 @@ local S = lpeg.S
 local match = lpeg.match
 local t = lpeg.locale()
 
-module("ficsparser")
+module "ficsparser"
 
 -- Ids
 PROMPT_LOGIN = 1

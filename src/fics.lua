@@ -564,63 +564,23 @@ function client:parseline(line) --{{{
     elseif parsed[1] == parser.TAKEBACK_DECLINE then
         self:run_callback("line", "takeback_decline", line)
         self:run_callback("takeback_decline", line, parsed[2])
-    end
 
     -- Seeks
-    if self.ivars[IV_SEEKINFO] and string.find(line, "^<s>") then
+    elseif parsed[1] == parser.SEEKINFO then
         self:run_callback("line", "seek", line)
-        if not self.callbacks["style12"] then return true end
+        self:run_callback("seek", line, parsed[2])
 
-        local seek = {}
-        seek.index, seek.from, seek.titles, seek.rating, seek.time,
-        seek.increment, seek.rated, seek.type, seek.colour, seek.rating_range,
-        seek.automatic, seek.formula_checked = string.match(line,
-            "^<s> (%d+) w=(%a+) ti=(%d+) rt=(%d+[ EP]) t=(%d+) " ..
-            "i=(%d+) r=([ru]) tp=(%a+) c=([%?WB]) rr=(%d+-%d+) " ..
-            "a=([ft]) f=([ft])")
-
-        seek.index = tonumber(seek.index)
-        seek.titles = tonumber(seek.titles)
-        seek.time = tonumber(seek.time)
-        seek.increment = tonumber(seek.increment)
-
-        -- Convert to booleans
-        if seek.rated == "r" then
-            seek.rated = true
-        else
-            seek.rated = false
-        end
-
-        if seek.automatic == "t" then
-            seek.automatic = true
-        else
-            seek.automatic = false
-        end
-
-        if seek.formula_checked == "t" then
-            seek.formula_checked = true
-        else
-            seek.formula_checked = false
-        end
-
-        self:run_callback("seek", line, seek)
-    elseif (self.ivars[IV_SEEKINFO] or self.ivars[IV_SEEKREMOVE]) and string.find(line, "^<sr>") then
+    elseif parsed[1] == parser.SEEKREMOVE then
         self:run_callback("line", "seekremove", line)
-        if not self.callbacks["seekremove"] then return true end
+        self:run_callback("seekremove", line, parsed[2])
 
-        local indexes = {}
-
-        for index in string.gmatch(line, "%d+") do
-            table.insert(indexes, tonumber(index))
-        end
-
-        self:run_callback("seekremove", line, indexes)
-    elseif self.ivars[IV_SEEKINFO] and string.find(line, "^<sc>") then
+    elseif parsed[1] == parser.SEEKCLEAR then
         self:run_callback("line", "seekclear", line)
         self:run_callback("seekclear", line)
+    end
 
     -- Examined/Observed
-    elseif string.find(line, "^Game %d+: %a+ moves:") then
+    if string.find(line, "^Game %d+: %a+ moves:") then
         self:run_callback("line", "move", line)
         if not self.callbacks["move"] then return true end
 

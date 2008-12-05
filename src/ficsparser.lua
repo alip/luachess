@@ -86,6 +86,9 @@ ADJOURN_DECLINE = 41
 TAKEBACK = 42
 TAKEBACK_ACCEPT = 43
 TAKEBACK_DECLINE = 44
+SEEKINFO = 45
+SEEKREMOVE = 46
+SEEKCLEAR = 47
 
 -- Tags
 TAG_ADMIN = -1
@@ -342,8 +345,8 @@ game_end = (P"{Game " * number * P" (" * handle * P" vs. " * handle * P") " *
 -- Style 12
 piece = S"rnbqkbnrpRNBQKBNRP-"
 rank = C(piece^8)
-boolean = S"01" / function (c)
-    if c == "0" then return false end
+boolean = S"01tf" / function (c)
+    if c == "0" or c =="f" then return false end
     return true end
 not_space = C((t.print - P" ")^1)
 digit = t.digit^1 / tonumber
@@ -429,4 +432,35 @@ offer = draw + draw_accept + draw_decline + abort + abort_accept + abort_decline
     adjourn + adjourn_accept + adjourn_decline +
     takeback + takeback_accept + takeback_decline
 
-p = prompts + authentication + session_start + notification + chat + challenge + bughouse + game + offer
+-- Seek
+rated = S"ru" / function (c)
+    if c == "u" then return false end
+    return true end
+seekinfo = (P"<s> " * number * P" w=" * handle * P" ti=" * number * P" rt=" * rating *
+    (P"  " + P" ") * P"t=" * number * P" i=" * number * P" r=" * rated  *
+    P" tp=" * C(t.alpha^1) * P" c=" * C(S"?WB") * P" rr=" * digit * P"-" * digit *
+    P" a=" * boolean * P" f=" * boolean) / function (...)
+        local seek = {}
+
+        seek.index = arg[1]
+        seek.from = arg[2]
+        seek.titles = arg[3]
+        seek.rating = arg[4]
+        seek.time = arg[5]
+        seek.increment = arg[6]
+        seek.rated = arg[7]
+        seek.type = arg[8]
+        seek.colour = arg[9]
+        seek.rating_range = {arg[10], arg[11]}
+        seek.automatic = arg[12]
+        seek.formula_checked = arg[13]
+
+        return {SEEKINFO, seek}
+    end
+seekremove = (P"<sr> " * (number * P" "^0)^1) / function (...)
+    return {SEEKREMOVE, arg} end
+seekclear = P"<sc>" / function () return {SEEKCLEAR} end
+
+seek = seekinfo + seekremove + seekclear
+
+p = prompts + authentication + session_start + notification + chat + challenge + bughouse + game + offer + seek

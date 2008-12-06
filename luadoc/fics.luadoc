@@ -11,16 +11,15 @@
 
 module("fics")
 
---- Turn string delimited with a specific delimiter into a string
--- @param str space delimited string
--- @param delim delimiter, defaults to space
--- @return array of strings
-local function tolist(str, delim) end
+--- Turn a tag id into a tag string
+-- @param id Tag id
+-- @return tag string
+function tag_tostring(id) end
 
---- Turn a string like "(CA)(SR)(*)(B)" into an array of tags.
--- @param tags string which has the list of tags
--- @return array of tags
-local function totaglist(tags) end
+-- Turn a table of tag ids into a string
+-- @param t Table of tag ids
+-- @return tag string like "(*)(SR)(TM)"
+function tag_concat(t) end
 
 --- Create a new fics.client instance
 -- @param argtable A table which may have the following elements;<br />

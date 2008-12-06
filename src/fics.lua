@@ -89,27 +89,37 @@ IV_SINGLEBOARD = 35
 --}}}
 --}}}
 --{{{ Utility functions
-local function tolist(str, delim) --{{{
-    local delim = delim or " "
-    local strlist = {}
-    if str ~= "" then
-        for element in string.gmatch(str, "[^" .. delim .. "]+") do
-            table.insert(strlist, element)
-        end
+--{{{ Helper functions for tags
+function tag_tostring(tag)
+    if tag == parser.TAG_ADMIN then
+        return "*"
+    elseif tag == parser.TAG_BLIND then
+        return "B"
+    elseif tag == parser.TAG_CA then
+        return "CA"
+    elseif tag == parser.TAG_COMPUTER then
+        return "C"
+    elseif tag == parser.TAG_SR then
+        return "SR"
+    elseif tag == parser.TAG_TD then
+        return "TD"
+    elseif tag == parser.TAG_TM then
+        return "TM"
+    else
+        error("unknown tag " .. tag)
     end
+end
 
-    return strlist
-end --}}}
-local function totaglist(tags) --{{{
-    local taglist = {}
-    if tags ~= "" then
-        for tag in string.gmatch(tags, "%(([%u%*]+)%)") do
-            table.insert(taglist, tag)
-        end
+function tag_concat(t)
+    assert(type(t) == "table", "argument is not a table")
+    local tstr = ""
+    for i, tag in ipairs(t) do
+        assert(type(tag) == "number", "tag table element at index " .. i .. " not a number")
+        tstr = tstr .. "(" .. tag_tostring(tag) .. ")"
     end
-
-    return taglist
+    return tstr
 end --}}}
+--}}}
 --}}}
 --{{{ fics.client functions
 function client:new(argtable) --{{{

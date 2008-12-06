@@ -104,37 +104,6 @@ TAG_SR = -5
 TAG_TD = -6
 TAG_TM = -7
 
--- Helper functions for tags
-function tag_tostring(tag)
-    if tag == TAG_ADMIN then
-        return "*"
-    elseif tag == TAG_BLIND then
-        return "B"
-    elseif tag == TAG_CA then
-        return "CA"
-    elseif tag == TAG_COMPUTER then
-        return "C"
-    elseif tag == TAG_SR then
-        return "SR"
-    elseif tag == TAG_TD then
-        return "TD"
-    elseif tag == TAG_TM then
-        return "TM"
-    else
-        error("unknown tag " .. tag)
-    end
-end
-
-function tag_concat(t)
-    assert(type(t) == "table", "argument is not a table")
-    local tstr = ""
-    for i, tag in ipairs(t) do
-        assert(type(tag) == "number", "tag table element at index " .. i .. " not a number")
-        tstr = tstr .. "(" .. tag_tostring(tag) .. ")"
-    end
-    return tstr
-end
-
 number = (t.digit + S"+-.")^1 / tonumber
 e = -P(1)
 handle = C(t.alnum^-17)

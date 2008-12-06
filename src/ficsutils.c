@@ -37,7 +37,7 @@
 
 #include "ficsutils.h"
 
-static int l_ts_encode(lua_State *L) {
+static int l_timeseal_encode(lua_State *L) {
     const char *str;
     char *buf;
     long int timestamp;
@@ -135,7 +135,7 @@ static int l_ts_encode(lua_State *L) {
 }
 
 /* Return timeseal initialization string */
-static int l_ts_init_string(lua_State *L) {
+static int l_timeseal_init_string(lua_State *L) {
     struct utsname un;
     uid_t euid;
     struct passwd *pwd;
@@ -258,12 +258,12 @@ LUALIB_API int luaopen_ficsutils(lua_State *L) {
     lua_pushstring(L, VERSION);
     lua_settable(L, -3);
 
-    lua_pushliteral(L, "MAGICGSTR");
-    lua_pushstring(L, MAGICGSTR);
+    lua_pushliteral(L, "TIMESEAL_MAGICGSTR");
+    lua_pushstring(L, TIMESEAL_MAGICGSTR);
     lua_settable(L, -3);
 
-    lua_pushliteral(L, "GRESPONSE");
-    lua_pushstring(L, GRESPONSE);
+    lua_pushliteral(L, "TIMESEAL_GRESPONSE");
+    lua_pushstring(L, TIMESEAL_GRESPONSE);
     lua_settable(L, -3);
 
     return 1;

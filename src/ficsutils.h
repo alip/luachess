@@ -29,8 +29,8 @@
 #define TIMESTAMP_SIZE 64
 
 /* Encryption strings used by FICS */
-#define MAGICGSTR "^%[G%]"
-#define GRESPONSE "\0029"
+#define TIMESEAL_MAGICGSTR "^%[G%]"
+#define TIMESEAL_GRESPONSE "\0029"
 
 static char ENCODESTR[] = "Timestamp (FICS) v1.0 - programmed by Henrik Gram.";
 static int ENCODELEN = sizeof(ENCODESTR)/sizeof(ENCODESTR[0]) - 1; /* sizeof includes trailing \0 */
@@ -41,15 +41,15 @@ static int FILLERLEN = sizeof(FILLER)/sizeof(FILLER[0]) - 1;
 static int random_initialized = 0;
 
 /* Prototypes */
-static int l_ts_encode(lua_State *L);
-static int l_ts_init_string(lua_State *L);
+static int l_timeseal_encode(lua_State *L);
+static int l_timeseal_init_string(lua_State *L);
 static int l_titles_totable(lua_State *L);
 LUALIB_API int luaopen_ficsutils(lua_State *L);
 
 static const luaL_reg R[] = {
-    {"ts_encode",          l_ts_encode},
-    {"ts_init_string",     l_ts_init_string},
-    {"titles_totable",     l_titles_totable},
+    {"timeseal_encode",          l_timeseal_encode},
+    {"timeseal_init_string",     l_timeseal_init_string},
+    {"titles_totable",           l_titles_totable},
     {NULL,              NULL}
 };
 

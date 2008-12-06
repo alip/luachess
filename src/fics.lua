@@ -47,8 +47,6 @@ client = {}
 --{{{ Telnet
 local CR = "\r"
 local LF = "\n"
-local IAC_WILL_ECHO = string.char(255, 251, 1)
-local IAC_WONT_ECHO = string.char(255, 252, 1)
 --}}}
 --{{{ FICS Interface Variables
 local IVARS_COUNT = 35
@@ -298,8 +296,17 @@ function client:parseline(line) --{{{
 
     local parsed = parser.p:match(line)
 
-    if type(parsed) ~= "table" then
-        local parsed
+    if not parsed then
+        -- Wrap
+        if not self.ivars[IV_NOWRAP] and string.find(line, "^\\   ") then
+            self:run_callback("line", "wrap", line)
+            self:run_callback("wrap", line, self._last_wrapping_group)
+
+        -- The rest is unknown
+        else
+            self._last_wrapping_group = nil
+            self:run_callback("line", nil, line)
+        end
 
     -- Prompts
     elseif parsed[1] == parser.PROMPT_LOGIN then
@@ -448,10 +455,6 @@ function client:parseline(line) --{{{
         self:run_callback("line", "whisper", line)
         self:run_callback("whisper", line, parsed[1], parsed[2], parsed[3], parsed[4], parsed[5])
 
-    elseif not self.ivars[IV_NOWRAP] and string.find(line, "^\\   ") then
-        self:run_callback("line", "wrap", line)
-        self:run_callback("wrap", line, self._last_wrapping_group)
-
     -- Challenge
     elseif parsed[1] == parser.CHALLENGE_UPDATE then
         self:run_callback("line", "challenge", line)
@@ -577,36 +580,26 @@ function client:parseline(line) --{{{
     elseif parsed[1] == parser.SEEKCLEAR then
         self:run_callback("line", "seekclear", line)
         self:run_callback("seekclear", line)
-    end
 
     -- Examined/Observed
-    if string.find(line, "^Game %d+: %a+ moves:") then
+    elseif parsed[1] == parser.MOVE then
         self:run_callback("line", "move", line)
-        if not self.callbacks["move"] then return true end
+        self:run_callback("move", line, parsed[2], parsed[3], parsed[4])
 
-        local gameno, handle, move = string.match(line, "^Game (%d+): (%a+) moves: (.*)")
-        self:run_callback("move", line, tonumber(gameno), handle, move)
-
-    elseif string.find(line, "^%a+ is examining a game%.") then
+    elseif parsed[1] == parser.EXAMINING then
         self:run_callback("line", "examining", line)
-        if not self.callbacks["examining"] then return true end
-
-        local handle = string.match(line, "^(%a+) is examining a game%.")
-        self:run_callback("examining", line, handle)
+        self:run_callback("examining", line, parsed[2])
 
     -- Telnet
-    elseif line == IAC_WILL_ECHO then
+    elseif parsed[1] == parser.IAC_WILL_ECHO  then
         self:run_callback("line", "iacwillecho", line)
         self:run_callback("iacwillecho", line)
 
-    elseif line == IAC_WONT_ECHO then
+    elseif parsed[1] == parser.IAC_WONT_ECHO then
         self:run_callback("line", "iacwontecho", line)
         self:run_callback("iacwontecho", line)
-
-    -- The rest is unknown
     else
-        self._last_wrapping_group = nil
-        self:run_callback("line", nil, line)
+        error("unhandled parser id " .. parsed[1])
     end
 
     return true

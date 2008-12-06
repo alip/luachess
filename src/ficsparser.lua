@@ -90,6 +90,10 @@ TAKEBACK_DECLINE = 44
 SEEKINFO = 45
 SEEKREMOVE = 46
 SEEKCLEAR = 47
+MOVE = 48
+EXAMINING = 49
+IAC_WILL_ECHO = 50
+IAC_WONT_ECHO = 51
 
 -- Tags
 TAG_ADMIN = -1
@@ -465,4 +469,21 @@ seekclear = P"<sc>" / function () return {SEEKCLEAR} end
 
 seek = seekinfo + seekremove + seekclear
 
-p = prompts + authentication + session_start + notification + chat + challenge + bughouse + game + offer + seek
+-- Examined/Observed games
+move = (P"Game " * number * P": " * handle * P" moves: " * C(t.print^1)) / function (...)
+    return {MOVE, unpack(arg)} end
+examining = (handle * P" is examining a game.") / function (c)
+    return {EXAMINING, c} end
+
+exob = move + examining
+
+-- Telnet
+iac_will_echo = P(string.char(255, 251, 1)) / function ()
+    return {IAC_WILL_ECHO} end
+iac_wont_echo = P(string.char(255, 252, 1)) / function ()
+    return {IAC_WONT_ECHO} end
+
+telnet = iac_will_echo + iac_wont_echo
+
+p = prompts + authentication + session_start + notification +
+    chat + challenge + bughouse + game + offer + seek + exob + telnet

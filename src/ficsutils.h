@@ -41,15 +41,15 @@ static int FILLERLEN = sizeof(FILLER)/sizeof(FILLER[0]) - 1;
 static int random_initialized = 0;
 
 /* Prototypes */
-static int l_timeseal_encode(lua_State *L);
-static int l_timeseal_init_string(lua_State *L);
-static int l_titles_totable(lua_State *L);
+static int timeseal_encode(lua_State *L);
+static int timeseal_init_string(lua_State *L);
+static int titles_totable(lua_State *L);
 LUALIB_API int luaopen_ficsutils(lua_State *L);
 
 static const luaL_reg R[] = {
-    {"timeseal_encode",          l_timeseal_encode},
-    {"timeseal_init_string",     l_timeseal_init_string},
-    {"titles_totable",           l_titles_totable},
+    {"timeseal_encode",          timeseal_encode},
+    {"timeseal_init_string",     timeseal_init_string},
+    {"titles_totable",           titles_totable},
     {NULL,              NULL}
 };
 

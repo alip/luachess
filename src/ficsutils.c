@@ -37,7 +37,7 @@
 
 #include "ficsutils.h"
 
-static int l_timeseal_encode(lua_State *L) {
+static int timeseal_encode(lua_State *L) {
     const char *str;
     char *buf;
     long int timestamp;
@@ -135,7 +135,7 @@ static int l_timeseal_encode(lua_State *L) {
 }
 
 /* Return timeseal initialization string */
-static int l_timeseal_init_string(lua_State *L) {
+static int timeseal_init_string(lua_State *L) {
     struct utsname un;
     uid_t euid;
     struct passwd *pwd;
@@ -184,7 +184,7 @@ static int l_timeseal_init_string(lua_State *L) {
     return 1;
 }
 
-static int l_titles_totable(lua_State *L) {
+static int titles_totable(lua_State *L) {
     int index, titles;
 
 #define TITLE_UNREGISTERED 0x01

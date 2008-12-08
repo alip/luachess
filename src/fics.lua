@@ -120,7 +120,6 @@ function tag_concat(t)
     return tstr
 end --}}}
 --}}}
---}}}
 --{{{ fics.client functions
 function client:new(argtable) --{{{
     assert(type(argtable) == "table", "Argument is not a table")

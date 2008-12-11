@@ -368,6 +368,13 @@ function client:parseline(line) --{{{
         else
             error "handle not alpha"
         end
+    elseif parsed[1] == parser.HANDLE_BANNED then
+        self:run_callback("line", "handle_banned", line)
+        if self.callbacks["handle_banned"] then
+            self:run_callback("handle_banned", line, parsed[2])
+        else
+            error("handle '" .. parsed[2] .. "' banned")
+        end
     elseif parsed[1] == parser.HANDLE_NOT_REGISTERED then
         self:run_callback("line", "handle_not_registered", line)
         self:run_callback("handle_not_registered", line, parsed[2])

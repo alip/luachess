@@ -50,6 +50,7 @@ HANDLE_TOO_SHORT = 4
 HANDLE_TOO_LONG = 5
 HANDLE_NOT_ALPHA = 6
 HANDLE_NOT_REGISTERED = 7
+HANDLE_BANNED = 52
 PASSWORD_INVALID = 8
 WELCOME = 9
 NEWS = 10
@@ -155,10 +156,12 @@ handle_not_alpha = P"Sorry, names can only consist of lower and upper case lette
     return {HANDLE_NOT_ALPHA} end
 handle_not_registered = (P'"' * handle * P'" is not a registered name') / function (c)
     return {HANDLE_NOT_REGISTERED, c} end
+handle_banned = (P'Player "' * handle * P'" is banned') / function (c)
+    return {HANDLE_BANNED, c} end
 password_invalid = P"**** Invalid password! ****" / function (c) return {PASSWORD_INVALID} end
 
 authentication = handle_too_short + handle_too_long + handle_not_alpha +
-    handle_not_registered + password_invalid
+    handle_not_registered + handle_banned + password_invalid
 
 -- Session start
 welcome = (P"**** Starting FICS session as " * handle_tags) / function (...)

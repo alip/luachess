@@ -125,9 +125,6 @@ function client:new(argtable) --{{{
     assert(type(argtable) == "table", "Argument is not a table")
 
     local instance = {
-        prompt = argtable.prompt or "^([0-9]?[0-9]?:?[0-9]?[0-9]?)_?fics%% $",
-        login_prompt = argtable.prompt_login or "^login: $",
-        password_prompt = argtable.prompt_password or "^password: $",
         timeseal = argtable.timeseal or false,
 
         ivars = argtable.ivars or {},

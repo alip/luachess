@@ -96,26 +96,11 @@ EXAMINING = 49
 IAC_WILL_ECHO = 50
 IAC_WONT_ECHO = 51
 
--- Tags
-TAG_ADMIN = -1
-TAG_BLIND = -2
-TAG_CA = -3
-TAG_COMPUTER = -4
-TAG_SR = -5
-TAG_TD = -6
-TAG_TM = -7
-
 number = (t.digit + S"+-.")^1 / tonumber
 e = -P(1)
 handle = C(t.alnum^-17)
-admin = P"*" / function () return TAG_ADMIN end
-blind = P"B" / function () return TAG_BLIND end
-ca = P"CA" / function () return TAG_CA end
-computer = P"C" / function () return TAG_COMPUTER end
-sr = P"SR" / function () return TAG_SR end
-td = P"TD" / function () return TAG_TD end
-tm = P"TM" / function () return TAG_TM end
-tag = P"(" * (admin + blind + ca + computer + sr + td + tm) * P")"
+tag = P"(" * C(P"*" + P"B" + P"CA" + P"C" + P"SR" + P"TD" + P"TM"
+    P"GM" + P"IM" + P"FM" + P"WGM" + P"WIM" + P"WFM") * P")"
 tags = tag^1 / function (...)
     local ret = {}
     for _, capture in ipairs(arg) do

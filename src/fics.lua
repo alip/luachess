@@ -90,32 +90,13 @@ IV_SINGLEBOARD = 35
 --}}}
 --{{{ Utility functions
 --{{{ Helper functions for tags
-function tag_tostring(tag)
-    if tag == parser.TAG_ADMIN then
-        return "*"
-    elseif tag == parser.TAG_BLIND then
-        return "B"
-    elseif tag == parser.TAG_CA then
-        return "CA"
-    elseif tag == parser.TAG_COMPUTER then
-        return "C"
-    elseif tag == parser.TAG_SR then
-        return "SR"
-    elseif tag == parser.TAG_TD then
-        return "TD"
-    elseif tag == parser.TAG_TM then
-        return "TM"
-    else
-        error("unknown tag " .. tag)
-    end
-end
-
 function tag_concat(t)
     assert(type(t) == "table", "argument is not a table")
     local tstr = ""
     for i, tag in ipairs(t) do
-        assert(type(tag) == "number", "tag table element at index " .. i .. " not a number")
-        tstr = tstr .. "(" .. tag_tostring(tag) .. ")"
+        assert(type(tag) == "string",
+            "tag table element at index " .. i .. " not a string")
+        tstr = tstr .. "(" .. tag .. ")"
     end
     return tstr
 end --}}}

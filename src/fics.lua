@@ -175,7 +175,7 @@ function client:new(argtable) --{{{
     return client_instance
 end --}}}
 function client:set(ivar, boolean) --{{{
-    assert(0 < ivar < IVARS_COUNT, "invalid interface variable")
+    assert(0 < ivar and ivar < IVARS_COUNT, "invalid interface variable")
     if self.sock ~= nil then
         if boolean then
             self.sock:send("iset " .. ivar_to_setting[ivar] .. " 1")

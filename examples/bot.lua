@@ -7,8 +7,8 @@
 require "fics"
 
 bot = fics.client:new{ timeseal=true }
-bot.ivars[fics.IV_SHOWSERVER] = true
-bot.ivars[fics.IV_SEEKCA] = true
+bot:set(fics.IV_SHOWSERVER, true)
+bot:set(fics.IV_SEEKCA, true)
 
 bot:register_callback("login", function (client)
     print "* Sending username"

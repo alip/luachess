@@ -86,6 +86,43 @@ IV_NOWRAP = 32
 IV_ALLRESULTS = 33
 IV_OBSPING = 34
 IV_SINGLEBOARD = 35
+ivar_to_setting = {
+    IV_COMPRESSMOVE = "compressmove",
+    IV_AUDIOCHAT = "audiochat",
+    IV_SEEKREMOVE = "seekremove",
+    IV_DEFPROMPT = "defprompt",
+    IV_LOCK = "lock",
+    IV_STARTPOS = "startpos",
+    IV_BLOCK = "block",
+    IV_GAMEINFO = "gameinfo",
+    IV_XDR = "xdr",
+    IV_PENDINFO = "pendinfo",
+    IV_GRAPH = "graph",
+    IV_SEEKINFO = "seekinfo",
+    IV_EXTASCII = "extascii",
+    IV_NOHILIGHT = "nohilight",
+    IV_VT_HILIGHT = "vt_hilight",
+    IV_SHOWSERVER = "showserver",
+    IV_PIN = "pin",
+    IV_MS = "ms",
+    IV_PINGINFO = "pinginfo",
+    IV_BOARDINFO = "boardinfo",
+    IV_EXTUSERINFO = "extuserinfo",
+    IV_SEEKCA = "seekca",
+    IV_SHOWOWNSEEK = "showownseek",
+    IV_PREMOVE = "premove",
+    IV_SMARTMOVE = "smartmove",
+    IV_MOVECASE = "movecase",
+    IV_SUICIDE = "suicide",
+    IV_CRAZYHOUSE = "crazyhouse",
+    IV_LOSERS = "losers",
+    IV_WILDCASTLE = "wildcastle",
+    IV_FR = "fr",
+    IV_NOWRAP = "nowrap",
+    IV_ALLRESULTS = "allresults",
+    IV_OBSPING = "obsping",
+    IV_SINGLEBOARD = "singleboard",
+}
 --}}}
 --}}}
 --{{{ Utility functions
@@ -136,6 +173,17 @@ function client:new(argtable) --{{{
         client._playing = false
         end)
     return client_instance
+end --}}}
+function client:set(ivar, boolean) --{{{
+    assert(0 < ivar < IVARS_COUNT, "invalid interface variable")
+    if self.sock ~= nil then
+        if boolean then
+            self.sock:send("iset " .. ivar_to_setting[ivar] .. " 1")
+        else
+            self.sock:send("iset " .. ivar_to_setting[ivar] .. " 0")
+        end
+    end
+    self.ivars[ivar] = boolean
 end --}}}
 function client:ivars_tostring() --{{{
     local ivstr = IVARS_PREFIX

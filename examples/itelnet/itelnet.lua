@@ -40,7 +40,7 @@ end
 client = fics.client:new{ timeseal = USE_TIMESEAL }
 client.ivars[fics.IV_STARTPOS] = true
 -- Xboard needs IV_MS set to true and Eboard needs it set to false.
-client.ivars[fics.IV_MS] = false
+client:set(fics.IV_MS, false)
 
 function log(...)
     io.stderr:write("> " .. os.date(TIMESTAMP_FORMAT) .. " " .. table.concat(arg) .. "\n")

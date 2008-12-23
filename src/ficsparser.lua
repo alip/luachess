@@ -99,7 +99,7 @@ IAC_WONT_ECHO = 51
 number = (t.digit + S"+-.")^1 / tonumber
 e = -P(1)
 handle = C(t.alnum^-17)
-tag = P"(" * C(P"*" + P"B" + P"CA" + P"C" + P"SR" + P"TD" + P"TM"
+tag = P"(" * C(P"*" + P"B" + P"CA" + P"C" + P"SR" + P"TD" + P"TM" +
     P"GM" + P"IM" + P"FM" + P"WGM" + P"WIM" + P"WFM") * P")"
 tags = tag^1 / function (...)
     local ret = {}
@@ -308,7 +308,7 @@ game_end = (P"{Game " * number * P" (" * handle * P" vs. " * handle * P") " *
 piece = S"rnbqkbnrpRNBQKBNRP-"
 rank = C(piece^8)
 boolean = S"01tf" / function (c)
-    if c == "0" or c =="f" then return false end
+    if c == "0" or c == "f" then return false end
     return true end
 not_space = C((t.print - P" ")^1)
 digit = t.digit^1 / tonumber

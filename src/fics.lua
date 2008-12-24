@@ -223,6 +223,14 @@ function client:disconnect() --{{{
 
     self.sock:close()
     self.sock = nil
+
+    self._ivars_sent = false
+    self._last_sent = 0
+    self._seen_magicgstr = false
+    self._linebuf = ""
+    self._empty_lines = 0
+    self._got_gresponse = false
+    self._last_wrapping_group = nil
 end --}}}
 function client:send(data) --{{{
     assert(self.sock ~= nil, "not connected")

@@ -307,13 +307,26 @@ game_end = (P"{Game " * number * P" (" * handle * P" vs. " * handle * P") " *
 -- Style 12
 piece = S"rnbqkbnrpRNBQKBNRP-"
 rank = C(piece^8)
+board = ((rank * P" ")^7 * rank) / function (...)
+    local board = {}
+
+    for i=8,1,-1 do
+        local pieces = arg[i]
+        local rank = string.byte"a"
+        while rank <= string.byte"h" do
+            board[string.char(rank) .. i] = string.sub(pieces, i, i)
+            rank = rank + 1
+        end
+    end
+    return board
+    end
 boolean = S"01tf" / function (c)
     if c == "0" or c == "f" then return false end
     return true end
 not_space = C((t.print - P" ")^1)
 digit = t.digit^1 / tonumber
 time = digit * P":" * digit * (P"." * digit)^0
-style12 = (P"<12> " * (rank * P" ")^8 * C(S"WB") * P" " * number * P" " *
+style12 = (P"<12> " * board * P" " * C(S"WB") * P" " * number * P" " *
     boolean * P" " * boolean * P" " * boolean * P" " * boolean * P" " *
     number * P" " * number * P" " * handle * P" " * handle * P" " *
     number * P" " * number * P" " * number * P" " * number * P" " *

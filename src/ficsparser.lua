@@ -337,47 +337,41 @@ style12 = (P"<12> " * board * P" " * C(S"WB") * P" " * number * P" " *
     number * P" " * number * P" " * number * P" " * number * P" " *
     not_space * P" (" * time * P") " * not_space * P" " * (S"01" / tonumber)) /
     function (...)
-        local m = {}
-
-        -- Ranks
-        local i=1
-        for j=8,1,-1 do
-            m["rank" .. j] = arg[i]
-            i = i + 1
-        end
-
-        m.tomove = arg[9]
-        m.double_pawn_push = arg[10]
-        m.white_castle = arg[11]
-        m.white_long_castle = arg[12]
-        m.black_castle = arg[13]
-        m.black_long_castle = arg[14]
-        m.last_irreversible = arg[15]
-        m.game_no = arg[16]
-        m.white_name = arg[17]
-        m.black_name = arg[18]
-        m.relation = arg[19]
-        m.time = arg[20]
-        m.increment = arg[21]
-        m.white_strength = arg[22]
-        m.black_strength = arg[23]
-        m.white_time = arg[24]
-        m.black_time = arg[25]
-        m.move_no = arg[26]
-        m.last_move_long = arg[27]
-        m.last_minute = arg[28]
-        m.last_second = arg[29]
-        if type(arg[30]) == "number" then
-            m.last_ms = arg[30]
-            m.last_move = arg[31]
-            m.flip = arg[32]
+        local game = {
+            board = arg[1],
+            tomove = arg[2],
+            double_pawn_push = arg[3],
+            white_castle = arg[4],
+            white_long_castle = arg[5],
+            black_castle = arg[6],
+            black_long_castle = arg[7],
+            last_irreversible = arg[8],
+            no = arg[9],
+            white_name = arg[10],
+            black_name = arg[11],
+            relation = arg[12],
+            time = arg[13],
+            increment = arg[14],
+            white_strength = arg[15],
+            black_strength = arg[16],
+            white_time = arg[17],
+            black_time = arg[18],
+            move_no = arg[19],
+            last_move_long = arg[20],
+            last_minute = arg[21],
+            last_second = arg[22],
+        }
+        if type(arg[23]) == "number" then
+            game.last_ms = arg[23]
+            game.last_move = arg[24]
+            game.flip = arg[25]
         else
-            m.last_ms = 0
-            m.last_move = arg[30]
-            m.flip = arg[31]
+            game.last_ms = 0
+            game.last_move = arg[23]
+            game.flip = arg[24]
         end
 
-        return {STYLE12, m}
+        return {STYLE12, game}
     end
 
 game = game_end + game_start + style12

@@ -215,7 +215,8 @@ function client:connect(address, port) --{{{
         if errmsg ~= nil then return nil, errmsg end
     end
 
-    self.sock:settimeout(0)
+    assert(self.sock:settimeout(0), "setting socket timeout failed")
+    assert(self.sock:setoption("tcp-nodelay", true), "couldn't set tcp-nodelay")
     return true
 end --}}}
 function client:disconnect() --{{{

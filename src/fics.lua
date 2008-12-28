@@ -436,6 +436,13 @@ function client:parseline(line) --{{{
         else
             error "invalid password"
         end
+    elseif parsed[1] == parser.PRESS_RETURN then
+        self:run_callback("line", "press_return", line)
+        if self.callbacks["press_return"] then
+            self:run_callback("press_return", line, parsed[2])
+        else
+            self:send""
+        end
 
     -- Session start
     elseif parsed[1] == parser.WELCOME then

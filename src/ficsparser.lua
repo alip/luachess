@@ -52,6 +52,7 @@ HANDLE_NOT_ALPHA = 6
 HANDLE_NOT_REGISTERED = 7
 HANDLE_BANNED = 52
 PASSWORD_INVALID = 8
+PRESS_RETURN = 53
 WELCOME = 9
 NEWS = 10
 MESSAGES = 11
@@ -144,9 +145,11 @@ handle_banned = (P'Player "' * handle * P'" is banned') / function (c)
     return {HANDLE_BANNED, c} end
 password_invalid = P"**** Invalid password! ****" /
     function (c) return {PASSWORD_INVALID} end
+press_return = (P'Press return to enter the server as "' * handle * P'"') /
+    function (c) return {PRESS_RETURN, c} end
 
 authentication = handle_too_short + handle_too_long + handle_not_alpha +
-    handle_not_registered + handle_banned + password_invalid
+    handle_not_registered + handle_banned + password_invalid + press_return
 
 -- Session start
 welcome = (P"**** Starting FICS session as " * handle_tags) / function (...)

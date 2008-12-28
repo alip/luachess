@@ -287,11 +287,28 @@ end --}}}
 function client:register_callback(group, func) --{{{
     assert(type(func) == "function" or type(func) == "thread",
         "callback is neither a function nor a coroutine.")
+    local callback_index = { group = group }
     if self.callbacks[group] == nil then
+        callback_index.key = 1
         self.callbacks[group] = { func }
     else
+        callback_index.key = #self.callbacks[group] + 1
         table.insert(self.callbacks[group], func)
     end
+    return callback_index
+end --}}}
+function client:remove_callback(index) --{{{
+    assert(type(index) == "table", "invalid callback index")
+    assert(index.group, "no group data in callback index")
+    assert(type(index.key) == "number", "bad key in callback index")
+
+    if self.callbacks[index.group] then
+        if self.callbacks[index.group][index.key] then
+            table.remove(self.callbacks[index.group], index.key)
+            return true
+        end
+    end
+    return false
 end --}}}
 function client:run_callback(group, ...) --{{{
     if self.callbacks[group] == nil then self.callbacks[group] = {} end

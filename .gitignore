@@ -4,6 +4,7 @@
 *.so
 *.tar.gz
 *.cmake
+config.h
 CMakeCache.txt
 CMakeFiles
 Makefile

@@ -38,8 +38,6 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#define VERSION "0.02"
-
 #define BUF_SIZE 8192
 #define TIMESTAMP_SIZE 64
 

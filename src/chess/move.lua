@@ -27,11 +27,11 @@ local unpack = unpack
 -- XXX for debugging
 local print = print
 
-local attack = require "attack"
+local attack = require "chess.attack"
 local lpeg = require "lpeg"
 --}}}
 
-module "move"
+module "chess.move"
 
 --{{{Globals
 local WHITE = attack.WHITE

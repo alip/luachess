@@ -360,8 +360,9 @@ static const struct luaL_reg bblib_bitboard[] = {
     {NULL, NULL}
 };
 
-LUALIB_API int luaopen_bitboard(lua_State *L) {
+LUALIB_API int luaopen_chess_bitboard(lua_State *L) {
     init_lz_array();
+    luaL_register(L, "chess.bitboard", bblib_global);
 
     luaL_newmetatable(L, BITBOARD_T);
     luaL_register(L, NULL, bblib_bitboard);
@@ -369,7 +370,6 @@ LUALIB_API int luaopen_bitboard(lua_State *L) {
     lua_pushvalue(L, -2); /* push the metatable */
     lua_settable(L, -3); /* metatable.__index = metatable */
 
-    luaL_register(L, "bitboard", bblib_global);
 
     /* Push version */
     lua_pushliteral(L, "_VERSION");

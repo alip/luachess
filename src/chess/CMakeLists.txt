@@ -5,26 +5,34 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
+# {{{ Checks
 INCLUDE(CheckFunctionExists)
 CHECK_FUNCTION_EXISTS(snprintf HAVE_SNPRINTF)
 CHECK_FUNCTION_EXISTS(strtoull HAVE_STRTOULL)
 INCLUDE(CheckTypeSize)
 CHECK_TYPE_SIZE("unsigned long long int" HAVE_UNSIGNED_LONG_LONG_INT)
+# }}}
 
-SET(luachess_BITBOARD bitboard.h bitboard.c)
-ADD_LIBRARY(luachess_bitboard_module MODULE ${luachess_BITBOARD})
-SET_TARGET_PROPERTIES(luachess_bitboard_module PROPERTIES
+# {{{ Modules
+SET(chess_bitboard bitboard.h bitboard.c)
+ADD_LIBRARY(chess_bitboard MODULE ${chess_bitboard})
+SET_TARGET_PROPERTIES(chess_bitboard PROPERTIES
         PREFIX ""
         OUTPUT_NAME "bitboard"
 )
 
-SET(luachess_ATTACK bitboard.h attack.c magicmoves.h magicmoves.c)
-ADD_LIBRARY(luachess_attack_module MODULE ${luachess_ATTACK})
-SET_TARGET_PROPERTIES(luachess_attack_module PROPERTIES
+SET(chess_attack bitboard.h attack.c magicmoves.h magicmoves.c)
+ADD_LIBRARY(chess_attack MODULE ${chess_attack})
+SET_TARGET_PROPERTIES(chess_attack PROPERTIES
         PREFIX ""
         OUTPUT_NAME "attack"
 )
 
+SET(chess ${PROJECT_SOURCE_DIR}/src/chess/chess.lua)
+SET(chess_move ${PROJECT_SOURCE_DIR}/src/chess/move.lua)
+# }}}
+
+# {{{ Tests
 SET(LUA_PATH "${PROJECT_SOURCE_DIR}/src/chess/?.lua")
 SET(LUA_CPATH "${PROJECT_SOURCE_DIR}/src/chess/?.so")
 
@@ -43,7 +51,13 @@ ADD_TEST(luachess.chess ${LUNIT}
 ADD_TEST(luachess.chess.Board ${LUNIT}
         --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
         ${TEST_DIR}/chess/test-chess-board.lua)
+# }}}
 
 # Output
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
         ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+
+# Install
+INSTALL(TARGETS chess_bitboard chess_attack DESTINATION ${LUAPACKAGE_CDIR}/chess)
+INSTALL(FILES ${chess} DESTINATION ${LUAPACKAGE_LDIR})
+INSTALL(FILES ${chess_move} DESTINATION ${LUAPACKAGE_LDIR}/chess)

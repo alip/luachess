@@ -5,14 +5,20 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(luachess_FICSUTILS ficsutils.c)
-ADD_LIBRARY(luachess_ficsutils_module MODULE ${luachess_FICSUTILS})
-SET_TARGET_PROPERTIES(luachess_ficsutils_module PROPERTIES
+SET(chess_fics_utils utils.c)
+ADD_LIBRARY(chess_fics_utils MODULE ${chess_fics_utils})
+SET_TARGET_PROPERTIES(chess_fics_utils PROPERTIES
         PREFIX ""
-        OUTPUT_NAME "ficsutils"
+        OUTPUT_NAME "utils"
 )
+SET(chess_fics ${PROJECT_SOURCE_DIR}/src/fics/fics.lua)
+SET(chess_fics_parser ${PROJECT_SOURCE_DIR}/src/fics/parser.lua)
 
 # Output
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
         ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
+# Install
+INSTALL(TARGETS chess_fics_utils DESTINATION ${LUAPACKAGE_CDIR}/chess/fics)
+INSTALL(FILES ${chess_fics} DESTINATION ${LUAPACKAGE_LDIR}/chess)
+INSTALL(FILES ${chess_fics_parser} DESTINATION ${LUAPACKAGE_LDIR}/chess/fics)

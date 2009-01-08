@@ -147,9 +147,9 @@ static const struct luaL_reg attack_global[] = {
     {"atak", atak},
     {NULL, NULL}
 };
-LUALIB_API int luaopen_attack(lua_State *L) {
+LUALIB_API int luaopen_chess_attack(lua_State *L) {
     initmagicmoves();
-    luaL_register(L, "attack", attack_global);
+    luaL_register(L, "chess.attack", attack_global);
 
     /* Push colours */
     lua_pushliteral(L, "WHITE");

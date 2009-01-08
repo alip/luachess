@@ -35,12 +35,14 @@ local os = os
 local string = string
 local table = table
 local socket = require "socket"
-local ficsutils = require "ficsutils"
-local parser = require "ficsparser"
+require "chess.fics.utils"
+require "chess.fics.parser"
+local utils = chess.fics.utils
+local parser = chess.fics.parser
 --}}}
 --{{{ Variables
-module "fics"
-_VERSION = ficsutils._VERSION
+module "chess.fics"
+_VERSION = utils._VERSION
 
 client = {}
 
@@ -208,7 +210,7 @@ function client:connect(address, port) --{{{
     if self.sock == nil then return nil, errmsg end
 
     if self.timeseal then
-        local initstr, errmsg = ficsutils.timeseal_init_string()
+        local initstr, errmsg = utils.timeseal_init_string()
         if initstr == nil then return nil, errmsg end
 
         local bytes, errmsg = self:send(initstr)
@@ -237,7 +239,7 @@ function client:send(data) --{{{
     assert(self.sock ~= nil, "not connected")
 
     if self.timeseal then
-        data, errmsg = ficsutils.timeseal_encode(data)
+        data, errmsg = utils.timeseal_encode(data)
         if data == nil then
             return nil, errmsg
         end
@@ -277,9 +279,9 @@ function client:recvline() --{{{
 
     local line = self._linebuf
     self._linebuf = ""
-    if self.timeseal and string.find(line, ficsutils.TIMESEAL_MAGICGSTR) then
+    if self.timeseal and string.find(line, utils.TIMESEAL_MAGICGSTR) then
         self._got_gresponse = true
-        self:send(ficsutils.TIMESEAL_GRESPONSE)
+        self:send(utils.TIMESEAL_GRESPONSE)
         return nil, "internal"
     else
         return line

@@ -19,7 +19,8 @@
 --- Lpeg parser for FICS.
 -- Requires lpeg.
 
-require"lpeg"
+require "lpeg"
+require "chess.fics.utils"
 
 local ipairs = ipairs
 local tonumber = tonumber
@@ -28,7 +29,7 @@ local unpack = unpack
 
 local string = string
 local table = table
-local ficsutils = require "ficsutils"
+local utils = chess.fics.utils
 
 local C = lpeg.C
 local Cg = lpeg.Cg
@@ -40,7 +41,7 @@ local S = lpeg.S
 local match = lpeg.match
 local t = lpeg.locale()
 
-module "ficsparser"
+module "chess.fics.parser"
 
 -- Ids
 PROMPT_LOGIN = 1
@@ -414,7 +415,7 @@ rated = S"ru" / function (c)
     if c == "u" then return false end
     return true end
 seekinfo = (P"<s> " * number * P" w=" * handle * P" ti=" *
-    (number / ficsutils.titles_totable) * P" rt=" * rating *
+    (number / utils.titles_totable) * P" rt=" * rating *
     (P"  " + P" ") * P"t=" * number * P" i=" * number * P" r=" * rated  *
     P" tp=" * C(t.alpha^1) * P" c=" * C(S"?WB") * P" rr=" * digit * P"-" * digit *
     P" a=" * boolean * P" f=" * boolean) / function (...)

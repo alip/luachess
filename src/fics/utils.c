@@ -304,9 +304,9 @@ static const luaL_reg ficsutils_global[] = {
     {NULL,              NULL}
 };
 
-LUALIB_API int luaopen_ficsutils(lua_State *L) {
+LUALIB_API int luaopen_chess_fics_utils(lua_State *L) {
     srand(clock());
-    luaL_register(L, "ficsutils", ficsutils_global);
+    luaL_register(L, "chess.fics.utils", ficsutils_global);
 
     lua_pushliteral(L, "_VERSION");
     lua_pushstring(L, PACKAGE_NAME "-" VERSION);

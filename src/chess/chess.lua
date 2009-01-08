@@ -43,9 +43,12 @@ local string = string
 local bit = require "bit"
 
 -- Internal modules
-local bitboard = require "bitboard"
-local attack = require "attack"
-local moveparser = require "move"
+require "chess.bitboard"
+require "chess.attack"
+require "chess.move"
+local bitboard = chess.bitboard
+local attack = chess.attack
+local move = chess.move
 --}}}
 --{{{Shortcuts to module functions
 local band, bnot, bor, bxor, lshift, rshift = bit.band, bit.bnot, bit.bor, bit.bxor,
@@ -159,7 +162,7 @@ ENPASSANT = 0x00400000
 MOVEMASK  = bor(CASTLING, ENPASSANT, PROMOTION, 0x0FFF)
 function tosq(move) return band(move, 0x003F) end
 function fromsq(move) return band(rshift(move, 6), 0x003F) end
-function move(from, to) return bor(lshift(from, 6), to) end
+function MOVE(from, to) return bor(lshift(from, 6), to) end
 function capture_piece(move) return band(rshift(move, 15), 0x0007) end
 function promote_piece(move) return band(rshift(move, 12), 0x0007) end
 --}}}
@@ -403,7 +406,7 @@ function Board:has_piece(square, side) --{{{
 end --}}}
 function Board:loadfen(fen) --{{{
     fen = fen or "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-    local pieces, side, castles, ep, hmove, fmove = moveparser.fen:match(fen)
+    local pieces, side, castles, ep, hmove, fmove = move.fen:match(fen)
     assert(pieces and side and castles and ep and hmove and fmove, "invalid fen")
 
     -- Set the pieces

@@ -19,21 +19,24 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <errno.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/utsname.h>
-#include <pwd.h>
+#include <stdlib.h>
+
+#include "config.h"
+
+#include <errno.h>
+#include <string.h> /* strerror() */
+
+#include <sys/time.h> /* gettimeofday() */
 #include <time.h>
-#include <unistd.h>
+
+#include <sys/types.h>
+#include <unistd.h> /* geteuid() */
+#include <pwd.h> /*  getpwuid() */
+#include <sys/utsname.h> /* uname() */
 
 #include "lua.h"
 #include "lauxlib.h"
-
-#include "config.h"
 
 #define VERSION "0.02"
 
@@ -285,4 +288,3 @@ LUALIB_API int luaopen_ficsutils(lua_State *L) {
 
     return 1;
 }
-

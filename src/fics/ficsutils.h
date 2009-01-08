@@ -32,11 +32,11 @@
 #define TIMESEAL_MAGICGSTR "^%[G%]"
 #define TIMESEAL_GRESPONSE "\0029"
 
-static char ENCODESTR[] = "Timestamp (FICS) v1.0 - programmed by Henrik Gram.";
-static int ENCODELEN = sizeof(ENCODESTR)/sizeof(ENCODESTR[0]) - 1; /* sizeof includes trailing \0 */
+#define ENCODESTR "Timestamp (FICS) v1.0 - programmed by Henrik Gram."
+#define ENCODELEN 50
 
-static char FILLER[] = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static int FILLERLEN = sizeof(FILLER)/sizeof(FILLER[0]) - 1;
+#define FILLER  "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define FILLERLEN 62
 
 static int random_initialized = 0;
 

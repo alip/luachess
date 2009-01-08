@@ -478,6 +478,8 @@ function Board:make_move(move) --{{{
         end
         self.bitboard.pieces[WHITE][ROOK]:clrbit(rl)
         self:set_piece(rf, ROOK, self.side, true)
+        -- Clear castling rights
+        self.castle[self.side] = {false, false}
     end
 
     -- If pawn moved two squares set the enpassant square.

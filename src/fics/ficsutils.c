@@ -50,8 +50,6 @@
 #define FILLER  "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define FILLERLEN 62
 
-static int random_initialized = 0;
-
 static int timeseal_encode(lua_State *L) {
     const char *str;
     char *buf;
@@ -103,11 +101,6 @@ static int timeseal_encode(lua_State *L) {
 
     len = size + added;
     padding = 11 - ((len - 1) % 12);
-
-    if (!random_initialized) {
-        srandom(clock());
-        random_initialized = 1;
-    }
 
     while (padding > 0) {
         /* Fill with random padding */
@@ -275,6 +268,7 @@ static const luaL_reg ficsutils_global[] = {
 };
 
 LUALIB_API int luaopen_ficsutils(lua_State *L) {
+    srandom(clock());
     luaL_register(L, "ficsutils", ficsutils_global);
 
     lua_pushliteral(L, "_VERSION");

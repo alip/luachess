@@ -5,16 +5,6 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-# Check for getpwuid() (*NIX) and GetUserName() (Windoze)
-INCLUDE(CheckFunctionExists)
-CHECK_FUNCTION_EXISTS(getpwuid HAVE_PWUID)
-IF(NOT HAVE_PWUID)
-    CHECK_FUNCTION_EXISTS(GetUserName HAVE_GETUSERNAME)
-    IF(NOT HAVE_GETUSERNAME)
-        MESSAGE(FATAL_ERROR "Neither getpwuid() nor GetUserName() found!")
-    ENDIF(NOT HAVE_GETUSERNAME)
-ENDIF(NOT HAVE_PWUID)
-
 SET(luachess_FICSUTILS ficsutils.c)
 ADD_LIBRARY(luachess_ficsutils_module MODULE ${luachess_FICSUTILS})
 SET_TARGET_PROPERTIES(luachess_ficsutils_module PROPERTIES

@@ -35,13 +35,10 @@
 
 #include <sys/utsname.h> /* uname() */
 
-#ifdef HAVE_PWUID
+#ifndef WIN32
 #include <pwd.h> /*  getpwuid() */
-#endif
-
-#ifdef HAVE_GETUSERNAME
+#else
 /* Grabbed from git */
-#include "win32.h"
 struct passwd {
     char *pw_name;
     char *pw_gecos;
@@ -59,7 +56,7 @@ struct passwd *getpwuid(int uid) {
     p.pw_dir = NULL;
     return &p;
 }
-char *strerror(int errnum) {
+char *strlasterror(void) {
     DWORD error;
     static char errmsg[1024+1];
 
@@ -68,7 +65,7 @@ char *strerror(int errnum) {
             1024, NULL);
     return errmsg;
 }
-#endif
+#endif /* ! WIN32 */
 
 #include "lua.h"
 #include "lauxlib.h"
@@ -202,7 +199,11 @@ static int timeseal_init_string(lua_State *L) {
     if (pwd == NULL) {
         /* Push nil and error message */
         lua_pushnil(L);
+#ifndef WIN32
         lua_pushstring(L, strerror(errno));
+#else
+        lua_pushstring(L, strlasterror());
+#endif
         return 2;
     }
 

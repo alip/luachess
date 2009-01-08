@@ -5,7 +5,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(luachess_FICSUTILS ficsutils.c ficsutils.h)
+SET(luachess_FICSUTILS ficsutils.c)
 ADD_LIBRARY(luachess_ficsutils_module MODULE ${luachess_FICSUTILS})
 SET_TARGET_PROPERTIES(luachess_ficsutils_module PROPERTIES
         PREFIX ""

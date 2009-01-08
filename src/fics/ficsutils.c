@@ -33,7 +33,23 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#include "ficsutils.h"
+#define MODNAME "ficsutils"
+#define VERSION "0.02"
+
+#define BUF_SIZE 8192
+#define TIMESTAMP_SIZE 64
+
+/* Encryption strings used by FICS */
+#define TIMESEAL_MAGICGSTR "^%[G%]"
+#define TIMESEAL_GRESPONSE "\0029"
+
+#define ENCODESTR "Timestamp (FICS) v1.0 - programmed by Henrik Gram."
+#define ENCODELEN 50
+
+#define FILLER  "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define FILLERLEN 62
+
+static int random_initialized = 0;
 
 static int timeseal_encode(lua_State *L) {
     const char *str;
@@ -249,6 +265,13 @@ static int titles_totable(lua_State *L) {
     }
     return 1;
 }
+
+static const luaL_reg R[] = {
+    {"timeseal_encode",          timeseal_encode},
+    {"timeseal_init_string",     timeseal_init_string},
+    {"titles_totable",           titles_totable},
+    {NULL,              NULL}
+};
 
 LUALIB_API int luaopen_ficsutils(lua_State *L) {
     luaL_openlib(L, MODNAME, R, 0);

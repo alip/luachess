@@ -74,7 +74,8 @@ static int timeseal_encode(lua_State *L) {
     else
         timestamp = 0;
 
-    added = snprintf(buf + size, BUF_SIZE - size, "%c%ld%c", (char)24, timestamp, (char)25);
+    added = snprintf(buf + size, BUF_SIZE - size, "%c%ld%c",
+                        (char)24, timestamp, (char)25);
     if (0 >= added) {
         /* Push nil and error message */
         free(buf);

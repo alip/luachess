@@ -1,6 +1,11 @@
-# Gitignore for LuaFics
+# Gitignore for LuaChess
 *~
 *.o
 *.so
 *.tar.gz
+*.cmake
+CMakeCache.txt
+CMakeFiles
+Makefile
 doc
+

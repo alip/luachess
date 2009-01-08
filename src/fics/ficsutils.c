@@ -32,8 +32,43 @@
 
 #include <sys/types.h>
 #include <unistd.h> /* geteuid() */
-#include <pwd.h> /*  getpwuid() */
+
 #include <sys/utsname.h> /* uname() */
+
+#ifdef HAVE_PWUID
+#include <pwd.h> /*  getpwuid() */
+#endif
+
+#ifdef HAVE_GETUSERNAME
+/* Grabbed from git */
+#include "win32.h"
+struct passwd {
+    char *pw_name;
+    char *pw_gecos;
+    char *pw_dir;
+};
+struct passwd *getpwuid(int uid) {
+    static char user_name[100];
+    static struct passwd p;
+
+    DWORD len = sizeof(user_name);
+    if (!GetUserName(user_name, &len))
+        return NULL;
+    p.pw_name = user_name;
+    p.pw_gecos = "unknown";
+    p.pw_dir = NULL;
+    return &p;
+}
+char *strerror(int errnum) {
+    DWORD error;
+    static char errmsg[1024+1];
+
+    error = GetLastError();
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, errmsg,
+            1024, NULL);
+    return errmsg;
+}
+#endif
 
 #include "lua.h"
 #include "lauxlib.h"

@@ -22,5 +22,7 @@
 
 #define PACKAGE_NAME "@PACKAGE_NAME@"
 #define VERSION "@VERSION@"
+#cmakedefine HAVE_PWUID
+#cmakedefine HAVE_GETUSERNAME
 
 #endif /* LUACHESS_GUARD_CONFIG_H */

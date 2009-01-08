@@ -36,19 +36,19 @@ SET(chess_move ${PROJECT_SOURCE_DIR}/src/chess/move.lua)
 SET(LUA_PATH "${PROJECT_SOURCE_DIR}/src/chess/?.lua")
 SET(LUA_CPATH "${PROJECT_SOURCE_DIR}/src/chess/?.so")
 
-ADD_TEST(luachess.bitboard ${LUNIT}
+ADD_TEST(chess_bitboard ${LUNIT}
         --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
         ${TEST_DIR}/chess/test-bitboard.lua)
-ADD_TEST(luachess.attack ${LUNIT}
+ADD_TEST(chess_attack ${LUNIT}
         --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
         ${TEST_DIR}/chess/test-attack.lua)
-ADD_TEST(luachess.move ${LUNIT}
+ADD_TEST(chess_move ${LUNIT}
         --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
         ${TEST_DIR}/chess/test-move.lua)
-ADD_TEST(luachess.chess ${LUNIT}
+ADD_TEST(chess ${LUNIT}
         --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
         ${TEST_DIR}/chess/test-chess.lua)
-ADD_TEST(luachess.chess.Board ${LUNIT}
+ADD_TEST(chess_Board ${LUNIT}
         --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
         ${TEST_DIR}/chess/test-chess-board.lua)
 # }}}

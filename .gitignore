@@ -5,8 +5,10 @@
 *.tar.gz
 *.cmake
 config.h
+install_manifest.txt
 CMakeCache.txt
 CMakeFiles
 Makefile
+Testing
 doc
 

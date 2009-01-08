@@ -33,7 +33,6 @@
 #include "lua.h"
 #include "lauxlib.h"
 
-#define MODNAME "ficsutils"
 #define VERSION "0.02"
 
 #define BUF_SIZE 8192
@@ -266,7 +265,7 @@ static int titles_totable(lua_State *L) {
     return 1;
 }
 
-static const luaL_reg R[] = {
+static const luaL_reg ficsutils_global[] = {
     {"timeseal_encode",          timeseal_encode},
     {"timeseal_init_string",     timeseal_init_string},
     {"titles_totable",           titles_totable},
@@ -274,7 +273,7 @@ static const luaL_reg R[] = {
 };
 
 LUALIB_API int luaopen_ficsutils(lua_State *L) {
-    luaL_openlib(L, MODNAME, R, 0);
+    luaL_register(L, "ficsutils", ficsutils_global);
 
     lua_pushliteral(L, "_VERSION");
     lua_pushstring(L, VERSION);

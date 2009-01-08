@@ -40,7 +40,7 @@ local parser = require "ficsparser"
 --}}}
 --{{{ Variables
 module "fics"
-_VERSION = 0.02
+_VERSION = ficsutils._VERSION
 
 client = {}
 

@@ -33,6 +33,8 @@
 #include "lua.h"
 #include "lauxlib.h"
 
+#include "config.h"
+
 #define VERSION "0.02"
 
 #define BUF_SIZE 8192
@@ -276,7 +278,7 @@ LUALIB_API int luaopen_ficsutils(lua_State *L) {
     luaL_register(L, "ficsutils", ficsutils_global);
 
     lua_pushliteral(L, "_VERSION");
-    lua_pushstring(L, VERSION);
+    lua_pushstring(L, PACKAGE_NAME "-" VERSION);
     lua_settable(L, -3);
 
     lua_pushliteral(L, "TIMESEAL_MAGICGSTR");

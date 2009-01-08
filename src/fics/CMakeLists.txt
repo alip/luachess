@@ -11,3 +11,8 @@ SET_TARGET_PROPERTIES(luachess_ficsutils_module PROPERTIES
         PREFIX ""
         OUTPUT_NAME "ficsutils"
 )
+
+# Output
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+        ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+

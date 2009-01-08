@@ -10,8 +10,6 @@ CHECK_FUNCTION_EXISTS(snprintf HAVE_SNPRINTF)
 CHECK_FUNCTION_EXISTS(strtoull HAVE_STRTOULL)
 INCLUDE(CheckTypeSize)
 CHECK_TYPE_SIZE("unsigned long long int" HAVE_UNSIGNED_LONG_LONG_INT)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
-        ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 SET(luachess_BITBOARD bitboard.h bitboard.c)
 ADD_LIBRARY(luachess_bitboard_module MODULE ${luachess_BITBOARD})
@@ -46,4 +44,6 @@ ADD_TEST(luachess.chess.Board ${LUNIT}
         --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
         ${TEST_DIR}/chess/test-chess-board.lua)
 
-
+# Output
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+        ${CMAKE_CURRENT_BINARY_DIR}/config.h)

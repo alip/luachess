@@ -104,7 +104,7 @@ static int timeseal_encode(lua_State *L) {
 
     while (padding > 0) {
         /* Fill with random padding */
-        int r = testing ? 0 : random();
+        int r = testing ? 0 : rand();
         r %= FILLERLEN;
         buf[len++] = FILLER[r];
         padding--;
@@ -126,7 +126,7 @@ static int timeseal_encode(lua_State *L) {
     if (testing)
         j = encode_offset = 0;
     else
-        j = encode_offset = random() % ENCODELEN;
+        j = encode_offset = rand() % ENCODELEN;
 
     for (i = 0; i < len; i++) {
         buf[i] |= (char)0x80;
@@ -268,7 +268,7 @@ static const luaL_reg ficsutils_global[] = {
 };
 
 LUALIB_API int luaopen_ficsutils(lua_State *L) {
-    srandom(clock());
+    srand(clock());
     luaL_register(L, "ficsutils", ficsutils_global);
 
     lua_pushliteral(L, "_VERSION");

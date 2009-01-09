@@ -17,18 +17,19 @@
 --]]
 
 -- Unit tests for bitboard module
--- Requires lunit.
+-- Requires luaunit.
 
-require "lunit"
-
-module("test-bitboard", lunit.testcase, package.seeall)
-print "Loading bitboard unit tests"
+require "luaunit"
+require "customloaders"
 
 require "chess.bitboard"
-bb = chess.bitboard.bb
+local bb = chess.bitboard.bb
 
-function setup()
-    b = bb(0)
-end
+TestBitboard = {} -- class
+    function TestBitboard:test_bitboard_TODO()
+    end
+-- class
 
--- TODO write tests for bitboard.
+LuaUnit:run()
+
+

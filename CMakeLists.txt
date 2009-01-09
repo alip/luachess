@@ -41,8 +41,8 @@ ENDIF(HAS_CFLAG_WINLINE)
 # }}}
 # {{{ Testing
 ENABLE_TESTING()
-SET(LUNIT ${PROJECT_SOURCE_DIR}/test/lunit/lunit)
 SET(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
+SET(GET_LUAUNIT "package.path = [[${TEST_DIR}/?.lua;]] .. package.path")
 #}}}
 
 OPTION(WITH_FICS "Build luachess.fics module" ON)

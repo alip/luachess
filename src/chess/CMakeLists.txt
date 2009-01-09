@@ -33,24 +33,11 @@ SET(chess_move ${PROJECT_SOURCE_DIR}/src/chess/move.lua)
 # }}}
 
 # {{{ Tests
-SET(LUA_PATH "${PROJECT_SOURCE_DIR}/src/chess/?.lua")
-SET(LUA_CPATH "${PROJECT_SOURCE_DIR}/src/chess/?.so")
-
-ADD_TEST(chess_bitboard ${LUNIT}
-        --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
-        ${TEST_DIR}/chess/test-bitboard.lua)
-ADD_TEST(chess_attack ${LUNIT}
-        --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
-        ${TEST_DIR}/chess/test-attack.lua)
-ADD_TEST(chess_move ${LUNIT}
-        --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
-        ${TEST_DIR}/chess/test-move.lua)
-ADD_TEST(chess ${LUNIT}
-        --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
-        ${TEST_DIR}/chess/test-chess.lua)
-ADD_TEST(chess_Board ${LUNIT}
-        --path "${LUA_PATH}" --cpath "${LUA_CPATH}"
-        ${TEST_DIR}/chess/test-chess-board.lua)
+ADD_TEST(bitboard lua -e ${GET_LUAUNIT} ${TEST_DIR}/chess/test-bitboard.lua)
+ADD_TEST(attack lua -e ${GET_LUAUNIT} ${TEST_DIR}/chess/test-attack.lua)
+ADD_TEST(move lua -e ${GET_LUAUNIT} ${TEST_DIR}/chess/test-move.lua)
+ADD_TEST(chess lua -e ${GET_LUAUNIT} ${TEST_DIR}/chess/test-chess.lua)
+ADD_TEST(chessboard lua -e ${GET_LUAUNIT} ${TEST_DIR}/chess/test-chess-board.lua)
 # }}}
 
 # Output

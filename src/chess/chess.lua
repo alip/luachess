@@ -474,7 +474,7 @@ function Board:make_move(move) --{{{
             rf = iswhite and squarei"f1" or squarei"f8"
         else -- Castle queenside
             rl = iswhite and self.rooks[2] or self.rooks[2] + 56
-            rf = iswhite and squarei"c1" or squarei"c8"
+            rf = iswhite and squarei"d1" or squarei"d8"
         end
         self.bitboard.pieces[WHITE][ROOK]:clrbit(rl)
         self:set_piece(rf, ROOK, self.side, true)

@@ -373,7 +373,7 @@ LUALIB_API int luaopen_chess_bitboard(lua_State *L) {
 
     /* Push version */
     lua_pushliteral(L, "_VERSION");
-    lua_pushstring(L, PACKAGE "-" VERSION);
+    lua_pushstring(L, PACKAGE_NAME "-" VERSION);
     lua_settable(L, -3);
 
     return 1;

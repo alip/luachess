@@ -19,12 +19,7 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#else
-#define PACKAGE "luachess"
-#define VERSION "?"
-#endif
 
 #ifndef __64_BIT_INTEGER_DEFINED__
 #define __64_BIT_INTEGER_DEFINED__

@@ -476,7 +476,7 @@ function Board:make_move(move) --{{{
             rl = iswhite and self.rooks[2] or self.rooks[2] + 56
             rf = iswhite and squarei"d1" or squarei"d8"
         end
-        self.bitboard.pieces[WHITE][ROOK]:clrbit(rl)
+        self.bitboard.pieces[self.side][ROOK]:clrbit(rl)
         self:set_piece(rf, ROOK, self.side, true)
         -- Clear castling rights
         self.castle[self.side] = {false, false}

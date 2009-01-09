@@ -34,7 +34,6 @@ end
 function stripping_load(modulename)
     local errmsg = ""
     -- Find source
-    print(modulename)
     local modulepath = string.match(modulename, "[^%.]+$")
     for path in string.gmatch(package.path, "([^;]+)") do
         local filename = string.gsub(path, "%?", modulepath)

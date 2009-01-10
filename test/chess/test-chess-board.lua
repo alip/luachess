@@ -80,29 +80,28 @@ TestChessBoard = {} -- class
         assert(not pcall(chess.Board, 1))
         assert(not pcall(chess.Board, "1"))
         assert(not pcall(chess.Board, {side = "foo"}))
-        assert(not pcall(chess.Board, {castle = "baz"}))
-        assert(not pcall(chess.Board, {castle = {}}))
-        assert(not pcall(chess.Board, {castle = {1, 2}}))
-        assert(not pcall(chess.Board, {castle = {{1, 2}, {1, 2}}}))
         assert(not pcall(chess.Board, {check_legality = "bar"}))
         assert(not pcall(chess.Board, {ep = {}}))
-        assert(not pcall(chess.Board, {ep = "A1"}))
+        assert(not pcall(chess.Board, {ep = "a1"}))
+        assert(not pcall(chess.Board, {ep = 65}))
+        assert(not pcall(chess.Board, {flag = "a"}))
+        assert(not pcall(chess.Board, {li_king = 65}))
+        assert(not pcall(chess.Board, {li_rook = "not table"}))
+        assert(not pcall(chess.Board, {li_rook = {-1, 1}}))
+        assert(not pcall(chess.Board, {li_rook = {1, -1}}))
+        assert(not pcall(chess.Board, {li_rook = {65, 1}}))
+        assert(not pcall(chess.Board, {li_rook = {1, 65}}))
 
         local b1 = chess.Board{}
         assert(type(b1) == "table")
         assert(b1.side == WHITE)
         assert(b1.check_legality == true)
         assert(b1.ep == -1)
-        assert(type(b1.castle) == "table")
-        assert(type(b1.castle[WHITE]) == "table")
-        assert(type(b1.castle[WHITE]) == "table")
-        assert(type(b1.castle[WHITE][1]) == "boolean")
-        assert(type(b1.castle[WHITE][2]) == "boolean")
-        assert(type(b1.castle[BLACK][1]) == "boolean")
-        assert(type(b1.castle[BLACK][2]) == "boolean")
-        assert(type(b1.rooks) == "table")
-        assert(b1.rooks[1] == squarei"h1")
-        assert(b1.rooks[2] == squarei"a1")
+        assert(b1.flag == 0xb)
+        assert(b1.li_king == squarei"e1")
+        assert(type(b1.li_rook) == "table")
+        assert(b1.li_rook[1] == squarei"h1")
+        assert(b1.li_rook[2] == squarei"a1")
         assert(type(b1.bitboard) == "table")
         assert(type(b1.bitboard.occupied) == "table")
         for i=1,4 do assert(b1.bitboard.occupied[i] == bb(0), i) end
@@ -115,26 +114,17 @@ TestChessBoard = {} -- class
         end
 
         local b2 = chess.Board{side = BLACK, check_legality = false,
-            castle = {{true, false}, {false, true}}, ep = squarei"e3",
-            rooks = {squarei"g1", squarei"c1"}}
+            flag = 3, ep = squarei"e3", li_king = squarei"a1",
+            li_rook = {squarei"g1", squarei"c1"}}
         assert(type(b2) == "table")
         assert(b2.side == BLACK)
         assert(b2.check_legality == false)
         assert(b2.ep == squarei"e3")
-        assert(type(b2.castle) == "table")
-        assert(type(b2.castle[WHITE]) == "table")
-        assert(type(b2.castle[BLACK]) == "table")
-        assert(type(b2.castle[WHITE][1]) == "boolean")
-        assert(type(b2.castle[WHITE][2]) == "boolean")
-        assert(type(b2.castle[BLACK][1]) == "boolean")
-        assert(type(b2.castle[BLACK][2]) == "boolean")
-        assert(b2.castle[WHITE][1])
-        assert(not b2.castle[WHITE][2])
-        assert(not b2.castle[BLACK][1])
-        assert(b2.castle[BLACK][2])
-        assert(type(b2.rooks) == "table")
-        assert(b2.rooks[1] == squarei"g1")
-        assert(b2.rooks[2] == squarei"c1")
+        assert(b2.flag == 3)
+        assert(b2.li_king == squarei"a1")
+        assert(type(b2.li_rook) == "table")
+        assert(b2.li_rook[1] == squarei"g1")
+        assert(b2.li_rook[2] == squarei"c1")
 
         for sq=0,63 do assert(b2.cboard[sq+1] == 0, sq) end
     end
@@ -357,8 +347,8 @@ TestChessBoard = {} -- class
         assert(not self.board.bitboard.occupied[3]:tstbit(squarei"h1"))
         assert(self.board.bitboard.occupied[4]:tstbit(squarei"h1"))
         assert(self.board.cboard[squarei"h1" + 1] == 0)
-        assert(not self.board.castle[WHITE][1])
-        assert(not self.board.castle[WHITE][2])
+        assert(not chess.tstbit(self.board.flag, chess.WKINGCASTLE))
+        assert(not chess.tstbit(self.board.flag, chess.WQUEENCASTLE))
     end
     function TestChessBoard:test_15_make_move_castle_long_white()
         local m = chess.MOVE(squarei"e1", squarei"c1")
@@ -385,8 +375,8 @@ TestChessBoard = {} -- class
         assert(not self.board.bitboard.occupied[3]:tstbit(squarei"a1"))
         assert(self.board.bitboard.occupied[4]:tstbit(squarei"a1"))
         assert(self.board.cboard[squarei"a1" + 1] == 0)
-        assert(not self.board.castle[WHITE][1])
-        assert(not self.board.castle[WHITE][2])
+        assert(not chess.tstbit(self.board.flag, chess.WKINGCASTLE))
+        assert(not chess.tstbit(self.board.flag, chess.WQUEENCASTLE))
     end
     function TestChessBoard:test_16_make_move_castle_short_black()
         local m = chess.MOVE(squarei"e8", squarei"g8")
@@ -413,8 +403,8 @@ TestChessBoard = {} -- class
         assert(not self.board.bitboard.occupied[3]:tstbit(squarei"h8"))
         assert(self.board.bitboard.occupied[4]:tstbit(squarei"h8"))
         assert(self.board.cboard[squarei"h8" + 1] == 0)
-        assert(not self.board.castle[BLACK][1])
-        assert(not self.board.castle[BLACK][2])
+        assert(not chess.tstbit(self.board.flag, chess.BKINGCASTLE))
+        assert(not chess.tstbit(self.board.flag, chess.BQUEENCASTLE))
     end
     function TestChessBoard:test_17_make_move_castle_long_black()
         local m = chess.MOVE(squarei"e8", squarei"c8")
@@ -441,8 +431,8 @@ TestChessBoard = {} -- class
         assert(not self.board.bitboard.occupied[3]:tstbit(squarei"a8"))
         assert(self.board.bitboard.occupied[4]:tstbit(squarei"a8"))
         assert(self.board.cboard[squarei"a8" + 1] == 0)
-        assert(not self.board.castle[BLACK][1])
-        assert(not self.board.castle[BLACK][2])
+        assert(not chess.tstbit(self.board.flag, chess.BKINGCASTLE))
+        assert(not chess.tstbit(self.board.flag, chess.BQUEENCASTLE))
     end
 -- class
 

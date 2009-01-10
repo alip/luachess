@@ -28,6 +28,7 @@
 local assert = assert
 local error = error
 local setmetatable = setmetatable
+local tonumber = tonumber
 local type = type
 local unpack = unpack
 
@@ -166,6 +167,14 @@ function MOVE(from, to) return bor(lshift(from, 6), to) end
 function capture_piece(move) return band(rshift(move, 15), 0x0007) end
 function promote_piece(move) return band(rshift(move, 12), 0x0007) end
 --}}}
+--{{{Castling flags
+WKINGCASTLE = 0x0001
+WQUEENCASTLE = 0x0002
+BKINGCASTLE = 0x0004
+BQUEENCASTLE = 0x0008
+WCASTLE = bor(WKINGCASTLE, WQUEENCASTLE)
+BCASTLE = bor(BKINGCASTLE, BQUEENCASTLE)
+--}}}
 --{{{Board
 Board = setmetatable({}, {
     __call = function (self, argtable)
@@ -178,25 +187,18 @@ Board = setmetatable({}, {
         if argtable.check_legality == nil then argtable.check_legality = true end
         assert(not argtable.ep or (argtable.ep > -1 and argtable.ep < 64),
             "invalid en passant square")
-
-        assert(not argtable.castle or type(argtable.castle) == "table",
-            "castle not a table")
-        if argtable.castle then
-            assert(type(argtable.castle[1]) == "table", "castle[1] not a table")
-            assert(type(argtable.castle[2]) == "table", "castle[2] not a table")
-            assert(type(argtable.castle[1][1]) == "boolean", "castle[1][1] not a boolean")
-            assert(type(argtable.castle[1][2]) == "boolean", "castle[1][2] not a boolean")
-            assert(type(argtable.castle[2][1]) == "boolean", "castle[2][1] not a boolean")
-            assert(type(argtable.castle[2][2]) == "boolean", "castle[2][2] not a boolean")
+        if argtable.flag then
+            argtable.flag = assert(tonumber(argtable.flag), "flag not a number")
         end
-
-        assert(not argtable.rooks or type(argtable.rooks) == "table",
-            "rooks not a table")
-        if argtable.rooks then
-            assert(argtable.rooks[1] > -1 and argtable.rooks[1] < 64,
-                "rooks[1] is an invalid square")
-            assert(argtable.rooks[2] > -1 and argtable.rooks[2] < 64,
-                "rooks[2] is an invalid square")
+        assert(not argtable.li_king or (argtable.li_king > -1 and argtable.li_king < 64),
+            "li_king is an invalid square")
+        assert(not argtable.li_rook or type(argtable.li_rook) == "table",
+            "li_rooks not a table")
+        if argtable.li_rook then
+            assert(argtable.li_rook[1] > -1 and argtable.li_rook[1] < 64,
+                "li_rooks[1] is an invalid square")
+            assert(argtable.li_rook[2] > -1 and argtable.li_rook[2] < 64,
+                "li_rooks[2] is an invalid square")
         end
 
         local board = {
@@ -225,11 +227,12 @@ Board = setmetatable({}, {
             side = argtable.side or WHITE,
             check_legality = argtable.check_legality,
             ep = argtable.ep or -1,
-            -- Castling
-            castle = argtable.castle or {{false, false}, {false, false}},
-            -- Initial locations for white rooks.
+            -- Castling flags
+            flag = argtable.flag or 0xb,
+            -- Initial locations for white rooks and white king.
             -- This is needed to implement fischerandom castling easily.
-            rooks = argtable.rooks or {squarei"h1", squarei"a1"}
+            li_king = argtable.li_king or squarei"e1",
+            li_rook = argtable.li_rook or {squarei"h1", squarei"a1"},
         }
         return setmetatable(board, {__index = self,
         __tostring = function (board) --{{{
@@ -253,22 +256,22 @@ Board = setmetatable({}, {
                         s = s .. "\tTomove: " .. tomove
                     elseif rank == 7 then
                         local castles = "\tCastles: "
-                        if board.castle[WHITE][1] then
+                        if tstbit(board.flag, WKINGCASTLE) then
                             castles = castles .. "ws=true, "
                         else
                             castles = castles .. "ws=false, "
                         end
-                        if board.castle[WHITE][2] then
+                        if tstbit(board.flag, WQUEENCASTLE) then
                             castles = castles .. "wl=true, "
                         else
                             castles = castles .. "wl=false, "
                         end
-                        if board.castle[BLACK][1] then
+                        if tstbit(board.flag, BKINGCASTLE) then
                             castles = castles .. "bs=true, "
                         else
                             castles = castles .. "bs=false, "
                         end
-                        if board.castle[BLACK][2] then
+                        if tstbit(board.flag, BQUEENCASTLE) then
                             castles = castles .. "bl=true"
                         else
                             castles = castles .. "bl=false"
@@ -426,9 +429,17 @@ function Board:loadfen(fen) --{{{
     for _, element in castles() do
         if element == "-" then break
         elseif element[1] == KING then
-            self.castle[element[2]][1] = true
+            if element[2] == WHITE then
+                self.flag = setbit(self.flag, WKINGCASTLE)
+            else
+                self.flag = setbit(self.flag, BKINGCASTLE)
+            end
         else -- QUEEN
-            self.castle[element[2]][2] = true
+            if element[2] == WHITE then
+                self.flag = setbit(self.flag, WQUEENCASTLE)
+            else
+                self.flag = setbit(self.flag, BQUEENCASTLE)
+            end
         end
     end
 
@@ -445,12 +456,12 @@ function Board:make_move(move) --{{{
     local xside = switch_side(self.side)
     local f, t = fromsq(move), tosq(move)
     local fpiece = self:get_piece(f)
-    local tpiece = self:get_piece(t)
 
     -- Clear pieces
     self.bitboard.pieces[self.side][fpiece]:clrbit(f)
     if tstbit(move, CAPTURE) then
-        self.bitboard.pieces[xside][tpiece]:clrbit(t)
+        local captured = capture_piece(move)
+        self.bitboard.pieces[xside][captured]:clrbit(t)
     elseif tstbit(move, ENPASSANT) then
         local epsq
         if self.side == WHITE then epsq = t - 8
@@ -470,16 +481,17 @@ function Board:make_move(move) --{{{
         local rl, rf
         local iswhite = self.side == WHITE
         if t > f then -- Castle kingside
-            rl = iswhite and self.rooks[1] or self.rooks[1] + 56
+            rl = iswhite and self.li_rook[1] or self.li_rook[1] + 56
             rf = iswhite and squarei"f1" or squarei"f8"
         else -- Castle queenside
-            rl = iswhite and self.rooks[2] or self.rooks[2] + 56
+            rl = iswhite and self.li_rook[2] or self.li_rook[2] + 56
             rf = iswhite and squarei"d1" or squarei"d8"
         end
         self.bitboard.pieces[self.side][ROOK]:clrbit(rl)
         self:set_piece(rf, ROOK, self.side, true)
         -- Clear castling rights
-        self.castle[self.side] = {false, false}
+        if iswhite then self.flag = band(self.flag, bnot(WCASTLE))
+        else self.flag = band(self.flag, bnot(BCASTLE)) end
     end
 
     -- If pawn moved two squares set the enpassant square.
@@ -493,5 +505,4 @@ function Board:make_move(move) --{{{
     self.side = xside
     self:update()
     return true
-end
---}}}
+end --}}}

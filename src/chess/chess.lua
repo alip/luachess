@@ -228,7 +228,7 @@ Board = setmetatable({}, {
             check_legality = argtable.check_legality,
             ep = argtable.ep or -1,
             -- Castling flags
-            flag = argtable.flag or 0xb,
+            flag = argtable.flag or 0,
             -- Initial locations for white rooks and white king.
             -- This is needed to implement fischerandom castling easily.
             li_king = argtable.li_king or squarei"e1",
@@ -400,6 +400,7 @@ function Board:clear_all() --{{{
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0,
     }
+    self.flag = 0
 end --}}}
 function Board:has_piece(square, side) --{{{
     assert(square > -1 and square < 64, "invalid square")

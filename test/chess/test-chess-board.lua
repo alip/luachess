@@ -97,7 +97,7 @@ TestChessBoard = {} -- class
         assert(b1.side == WHITE)
         assert(b1.check_legality == true)
         assert(b1.ep == -1)
-        assert(b1.flag == 0xb)
+        assert(b1.flag == 0)
         assert(b1.li_king == squarei"e1")
         assert(type(b1.li_rook) == "table")
         assert(b1.li_rook[1] == squarei"h1")

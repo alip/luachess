@@ -420,6 +420,51 @@ function Board:has_piece(square, side) --{{{
     if not side then return self.bitboard.occupied[3]:tstbit(square)
     else return self.bitboard.occupied[side]:tstbit(square) end
 end --}}}
+function Board:fen() --{{{
+    local fen = ""
+    for r=8,1,-1 do
+        local rank = ""
+        local empty_count = 0
+        for f=1,8 do
+            local square = squarei(string.char(f + 96) .. r)
+            local piece, side = self:get_piece(square)
+            if not piece then
+                empty_count = empty_count + 1
+            else
+                if empty_count > 0 then
+                    rank = rank .. empty_count
+                    empty_count = 0
+                end
+                rank = rank .. piece_tostring(piece, side)
+            end
+        end
+        if empty_count > 0 then rank = rank .. empty_count end
+        fen = fen .. rank
+        if r ~= 1 then fen = fen .. "/" end
+    end
+
+    -- Side to move
+    if self.side == WHITE then fen = fen .. " w"
+    else fen = fen .. " b" end
+
+    -- Castling rights
+    local crights = ""
+    if tstbit(self.flag, WKINGCASTLE) then crights = crights .. "K" end
+    if tstbit(self.flag, WQUEENCASTLE) then crights = crights .. "Q" end
+    if tstbit(self.flag, BKINGCASTLE) then crights = crights .. "k" end
+    if tstbit(self.flag, BQUEENCASTLE) then crights = crights .. "q" end
+    if crights == "" then crights = "-" end
+    fen = fen .. " " .. crights
+
+    -- En passant square
+    if self.ep == -1 then fen = fen .. " -"
+    else fen = fen .. " " .. squarec(self.ep) end
+
+    -- Move counters
+    fen = fen .. " " .. self.rhmc .. " " .. self.fmc
+
+    return fen
+end --}}}
 function Board:loadfen(fen) --{{{
     fen = fen or "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     local pieces, side, castles, ep, rhmc, fmc = move.fen:match(fen)
@@ -443,15 +488,15 @@ function Board:loadfen(fen) --{{{
         if element == "-" then break
         elseif element[1] == KING then
             if element[2] == WHITE then
-                self.flag = setbit(self.flag, WKINGCASTLE)
+                self.flag = bor(self.flag, WKINGCASTLE)
             else
-                self.flag = setbit(self.flag, BKINGCASTLE)
+                self.flag = bor(self.flag, BKINGCASTLE)
             end
         else -- QUEEN
             if element[2] == WHITE then
-                self.flag = setbit(self.flag, WQUEENCASTLE)
+                self.flag = bor(self.flag, WQUEENCASTLE)
             else
-                self.flag = setbit(self.flag, BQUEENCASTLE)
+                self.flag = bor(self.flag, BQUEENCASTLE)
             end
         end
     end

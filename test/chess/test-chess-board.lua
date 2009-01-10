@@ -243,7 +243,60 @@ TestChessBoard = {} -- class
 
         -- TODO write tests for valid FENs
     end
-    function TestChessBoard:test_10_make_move_bare()
+    function TestChessBoard:test_10_fen()
+        -- Fischer, R - Tal, M , the great game :)
+        local fenlist = {
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            "rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+            "rnbqkbnr/pppp1ppp/4p3/8/3PP3/8/PPP2PPP/RNBQKBNR b KQkq d3 0 2",
+            "rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq d6 0 3",
+            "rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR b KQkq - 1 3",
+            "rnbqk1nr/ppp2ppp/4p3/3p4/1b1PP3/2N5/PPP2PPP/R1BQKBNR w KQkq - 2 4",
+            "rnbqk1nr/ppp2ppp/4p3/3pP3/1b1P4/2N5/PPP2PPP/R1BQKBNR b KQkq - 0 4",
+            "rnbqk1nr/pp3ppp/4p3/2ppP3/1b1P4/2N5/PPP2PPP/R1BQKBNR w KQkq c6 0 5",
+            "rnbqk1nr/pp3ppp/4p3/2ppP3/1b1P4/P1N5/1PP2PPP/R1BQKBNR b KQkq - 0 5",
+            "rnbqk1nr/pp3ppp/4p3/b1ppP3/3P4/P1N5/1PP2PPP/R1BQKBNR w KQkq - 1 6",
+            "rnbqk1nr/pp3ppp/4p3/b1ppP3/1P1P4/P1N5/2P2PPP/R1BQKBNR b KQkq b3 0 6",
+            "rnbqk1nr/pp3ppp/4p3/b2pP3/1P1p4/P1N5/2P2PPP/R1BQKBNR w KQkq - 0 7",
+            "rnbqk1nr/pp3ppp/4p3/b2pP3/1P1p2Q1/P1N5/2P2PPP/R1B1KBNR b KQkq - 1 7",
+            "rnbqk2r/pp2nppp/4p3/b2pP3/1P1p2Q1/P1N5/2P2PPP/R1B1KBNR w KQkq - 2 8",
+            "rnbqk2r/pp2nppp/4p3/P2pP3/3p2Q1/P1N5/2P2PPP/R1B1KBNR b KQkq - 0 8",
+            "rnbqk2r/pp2nppp/4p3/P2pP3/6Q1/P1p5/2P2PPP/R1B1KBNR w KQkq - 0 9",
+            "rnbqk2r/pp2npQp/4p3/P2pP3/8/P1p5/2P2PPP/R1B1KBNR b KQkq - 0 9",
+            "rnbqk1r1/pp2npQp/4p3/P2pP3/8/P1p5/2P2PPP/R1B1KBNR w KQq - 0 10",
+            "rnbqk1r1/pp2np1Q/4p3/P2pP3/8/P1p5/2P2PPP/R1B1KBNR b KQq - 0 10",
+            "r1bqk1r1/pp2np1Q/2n1p3/P2pP3/8/P1p5/2P2PPP/R1B1KBNR w KQq - 1 11",
+            "r1bqk1r1/pp2np1Q/2n1p3/P2pP3/8/P1p2N2/2P2PPP/R1B1KB1R b KQq - 2 11",
+            "r1b1k1r1/ppq1np1Q/2n1p3/P2pP3/8/P1p2N2/2P2PPP/R1B1KB1R w KQq - 3 12",
+            "r1b1k1r1/ppq1np1Q/2n1p3/PB1pP3/8/P1p2N2/2P2PPP/R1B1K2R b KQq - 4 12",
+            "r3k1r1/ppqbnp1Q/2n1p3/PB1pP3/8/P1p2N2/2P2PPP/R1B1K2R w KQq - 5 13",
+            "r3k1r1/ppqbnp1Q/2n1p3/PB1pP3/8/P1p2N2/2P2PPP/R1B2RK1 b q - 0 13",
+            "2kr2r1/ppqbnp1Q/2n1p3/PB1pP3/8/P1p2N2/2P2PPP/R1B2RK1 w - - 0 14",
+            "2kr2r1/ppqbnp1Q/2n1p3/PB1pP1B1/8/P1p2N2/2P2PPP/R4RK1 b - - 1 14",
+            "2kr2r1/ppqbnp1Q/4p3/PB1pn1B1/8/P1p2N2/2P2PPP/R4RK1 w - - 0 15",
+            "2kr2r1/ppqbnp1Q/4p3/PB1pN1B1/8/P1p5/2P2PPP/R4RK1 b - - 0 15",
+            "2kr2r1/ppq1np1Q/4p3/Pb1pN1B1/8/P1p5/2P2PPP/R4RK1 w - - 0 16",
+            "2kr2r1/ppq1nN1Q/4p3/Pb1p2B1/8/P1p5/2P2PPP/R4RK1 b - - 0 16",
+            "2kr2r1/ppq1nN1Q/4p3/P2p2B1/8/P1p5/2P2PPP/R4bK1 w - - 0 17",
+            "2kN2r1/ppq1n2Q/4p3/P2p2B1/8/P1p5/2P2PPP/R4bK1 b - - 0 17",
+            "2kN4/ppq1n2Q/4p3/P2p2r1/8/P1p5/2P2PPP/R4bK1 w - - 0 18",
+            "2k5/ppq1n2Q/4N3/P2p2r1/8/P1p5/2P2PPP/R4bK1 b - - 0 18",
+            "2k5/ppq1n2Q/4N3/P2p4/8/P1p5/2P2PrP/R4bK1 w - - 0 19",
+            "2k5/ppq1n2Q/4N3/P2p4/8/P1p5/2P2PrP/R4b1K b - - 1 19",
+            "2k5/pp2n2Q/4N3/P2pq3/8/P1p5/2P2PrP/R4b1K w - - 2 20",
+            "2k5/pp2n2Q/4N3/P2pq3/8/P1p5/2P2PrP/5R1K b - - 0 20",
+            "2k5/pp2n2Q/4q3/P2p4/8/P1p5/2P2PrP/5R1K w - - 0 21",
+            "2k5/pp2n2Q/4q3/P2p4/8/P1p5/2P2PKP/5R2 b - - 0 21",
+            "2k5/pp2n2Q/8/P2p4/6q1/P1p5/2P2PKP/5R2 w - - 1 22",
+            -- 1/2-1/2
+        }
+        for _, fen in ipairs(fenlist) do
+            self.board:loadfen(fen)
+            assert(self.board:fen() == fen, "Failed for FEN: '" .. fen .. "'")
+        end
+    end
+    function TestChessBoard:test_11_make_move_bare()
         local m = chess.MOVE(squarei"g1", squarei"f3")
         self.loadfen()
         self.board:make_move(m)
@@ -259,7 +312,7 @@ TestChessBoard = {} -- class
         assert(self.board.cboard[squarei"g1" + 1] == 0)
         assert(self.board.rhmc == 1)
     end
-    function TestChessBoard:test_10_make_move_pawn2()
+    function TestChessBoard:test_12_make_move_pawn2()
         local m = chess.MOVE(squarei"a2", squarei"a4")
         self.loadfen"r1bq1rk1/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 w - - 0 8"
         self.board:make_move(m)
@@ -276,7 +329,7 @@ TestChessBoard = {} -- class
         assert(self.board.ep == squarei"a3")
         assert(self.board.rhmc == 0)
     end
-    function TestChessBoard:test_11_make_move_capture()
+    function TestChessBoard:test_13_make_move_capture()
         local m = chess.MOVE(squarei"e4", squarei"d5")
         m = bor(m, PAWNCAP)
         self.loadfen
@@ -296,7 +349,7 @@ TestChessBoard = {} -- class
         assert(self.board.cboard[squarei"e4" + 1] == 0)
         assert(self.board.rhmc == 0)
     end
-    function TestChessBoard:test_12_make_move_enpassant()
+    function TestChessBoard:test_14_make_move_enpassant()
         local m = chess.MOVE(squarei"d5", squarei"c6")
         m = bor(m, ENPASSANT)
         self.loadfen"rnbq1rk1/pp3pbp/3p1np1/2pPp3/2P1P3/2N2N2/PP2BPPP/R1BQK2R w KQ c6 0 8"
@@ -318,7 +371,7 @@ TestChessBoard = {} -- class
         assert(self.board.cboard[squarei"d5" + 1] == 0)
         assert(self.board.rhmc == 0)
     end
-    function TestChessBoard:test_13_make_move_promotion()
+    function TestChessBoard:test_15_make_move_promotion()
         local m = chess.MOVE(squarei"b7", squarei"a8")
         m = bor(m, KNIGHTPRM)
         m = bor(m, ROOKCAP)
@@ -339,7 +392,7 @@ TestChessBoard = {} -- class
         assert(self.board.rhmc == 0)
         assert(self.board.fmc == 10)
     end
-    function TestChessBoard:test_14_make_move_castle_short_white()
+    function TestChessBoard:test_16_make_move_castle_short_white()
         local m = chess.MOVE(squarei"e1", squarei"g1")
         m = bor(m, CASTLING)
         self.loadfen"r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5"
@@ -369,7 +422,7 @@ TestChessBoard = {} -- class
         assert(self.board.rhmc == 3)
         assert(self.board.fmc == 5)
     end
-    function TestChessBoard:test_15_make_move_castle_long_white()
+    function TestChessBoard:test_17_make_move_castle_long_white()
         local m = chess.MOVE(squarei"e1", squarei"c1")
         m = bor(m, CASTLING)
         self.loadfen"r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPPQ2PP/R3KB1R w KQ - 0 9"
@@ -399,7 +452,7 @@ TestChessBoard = {} -- class
         assert(self.board.rhmc == 1)
         assert(self.board.fmc == 9)
     end
-    function TestChessBoard:test_16_make_move_castle_short_black()
+    function TestChessBoard:test_18_make_move_castle_short_black()
         local m = chess.MOVE(squarei"e8", squarei"g8")
         m = bor(m, CASTLING)
         self.loadfen"rnbqk2r/ppp1ppbp/3p1np1/8/3PP3/2N2N2/PPP1BPPP/R1BQK2R b KQkq - 3 5"
@@ -429,7 +482,7 @@ TestChessBoard = {} -- class
         assert(self.board.rhmc == 4)
         assert(self.board.fmc == 6)
     end
-    function TestChessBoard:test_17_make_move_castle_long_black()
+    function TestChessBoard:test_19_make_move_castle_long_black()
         local m = chess.MOVE(squarei"e8", squarei"c8")
         m = bor(m, CASTLING)
         self.loadfen"r3kbnr/pppb1ppp/2np1q2/1B2p3/3PP3/2N2N2/PPP2PPP/R1BQ1RK1 b kq - 0 6"

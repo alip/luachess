@@ -91,6 +91,8 @@ TestChessBoard = {} -- class
         assert(not pcall(chess.Board, {li_rook = {1, -1}}))
         assert(not pcall(chess.Board, {li_rook = {65, 1}}))
         assert(not pcall(chess.Board, {li_rook = {1, 65}}))
+        assert(not pcall(chess.Board, {rhmc = "not number"}))
+        assert(not pcall(chess.Board, {fmc = "not number"}))
 
         local b1 = chess.Board{}
         assert(type(b1) == "table")
@@ -102,6 +104,8 @@ TestChessBoard = {} -- class
         assert(type(b1.li_rook) == "table")
         assert(b1.li_rook[1] == squarei"h1")
         assert(b1.li_rook[2] == squarei"a1")
+        assert(b1.rhmc == 0)
+        assert(b1.fmc == 1)
         assert(type(b1.bitboard) == "table")
         assert(type(b1.bitboard.occupied) == "table")
         for i=1,4 do assert(b1.bitboard.occupied[i] == bb(0), i) end
@@ -115,7 +119,8 @@ TestChessBoard = {} -- class
 
         local b2 = chess.Board{side = BLACK, check_legality = false,
             flag = 3, ep = squarei"e3", li_king = squarei"a1",
-            li_rook = {squarei"g1", squarei"c1"}}
+            li_rook = {squarei"g1", squarei"c1"},
+            rhmc = 3, fmc = 6}
         assert(type(b2) == "table")
         assert(b2.side == BLACK)
         assert(b2.check_legality == false)
@@ -125,6 +130,8 @@ TestChessBoard = {} -- class
         assert(type(b2.li_rook) == "table")
         assert(b2.li_rook[1] == squarei"g1")
         assert(b2.li_rook[2] == squarei"c1")
+        assert(b2.rhmc == 3)
+        assert(b2.fmc == 6)
 
         for sq=0,63 do assert(b2.cboard[sq+1] == 0, sq) end
     end
@@ -217,6 +224,10 @@ TestChessBoard = {} -- class
             assert(not self.board.bitboard.occupied[3]:tstbit(sq), sq)
             assert(self.board.cboard[sq + 1] == 0)
         end
+        assert(self.board.ep == -1)
+        assert(self.board.flag == 0)
+        assert(self.board.rhmc == 0)
+        assert(self.board.fmc == 1)
     end
     function TestChessBoard:test_09_loadfen_invalid()
         assert(not pcall(self.loadfen, {}))
@@ -246,6 +257,7 @@ TestChessBoard = {} -- class
         assert(not self.board.bitboard.occupied[3]:tstbit(squarei"g1"))
         assert(self.board.bitboard.occupied[4]:tstbit(squarei"g1"))
         assert(self.board.cboard[squarei"g1" + 1] == 0)
+        assert(self.board.rhmc == 1)
     end
     function TestChessBoard:test_10_make_move_pawn2()
         local m = chess.MOVE(squarei"a2", squarei"a4")
@@ -262,6 +274,7 @@ TestChessBoard = {} -- class
         assert(self.board.bitboard.occupied[4]:tstbit(squarei"a2"))
         assert(self.board.cboard[squarei"a2" + 1] == 0)
         assert(self.board.ep == squarei"a3")
+        assert(self.board.rhmc == 0)
     end
     function TestChessBoard:test_11_make_move_capture()
         local m = chess.MOVE(squarei"e4", squarei"d5")
@@ -281,6 +294,7 @@ TestChessBoard = {} -- class
         assert(not self.board.bitboard.occupied[3]:tstbit(squarei"e4"))
         assert(self.board.bitboard.occupied[4]:tstbit(squarei"e4"))
         assert(self.board.cboard[squarei"e4" + 1] == 0)
+        assert(self.board.rhmc == 0)
     end
     function TestChessBoard:test_12_make_move_enpassant()
         local m = chess.MOVE(squarei"d5", squarei"c6")
@@ -302,6 +316,7 @@ TestChessBoard = {} -- class
         assert(not self.board.bitboard.occupied[3]:tstbit(squarei"d5"))
         assert(self.board.bitboard.occupied[4]:tstbit(squarei"d5"))
         assert(self.board.cboard[squarei"d5" + 1] == 0)
+        assert(self.board.rhmc == 0)
     end
     function TestChessBoard:test_13_make_move_promotion()
         local m = chess.MOVE(squarei"b7", squarei"a8")
@@ -321,6 +336,8 @@ TestChessBoard = {} -- class
         assert(not self.board.bitboard.occupied[3]:tstbit(squarei"b7"))
         assert(self.board.bitboard.occupied[4]:tstbit(squarei"b7"))
         assert(self.board.cboard[squarei"b7" + 1] == 0)
+        assert(self.board.rhmc == 0)
+        assert(self.board.fmc == 10)
     end
     function TestChessBoard:test_14_make_move_castle_short_white()
         local m = chess.MOVE(squarei"e1", squarei"g1")
@@ -349,6 +366,8 @@ TestChessBoard = {} -- class
         assert(self.board.cboard[squarei"h1" + 1] == 0)
         assert(not chess.tstbit(self.board.flag, chess.WKINGCASTLE))
         assert(not chess.tstbit(self.board.flag, chess.WQUEENCASTLE))
+        assert(self.board.rhmc == 3)
+        assert(self.board.fmc == 5)
     end
     function TestChessBoard:test_15_make_move_castle_long_white()
         local m = chess.MOVE(squarei"e1", squarei"c1")
@@ -377,6 +396,8 @@ TestChessBoard = {} -- class
         assert(self.board.cboard[squarei"a1" + 1] == 0)
         assert(not chess.tstbit(self.board.flag, chess.WKINGCASTLE))
         assert(not chess.tstbit(self.board.flag, chess.WQUEENCASTLE))
+        assert(self.board.rhmc == 1)
+        assert(self.board.fmc == 9)
     end
     function TestChessBoard:test_16_make_move_castle_short_black()
         local m = chess.MOVE(squarei"e8", squarei"g8")
@@ -405,6 +426,8 @@ TestChessBoard = {} -- class
         assert(self.board.cboard[squarei"h8" + 1] == 0)
         assert(not chess.tstbit(self.board.flag, chess.BKINGCASTLE))
         assert(not chess.tstbit(self.board.flag, chess.BQUEENCASTLE))
+        assert(self.board.rhmc == 4)
+        assert(self.board.fmc == 6)
     end
     function TestChessBoard:test_17_make_move_castle_long_black()
         local m = chess.MOVE(squarei"e8", squarei"c8")
@@ -433,6 +456,8 @@ TestChessBoard = {} -- class
         assert(self.board.cboard[squarei"a8" + 1] == 0)
         assert(not chess.tstbit(self.board.flag, chess.BKINGCASTLE))
         assert(not chess.tstbit(self.board.flag, chess.BQUEENCASTLE))
+        assert(self.board.rhmc == 1)
+        assert(self.board.fmc == 7)
     end
 -- class
 

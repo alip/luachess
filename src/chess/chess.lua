@@ -200,6 +200,12 @@ Board = setmetatable({}, {
             assert(argtable.li_rook[2] > -1 and argtable.li_rook[2] < 64,
                 "li_rooks[2] is an invalid square")
         end
+        if argtable.rhmc then
+            argtable.rhmc = assert(tonumber(argtable.rhmc), "rhmove not a number")
+        end
+        if argtable.fmc then
+            argtable.fmc = assert(tonumber(argtable.fmc), "fmove not a number")
+        end
 
         local board = {
             bitboard = {
@@ -233,6 +239,9 @@ Board = setmetatable({}, {
             -- This is needed to implement fischerandom castling easily.
             li_king = argtable.li_king or squarei"e1",
             li_rook = argtable.li_rook or {squarei"h1", squarei"a1"},
+            -- Move counts
+            rhmc = argtable.rhmc or 0, -- reversible half move counter
+            fmc = argtable.fmc or 1, -- full move counter
         }
         return setmetatable(board, {__index = self,
         __tostring = function (board) --{{{
@@ -400,7 +409,10 @@ function Board:clear_all() --{{{
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0,
     }
+    self.ep = -1
     self.flag = 0
+    self.rhmc = 0
+    self.fmc = 1
 end --}}}
 function Board:has_piece(square, side) --{{{
     assert(square > -1 and square < 64, "invalid square")
@@ -410,8 +422,8 @@ function Board:has_piece(square, side) --{{{
 end --}}}
 function Board:loadfen(fen) --{{{
     fen = fen or "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-    local pieces, side, castles, ep, hmove, fmove = move.fen:match(fen)
-    assert(pieces and side and castles and ep and hmove and fmove, "invalid fen")
+    local pieces, side, castles, ep, rhmc, fmc = move.fen:match(fen)
+    assert(pieces and side and castles and ep and rhmc and fmc, "invalid fen")
 
     -- Set the pieces
     self:clear_all()
@@ -448,10 +460,8 @@ function Board:loadfen(fen) --{{{
     if ep == "-" then self.ep = -1
     else self.ep = squarei(ep) end
 
-    --[[ TODO Not used for now
-    self.hmove = hmove
-    self.fmove = fmove
-    --]]
+    self.rhmc = rhmc
+    self.fmc = fmc
 end --}}}
 function Board:make_move(move) --{{{
     local xside = switch_side(self.side)
@@ -502,6 +512,14 @@ function Board:make_move(move) --{{{
     else
         self.ep = -1
     end
+
+    -- Update move counters
+    if fpiece == PAWN or tstbit(move, CAPTURE) then
+        self.rhmc = 0
+    else
+        self.rhmc = self.rhmc + 1
+    end
+    if self.side == BLACK then self.fmc = self.fmc + 1 end
 
     self.side = xside
     self:update()

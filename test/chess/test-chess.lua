@@ -199,6 +199,5 @@ TestChess = {} -- class
     end
 -- class
 
-LuaUnit:run()
-
-
+ret = LuaUnit:run()
+if ret > 0 then os.exit(1) end

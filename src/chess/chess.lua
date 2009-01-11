@@ -291,6 +291,10 @@ Board = setmetatable({}, {
                         if board.ep == -1 then ep = ep .. "none"
                         else ep = ep .. squarec(board.ep) end
                         s = s .. ep
+                    elseif rank == 5 then
+                        s = s .. "\tReversible half move counter: " .. board.rhmc
+                    elseif rank == 4 then
+                        s = s .. "\tFull move counter: " .. board.fmc
                     end
                 end
                 return s
@@ -552,8 +556,7 @@ function Board:make_move(move) --{{{
 
     -- If pawn moved two squares set the enpassant square.
     if fpiece == PAWN and math.abs(f - t) == 16 then
-        local epsq = (f + t) / 2
-        self.ep = epsq
+        self.ep = (f + t) / 2
     else
         self.ep = -1
     end

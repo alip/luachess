@@ -341,12 +341,11 @@ function Board:update() --{{{
     self:update_cboard()
     self:update_occupied()
 end --}}}
-function Board:set_piece(square, piece, side, noupdate) --{{{
+function Board:set_piece(square, piece, side) --{{{
     assert(square > -1 and square < 64, "invalid square")
     assert(piece >= PAWN and piece <= KING, "invalid piece")
     assert(side == WHITE or side == BLACK, "invalid side")
     self.bitboard.pieces[side][piece]:setbit(square)
-    if not noupdate then self:update() end
 end --}}}
 function Board:get_piece(square) --{{{
     assert(square > -1 and square < 64, "invalid square")
@@ -389,13 +388,12 @@ function Board:get_piece(square) --{{{
         end
     end
 end --}}}
-function Board:clear_piece(square, noupdate) --{{{
+function Board:clear_piece(square) --{{{
     -- assert(square > -1 and square < 64, "invalid square")
     -- assert not needed because it calls get_piece() right away.
     local piece, side = self:get_piece(square)
     if not piece then return false
     else self.bitboard.pieces[side][piece]:clrbit(square) end
-    if not noupdate then self:update() end
     return true
 end --}}}
 function Board:clear_all() --{{{
@@ -482,7 +480,7 @@ function Board:loadfen(fen) --{{{
         if type(element) == "number" then
             sq = sq - element
         else
-            self:set_piece(sq, element[1], element[2], true)
+            self:set_piece(sq, element[1], element[2])
             sq = sq - 1
         end
     end
@@ -534,9 +532,9 @@ function Board:make_move(move) --{{{
 
     -- Set pieces
     if tstbit(move, PROMOTION) then
-        self:set_piece(t, promote_piece(move), self.side, true)
+        self:set_piece(t, promote_piece(move), self.side)
     else
-        self:set_piece(t, fpiece, self.side, true)
+        self:set_piece(t, fpiece, self.side)
     end
 
     -- Castling
@@ -550,7 +548,7 @@ function Board:make_move(move) --{{{
             rf = iswhite and squarei"d1" or squarei"d8"
         end
         self.bitboard.pieces[self.side][ROOK]:clrbit(rl)
-        self:set_piece(rf, ROOK, self.side, true)
+        self:set_piece(rf, ROOK, self.side)
         -- Clear castling rights
         if iswhite then self.flag = band(self.flag, bnot(WCASTLE))
         else self.flag = band(self.flag, bnot(BCASTLE)) end

@@ -164,6 +164,7 @@ TestChessBoard = {} -- class
         assert(not pcall(self.get_piece, 65))
         for sq=0,63 do
             self.set_piece(sq, QUEEN, BLACK)
+            self:update()
             assert(self.get_piece(sq), sq)
             assert(select("#", self.get_piece(sq)) == 2, sq)
             assert(self.get_piece(sq) == QUEEN, sq)
@@ -175,7 +176,9 @@ TestChessBoard = {} -- class
         assert(not pcall(self.clear_piece, 65))
         for sq=0,63 do
             self.set_piece(sq, KNIGHT, WHITE)
+            self:update()
             self.clear_piece(11)
+            self:update()
             assert(not self.get_piece(11), sq)
         end
     end
@@ -205,23 +208,14 @@ TestChessBoard = {} -- class
         assert(not pcall(self.has_piece, 65))
         assert(not pcall(self.has_piece, 13, BLACK + 1))
         for sq=0,63 do
-            -- With update
-            self.set_piece(sq, ROOK, BLACK)
-            assert(self.has_piece(sq, BLACK), sq)
-            assert(not self.has_piece(sq, WHITE), sq)
-            assert(self.has_piece(sq), sq)
-            self.clear_piece(sq)
-            assert(not self.has_piece(sq, BLACK), sq)
-            assert(not self.has_piece(sq), sq)
-            -- Without update
-            self.set_piece(sq, BISHOP, WHITE, true)
+            self.set_piece(sq, BISHOP, WHITE)
             assert(not self.has_piece(sq, WHITE), sq)
             assert(not self.has_piece(sq))
             self.update()
             assert(self.has_piece(sq, WHITE), sq)
             assert(not self.has_piece(sq, BLACK), sq)
             assert(self.has_piece(sq), sq)
-            self.clear_piece(sq, BISHOP, WHITE, true)
+            self.clear_piece(sq, BISHOP, WHITE)
             assert(self.has_piece(sq, WHITE), sq)
             assert(self.has_piece(sq), sq)
             self.update()

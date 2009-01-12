@@ -304,6 +304,7 @@ Board = setmetatable({}, {
         })
     end
     })
+--[[ No longer needed
 function Board:update_cboard() --{{{
     self.cboard = {
         0, 0, 0, 0, 0, 0, 0, 0,
@@ -341,11 +342,16 @@ function Board:update() --{{{
     self:update_cboard()
     self:update_occupied()
 end --}}}
+--]]
 function Board:set_piece(square, piece, side) --{{{
     assert(square > -1 and square < 64, "invalid square")
     assert(piece >= PAWN and piece <= KING, "invalid piece")
     assert(side == WHITE or side == BLACK, "invalid side")
     self.bitboard.pieces[side][piece]:setbit(square)
+    self.bitboard.occupied[side]:setbit(square)
+    self.bitboard.occupied[3]:setbit(square)
+    self.bitboard.occupied[4]:clrbit(square)
+    self.cboard[square + 1] = piece
 end --}}}
 function Board:get_piece(square) --{{{
     assert(square > -1 and square < 64, "invalid square")
@@ -356,13 +362,15 @@ function Board:get_piece(square) --{{{
     end
     return piece, BLACK
 end --}}}
-function Board:clear_piece(square) --{{{
-    -- assert(square > -1 and square < 64, "invalid square")
-    -- assert not needed because it calls get_piece() right away.
-    local piece, side = self:get_piece(square)
-    if not piece then return false
-    else self.bitboard.pieces[side][piece]:clrbit(square) end
-    return true
+function Board:clear_piece(square, piece, side) --{{{
+    assert(square > -1 and square < 64, "invalid square")
+    assert(piece >= PAWN and piece <= KING, "invalid piece")
+    assert(side == WHITE or side == BLACK, "invalid side")
+    self.bitboard.pieces[side][piece]:clrbit(square)
+    self.bitboard.occupied[side]:clrbit(square)
+    self.bitboard.occupied[3]:clrbit(square)
+    self.bitboard.occupied[4]:setbit(square)
+    self.cboard[square + 1] = 0
 end --}}}
 function Board:clear_all() --{{{
     self.bitboard.occupied = {bb(0), bb(0), bb(0), bb(0)}
@@ -452,7 +460,6 @@ function Board:loadfen(fen) --{{{
             sq = sq - 1
         end
     end
-    self:update()
 
     -- Castles
     for _, element in castles() do
@@ -484,18 +491,18 @@ function Board:make_move(move) --{{{
     local xside = switch_side(self.side)
     local f, t = fromsq(move), tosq(move)
     local fpiece = self:get_piece(f)
-    local captured
+    local cpiece
 
     -- Clear pieces
-    self.bitboard.pieces[self.side][fpiece]:clrbit(f)
+    self:clear_piece(f, fpiece, self.side)
     if tstbit(move, CAPTURE) then
-        captured = capture_piece(move)
-        self.bitboard.pieces[xside][captured]:clrbit(t)
+        cpiece = capture_piece(move)
+        self:clear_piece(t, cpiece, xside)
     elseif tstbit(move, ENPASSANT) then
         local epsq
         if self.side == WHITE then epsq = t - 8
         else epsq = t + 8 end
-        self.bitboard.pieces[xside][PAWN]:clrbit(epsq)
+        self:clear_piece(epsq, PAWN, xside)
     end
 
     -- Set pieces
@@ -515,7 +522,7 @@ function Board:make_move(move) --{{{
             rl = iswhite and self.li_rook[2] or self.li_rook[2] + 56
             rf = iswhite and squarei"d1" or squarei"d8"
         end
-        self.bitboard.pieces[self.side][ROOK]:clrbit(rl)
+        self:clear_piece(rl, ROOK, self.side)
         self:set_piece(rf, ROOK, self.side)
         -- Clear castling rights
         if iswhite then self.flag = band(self.flag, bnot(WCASTLE))
@@ -544,7 +551,7 @@ function Board:make_move(move) --{{{
     end
 
     -- Clear the appropriate castling flag if a rook has been captured.
-    if captured == ROOK then
+    if cpiece == ROOK then
         if xside == WHITE then -- A white rook has been captured.
             if tstbit(self.flag, WKINGCASTLE) and t == self.li_rook[1] then
                 self.flag = band(self.flag, bnot(WKINGCASTLE))
@@ -558,7 +565,7 @@ function Board:make_move(move) --{{{
                 self.flag = band(self.flag, bnot(BQUEENCASTLE))
             end
         end
-    elseif captured == KING then -- only happens in some wild variants.
+    elseif cpiece == KING then -- only happens in some wild variants.
         if iswhite then self.flag = band(self.flag, bnot(WCASTLE))
         else self.flag = band(self.flag, bnot(BCASTLE)) end
     end
@@ -579,7 +586,6 @@ function Board:make_move(move) --{{{
     if self.side == BLACK then self.fmc = self.fmc + 1 end
 
     self.side = xside
-    self:update()
     return true
 end --}}}
 function Board:move_san(smove) --{{{
@@ -668,13 +674,13 @@ function Board:move_san(smove) --{{{
     m = MOVE(f, t)
     if ep then m = bor(m, ENPASSANT) end
     if parsed.capture and not ep then
-        local captured = self:get_piece(t)
-        if captured == PAWN then m = bor(m, PAWNCAP)
-        elseif captured == KNIGHT then m = bor(m, KNIGHTCAP)
-        elseif captured == BISHOP then m = bor(m, BISHOPCAP)
-        elseif captured == ROOK then m = bor(m, ROOKCAP)
-        elseif captured == QUEEN then m = bor(m, QUEENCAP)
-        elseif captured == KING then m = bor(m, KINGCAP) end
+        local cpiece = self:get_piece(t)
+        if cpiece == PAWN then m = bor(m, PAWNCAP)
+        elseif cpiece == KNIGHT then m = bor(m, KNIGHTCAP)
+        elseif cpiece == BISHOP then m = bor(m, BISHOPCAP)
+        elseif cpiece == ROOK then m = bor(m, ROOKCAP)
+        elseif cpiece == QUEEN then m = bor(m, QUEENCAP)
+        elseif cpiece == KING then m = bor(m, KINGCAP) end
     end
     if parsed.promotion then
         if parsed.promotion == KNIGHT then m = bor(m, KNIGHTPRM)

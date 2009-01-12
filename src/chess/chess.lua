@@ -350,43 +350,11 @@ end --}}}
 function Board:get_piece(square) --{{{
     assert(square > -1 and square < 64, "invalid square")
     local piece = self.cboard[square + 1]
-    if piece == PAWN then
-        if self.bitboard.pieces[WHITE][PAWN]:tstbit(square) then
-            return PAWN, WHITE
-        else
-            return PAWN, BLACK
-        end
-    elseif piece == KNIGHT then
-        if self.bitboard.pieces[WHITE][KNIGHT]:tstbit(square) then
-            return KNIGHT, WHITE
-        else
-            return KNIGHT, BLACK
-        end
-    elseif piece == BISHOP then
-        if self.bitboard.pieces[WHITE][BISHOP]:tstbit(square) then
-            return BISHOP, WHITE
-        else
-            return BISHOP, BLACK
-        end
-    elseif piece == ROOK then
-        if self.bitboard.pieces[WHITE][ROOK]:tstbit(square) then
-            return ROOK, WHITE
-        else
-            return ROOK, BLACK
-        end
-    elseif piece == QUEEN then
-        if self.bitboard.pieces[WHITE][QUEEN]:tstbit(square) then
-            return QUEEN, WHITE
-        else
-            return QUEEN, BLACK
-        end
-    elseif piece == KING then
-        if self.bitboard.pieces[WHITE][KING]:tstbit(square) then
-            return KING, WHITE
-        else
-            return KING, BLACK
-        end
+    if piece == 0 then return nil end
+    if self.bitboard.pieces[WHITE][piece]:tstbit(square) then
+        return piece, WHITE
     end
+    return piece, BLACK
 end --}}}
 function Board:clear_piece(square) --{{{
     -- assert(square > -1 and square < 64, "invalid square")

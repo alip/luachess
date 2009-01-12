@@ -39,6 +39,7 @@ local tostring = tostring
 -- Builtin modules
 local math = math
 local string = string
+local table = table
 
 -- Other required modules
 local bit = require "bit"
@@ -243,6 +244,8 @@ Board = setmetatable({}, {
             -- Move counts
             rhmc = argtable.rhmc or 0, -- reversible half move counter
             fmc = argtable.fmc or 1, -- full move counter
+            -- Move list
+            movelist = {},
         }
         return setmetatable(board, {__index = self,
         __tostring = function (board) --{{{
@@ -392,6 +395,7 @@ function Board:clear_all() --{{{
     self.flag = 0
     self.rhmc = 0
     self.fmc = 1
+    self.movelist = {}
 end --}}}
 function Board:has_piece(square, side) --{{{
     assert(square > -1 and square < 64, "invalid square")
@@ -493,15 +497,18 @@ function Board:make_move(move) --{{{
     local fpiece = self:get_piece(f)
     local cpiece
 
+    -- Initialize movelist
+    if #self.movelist == 0 then
+        table.insert(self.movelist, {NULLMOVE, self.flag, self.ep, self.rhmc})
+    end
+
     -- Clear pieces
     self:clear_piece(f, fpiece, self.side)
     if tstbit(move, CAPTURE) then
         cpiece = capture_piece(move)
         self:clear_piece(t, cpiece, xside)
     elseif tstbit(move, ENPASSANT) then
-        local epsq
-        if self.side == WHITE then epsq = t - 8
-        else epsq = t + 8 end
+        local epsq = iswhite and t - 8 or t + 8
         self:clear_piece(epsq, PAWN, xside)
     end
 
@@ -586,7 +593,73 @@ function Board:make_move(move) --{{{
     if self.side == BLACK then self.fmc = self.fmc + 1 end
 
     self.side = xside
-    return true
+    table.insert(self.movelist, {move, self.flag, self.ep, self.rhmc})
+    return move
+end --}}}
+function Board:unmake_move() --{{{
+    -- If side is black, black is about to move, but we will be undoing a move
+    -- by white, not black.
+    local mllen = #self.movelist
+    assert(mllen > 0, "no moves made yet")
+    assert(self.movelist[mllen][1] ~= NULLMOVE, "initial position")
+    local move = table.remove(self.movelist)[1]
+    local lastmove = self.movelist[mllen - 1]
+    local f, t = fromsq(move), tosq(move)
+    local fpiece = self:get_piece(t)
+    local cpiece = capture_piece(move)
+    local side = switch_side(self.side)
+    local xside = self.side
+    local iswhite = side == WHITE
+
+    self:clear_piece(t, fpiece, side)
+    self:set_piece(f, fpiece, side)
+
+    -- If capture, put back the captured piece
+    if tstbit(move, CAPTURE) then
+        self:set_piece(t, cpiece, xside)
+    end
+
+    -- Undo promotion
+    if tstbit(move, PROMOTION) then
+        self:clear_piece(f, fpiece, side)
+        self:set_piece(f, PAWN, side)
+    end
+
+    -- Undo enpassant
+    if tstbit(move, ENPASSANT) then
+        local epsq = iswhite and t - 8 or t + 8
+        self:set_piece(epsq, PAWN, xside)
+    end
+
+    -- If castling, undo rook move
+    if tstbit(move, CASTLING) then
+        if iswhite then
+            if t == squarei"g1" then -- castle kingside
+                self:clear_piece(squarei"f1", ROOK, side)
+                self:set_piece(self.li_rook[1], ROOK, side)
+            else -- castle queenside
+                self:clear_piece(squarei"d1", ROOK, side)
+                self:set_piece(self.li_rook[2], ROOK, side)
+            end
+        else
+            if t == squarei"g8" then -- castle kingside
+                self:clear_piece(squarei"f8", ROOK, side)
+                self:set_piece(self.li_rook[1] + 56, ROOK, side)
+            else -- castle queenside
+                self:clear_piece(squarei"d8", ROOK, side)
+                self:set_piece(self.li_rook[2] + 56, ROOK, side)
+            end
+        end
+    end
+
+    -- Restore castling flags, enpassant square and move counters
+    self.flag = lastmove[2]
+    self.ep = lastmove[3]
+    self.rhmc = lastmove[4]
+    if not iswhite then self.fmc = self.fmc - 1 end
+
+    self.side = side
+    return move
 end --}}}
 function Board:move_san(smove) --{{{
     local parsed = move.san_move:match(smove)

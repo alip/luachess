@@ -64,7 +64,11 @@ TestChessBoard = {} -- class
         self.loadfen(initial_fen)
         self.board:make_move(move)
         local f = self.board:fen()
-        assert(f == expected_fen, "\nExpected:\n'" .. expected_fen ..
+        assert(f == expected_fen, "\nmake_move(): Expected:\n'" .. expected_fen ..
+            "'\nGot:\n'" .. f .. "'")
+        self.board:unmake_move()
+        local f = self.board:fen()
+        assert(f == initial_fen, "\nunmake_move(): Expected:\n'" .. initial_fen ..
             "'\nGot:\n'" .. f .. "'")
     end
     function TestChessBoard:assert_move_san(move, initial_fen, expected_fen)

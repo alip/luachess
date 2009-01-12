@@ -45,7 +45,7 @@ local QUEEN = attack.QUEEN
 local KING = attack.KING
 --}}}
 --{{{Shortcuts
-local C, Ct, P, R, S = lpeg.C, lpeg.Ct, lpeg.P, lpeg.R, lpeg.S
+local C, Cc, Ct, P, R, S = lpeg.C, lpeg.Cc, lpeg.Ct, lpeg.P, lpeg.R, lpeg.S
 --}}}
 --{{{Common patterns
 number = R"09"^1 / tonumber
@@ -53,27 +53,25 @@ coord = R"ah"
 rank = R"18"
 square = coord * rank
 coord_only = coord - square
-return_false = P(true) / function () return false end
-return_true = P(true) / function () return true end
 --}}}
 --{{{SAN - Standard algebraic notation
-san_king = P"K" / function () return KING end
-san_queen = P"Q" / function () return QUEEN end
-san_rook = P"R" / function () return ROOK end
-san_bishop = P"B" / function () return BISHOP end
-san_knight = P"N" / function () return KNIGHT end
-san_pawn = P(true) / function () return PAWN end
+san_king = P"K" * Cc(KING)
+san_queen = P"Q" * Cc(QUEEN)
+san_rook = P"R" * Cc(ROOK)
+san_bishop = P"B" * Cc(BISHOP)
+san_knight = P"N" * Cc(KNIGHT)
+san_pawn = Cc(PAWN)
 san_piece = san_king + san_queen + san_rook + san_bishop + san_knight
-san_capture = C(P"x") / function () return true end + return_false
+san_capture = P"x" * Cc(true) + Cc(false)
 san_check = C(P"+")
 san_checkmate = C(P"#")
 san_checkormate = (san_check + san_checkmate)^0
 san_castle_short = C(P"O-O")
 san_castle_long = C(P"O-O-O")
 san_disambiguity = C(square) + C(coord) + C(rank)
-san_promotion = (P"=" * (san_knight + san_bishop + san_rook + san_queen)) + return_false
+san_promotion = (P"=" * (san_knight + san_bishop + san_rook + san_queen)) + Cc(false)
 
-san_move_pawn = (san_pawn * (C(coord_only) + return_false) * san_capture * C(square) *
+san_move_pawn = (san_pawn * (C(coord_only) + Cc(false)) * san_capture * C(square) *
     san_promotion * san_checkormate) /
     function (piece, from, capture, to, promotion, check)
         return {piece = piece,
@@ -111,23 +109,23 @@ san_move = san_move_pawn + san_move_piece_amb + san_move_piece + san_move_castle
 --}}}
 --{{{FEN - Forsyth-Edwards Notation
 -- Pieces
-fen_king_white = P"K" / function () return KING, WHITE end
-fen_king_black = P"k" / function () return KING, BLACK end
+fen_king_white = P"K" * Cc(KING, WHITE)
+fen_king_black = P"k" * Cc(KING, BLACK)
 fen_king = fen_king_white + fen_king_black
-fen_queen_white = P"Q" / function () return QUEEN, WHITE end
-fen_queen_black = P"q" / function () return QUEEN, BLACK end
+fen_queen_white = P"Q" * Cc(QUEEN, WHITE)
+fen_queen_black = P"q" * Cc(QUEEN, BLACK)
 fen_queen = fen_queen_white + fen_queen_black
-fen_rook_white = P"R" / function () return ROOK, WHITE end
-fen_rook_black = P"r" / function () return ROOK, BLACK end
+fen_rook_white = P"R" * Cc(ROOK, WHITE)
+fen_rook_black = P"r" * Cc(ROOK, BLACK)
 fen_rook = fen_rook_white + fen_rook_black
-fen_bishop_white = P"B" / function () return BISHOP, WHITE end
-fen_bishop_black = P"b" / function () return BISHOP, BLACK end
+fen_bishop_white = P"B" * Cc(BISHOP, WHITE)
+fen_bishop_black = P"b" * Cc(BISHOP, BLACK)
 fen_bishop = fen_bishop_white + fen_bishop_black
-fen_knight_white = P"N" / function () return KNIGHT, WHITE end
-fen_knight_black = P"n" / function () return KNIGHT, BLACK end
+fen_knight_white = P"N" * Cc(KNIGHT, WHITE)
+fen_knight_black = P"n" * Cc(KNIGHT, BLACK)
 fen_knight = fen_knight_white + fen_knight_black
-fen_pawn_white = P"P" / function () return PAWN, WHITE end
-fen_pawn_black = P"p" / function () return PAWN, BLACK end
+fen_pawn_white = P"P" * Cc(PAWN, WHITE)
+fen_pawn_black = P"p" * Cc(PAWN, BLACK)
 fen_pawn = fen_pawn_white + fen_pawn_black
 fen_piece = Ct(fen_king + fen_queen + fen_rook + fen_bishop + fen_knight + fen_pawn)
 -- Ranks
@@ -148,8 +146,8 @@ fen_rank = (fen_piece + fen_digit)^-8 /
 fen_piece_placement = ((fen_rank * fen_rank_sep)^7 * fen_rank) /
     function(...) return function () return ipairs(arg) end end
 -- Side to move
-fen_side_white = P"w" / function () return WHITE end
-fen_side_black = P"b" / function () return BLACK end
+fen_side_white = P"w" * Cc(WHITE)
+fen_side_black = P"b" * Cc(BLACK)
 fen_side = fen_side_white + fen_side_black
 -- Castling rights
 fen_castle = (P"-" + Ct(fen_king + fen_queen)^-4) /

@@ -96,12 +96,6 @@ TestMove = {} -- class
         end
         assert(not move.square:match"E4", "parsed 'E4'")
     end
-    function TestMove:test_06_return_false()
-        assert(not move.return_false:match"foo")
-    end
-    function TestMove:test_07_return_true()
-        assert(move.return_true:match"bar")
-    end
     function TestMove:test_08_san_king()
         assert(move.san_king:match"K" == KING, "failed to parse 'K'")
         assert(not move.san_king:match"k", "parsed 'k'")

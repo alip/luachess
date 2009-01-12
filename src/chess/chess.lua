@@ -55,6 +55,7 @@ local move = chess.move
 local band, bnot, bor, bxor, lshift, rshift = bit.band, bit.bnot, bit.bor, bit.bxor,
     bit.lshift, bit.rshift
 local bb = bitboard.bb
+local atak = attack.atak
 --}}}
 module "chess"
 _VERSION = bitboard._VERSION
@@ -513,14 +514,16 @@ function Board:loadfen(fen) --{{{
     self.fmc = fmc
 end --}}}
 function Board:make_move(move) --{{{
+    local iswhite = self.side == WHITE
     local xside = switch_side(self.side)
     local f, t = fromsq(move), tosq(move)
     local fpiece = self:get_piece(f)
+    local captured
 
     -- Clear pieces
     self.bitboard.pieces[self.side][fpiece]:clrbit(f)
     if tstbit(move, CAPTURE) then
-        local captured = capture_piece(move)
+        captured = capture_piece(move)
         self.bitboard.pieces[xside][captured]:clrbit(t)
     elseif tstbit(move, ENPASSANT) then
         local epsq
@@ -539,7 +542,6 @@ function Board:make_move(move) --{{{
     -- Castling
     if tstbit(move, CASTLING) then
         local rl, rf
-        local iswhite = self.side == WHITE
         if t > f then -- Castle kingside
             rl = iswhite and self.li_rook[1] or self.li_rook[1] + 56
             rf = iswhite and squarei"f1" or squarei"f8"
@@ -550,6 +552,47 @@ function Board:make_move(move) --{{{
         self.bitboard.pieces[self.side][ROOK]:clrbit(rl)
         self:set_piece(rf, ROOK, self.side, true)
         -- Clear castling rights
+        if iswhite then self.flag = band(self.flag, bnot(WCASTLE))
+        else self.flag = band(self.flag, bnot(BCASTLE)) end
+    elseif fpiece == KING then
+        -- Clear castling rights
+        if iswhite then self.flag = band(self.flag, bnot(WCASTLE))
+        else self.flag = band(self.flag, bnot(BCASTLE)) end
+    end
+
+    -- Clear the appropriate castling flag if a rook has moved.
+    if fpiece == ROOK then
+        if iswhite then
+            if tstbit(self.flag, WKINGCASTLE) and f == self.li_rook[1] then
+                self.flag = band(self.flag, bnot(WKINGCASTLE))
+            elseif tstbit(self.flag, WQUEENCASTLE) and f == self.li_rook[2] then
+                self.flag = band(self.flag, bnot(WQUEENCASTLE))
+            end
+        else
+            if tstbit(self.flag, BKINGCASTLE) and f == self.li_rook[1] + 56 then
+                self.flag = band(self.flag, bnot(BKINGCASTLE))
+            elseif tstbit(self.flag, BQUEENCASTLE) and f == self.li_rook[2] + 56 then
+                self.flag = band(self.flag, bnot(BQUEENCASTLE))
+            end
+        end
+    end
+
+    -- Clear the appropriate castling flag if a rook has been captured.
+    if captured == ROOK then
+        if xside == WHITE then -- A white rook has been captured.
+            if tstbit(self.flag, WKINGCASTLE) and t == self.li_rook[1] then
+                self.flag = band(self.flag, bnot(WKINGCASTLE))
+            elseif tstbit(self.flag, WQUEENCASTLE) and t == self.li_rook[2] then
+                self.flag = band(self.flag, bnot(WQUEENCASTLE))
+            end
+        else -- A black rook has been captured
+            if tstbit(self.flag, BKINGCASTLE) and t == self.li_rook[1] + 56 then
+                self.flag = band(self.flag, bnot(BKINGCASTLE))
+            elseif tstbit(self.flag, BQUEENCASTLE) and t == self.li_rook[2] + 56 then
+                self.flag = band(self.flag, bnot(BQUEENCASTLE))
+            end
+        end
+    elseif captured == KING then -- only happens in some wild variants.
         if iswhite then self.flag = band(self.flag, bnot(WCASTLE))
         else self.flag = band(self.flag, bnot(BCASTLE)) end
     end
@@ -572,4 +615,108 @@ function Board:make_move(move) --{{{
     self.side = xside
     self:update()
     return true
+end --}}}
+function Board:move_san(smove) --{{{
+    local parsed = move.san_move:match(smove)
+    assert(parsed, "invalid SAN move '" .. smove .. "'")
+
+    local xside = switch_side(self.side)
+    local iswhite = self.side == WHITE
+    local iscastle = parsed.castle_short or parsed.castle_long
+    local m, f, t, ffile, frank, ep
+
+    if not iscastle then
+        t = squarei(parsed.to)
+    end
+    -- Determine the origin square.
+    if parsed.from then
+        if #parsed.from == 2 then
+            -- Sweet! Origin square is given :)
+            f = squarei(parsed.from)
+        elseif #parsed.from == 1 then
+            frank = tonumber(parsed.from)
+            if not frank then ffile = parsed.from end
+        end
+    end
+
+    if parsed.castle_short then
+        f = iswhite and self.li_king or self.li_king + 56
+        t = iswhite and squarei"g1" or squarei"g8"
+    elseif parsed.castle_long then
+        f = iswhite and self.li_king or self.li_king + 56
+        t = iswhite and squarei"c1" or squarei"c8"
+    elseif parsed.piece == PAWN then
+        local pbb = self.bitboard.pieces[self.side][PAWN]
+        if ffile then -- capture
+            -- Check the two possible squares
+            if iswhite then
+                if file(t) ~= 1 then
+                    local p1 = t - 9
+                    if ffile == filec(p1) and pbb:tstbit(p1) then f = p1 end
+                end
+                if not f and file(t) ~= 8 then
+                    local p2 = t - 7
+                    if ffile == filec(p2) and pbb:tstbit(p2) then f = p2 end
+                end
+            else
+                if file(t) ~= 1 then
+                    local p1 = t + 7
+                    if ffile == filec(p1) and pbb:tstbit(p1) then f = p1 end
+                end
+                if not f and file(t) ~= 8 then
+                    local p2 = t + 9
+                    if ffile == filec(p2) and pbb:tstbit(p2) then f = p2 end
+                end
+            end
+            -- Check if this is an enpassant capture.
+            if t == self.ep then ep = true end
+        else
+            -- Simply move down/up until we find another pawn.
+            local inc = iswhite and -8 or 8
+            local last = iswhite and 0 or 63
+            for i=t,last,inc do
+                if pbb:tstbit(i) then f = i ; break end
+            end
+        end
+        assert(f, "bad move '" .. smove .. "' no pawn can move to " .. squarec(t))
+    else -- piece is either knight, bishop, rook, queen or king.
+        if not f then
+            local pbb = self.bitboard.pieces[self.side][parsed.piece]
+            local attackbb = atak(parsed.piece, t, nil, self.bitboard.occupied[3])
+            for sq=0,63 do
+                if attackbb:tstbit(sq) then
+                    if ((not ffile and not frank) or
+                        (ffile and ffile == filec(sq)) or
+                        (frank and frank == rank(sq))) and
+                        pbb:tstbit(sq) then
+                        f = sq
+                        break
+                    end
+                end
+            end
+        end
+        assert(f, "bad move '" .. smove ..
+            "' specified piece can't move to " .. squarec(t))
+    end
+
+    m = MOVE(f, t)
+    if ep then m = bor(m, ENPASSANT) end
+    if parsed.capture and not ep then
+        local captured = self:get_piece(t)
+        if captured == PAWN then m = bor(m, PAWNCAP)
+        elseif captured == KNIGHT then m = bor(m, KNIGHTCAP)
+        elseif captured == BISHOP then m = bor(m, BISHOPCAP)
+        elseif captured == ROOK then m = bor(m, ROOKCAP)
+        elseif captured == QUEEN then m = bor(m, QUEENCAP)
+        elseif captured == KING then m = bor(m, KINGCAP) end
+    end
+    if parsed.promotion then
+        if parsed.promotion == KNIGHT then m = bor(m, KNIGHTPRM)
+        elseif parsed.promotion == BISHOP then m = bor(m, BISHOPPRM)
+        elseif parsed.promotion == ROOK then m = bor(m, ROOKPRM)
+        elseif parsed.promotion == QUEEN then m = bor(m, QUEENPRM) end
+    end
+    if iscastle then m = bor(m, CASTLING) end
+
+    return self:make_move(m)
 end --}}}

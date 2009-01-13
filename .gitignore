@@ -2,8 +2,10 @@
 *~
 *.o
 *.so
+*.rej
 *.tar.gz
 *.cmake
+lprof*
 config.h
 install_manifest.txt
 CMakeCache.txt
@@ -11,4 +13,3 @@ CMakeFiles
 Makefile
 Testing
 doc
-

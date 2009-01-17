@@ -184,10 +184,6 @@ Board = setmetatable({}, {
         assert(type(argtable) == "table", "argument not a table")
         assert(not argtable.side or argtable.side == WHITE or argtable.side == BLACK,
             "invalid side")
-        assert(argtable.check_legality == nil or
-            type(argtable.check_legality) == "boolean",
-            "check_legality should be of boolean type")
-        if argtable.check_legality == nil then argtable.check_legality = true end
         assert(not argtable.ep or (argtable.ep > -1 and argtable.ep < 64),
             "invalid en passant square")
         if argtable.flag then
@@ -234,7 +230,6 @@ Board = setmetatable({}, {
                 0, 0, 0, 0, 0, 0, 0, 0,
             },
             side = argtable.side or WHITE,
-            check_legality = argtable.check_legality,
             ep = argtable.ep or -1,
             -- Castling flags
             flag = argtable.flag or 0,

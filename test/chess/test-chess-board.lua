@@ -98,7 +98,6 @@ TestChessBoard = {} -- class
         assert(not pcall(chess.Board, 1))
         assert(not pcall(chess.Board, "1"))
         assert(not pcall(chess.Board, {side = "foo"}))
-        assert(not pcall(chess.Board, {check_legality = "bar"}))
         assert(not pcall(chess.Board, {ep = {}}))
         assert(not pcall(chess.Board, {ep = "a1"}))
         assert(not pcall(chess.Board, {ep = 65}))
@@ -115,7 +114,6 @@ TestChessBoard = {} -- class
         local b1 = chess.Board{}
         assert(type(b1) == "table")
         assert(b1.side == WHITE)
-        assert(b1.check_legality == true)
         assert(b1.ep == -1)
         assert(b1.flag == 0)
         assert(b1.li_king == squarei"e1")
@@ -135,13 +133,12 @@ TestChessBoard = {} -- class
             end
         end
 
-        local b2 = chess.Board{side = BLACK, check_legality = false,
+        local b2 = chess.Board{side = BLACK,
             flag = 3, ep = squarei"e3", li_king = squarei"a1",
             li_rook = {squarei"g1", squarei"c1"},
             rhmc = 3, fmc = 6}
         assert(type(b2) == "table")
         assert(b2.side == BLACK)
-        assert(b2.check_legality == false)
         assert(b2.ep == squarei"e3")
         assert(b2.flag == 3)
         assert(b2.li_king == squarei"a1")

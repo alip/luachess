@@ -35,6 +35,7 @@ local Ct = lpeg.Ct
 local P = lpeg.P
 local R = lpeg.R
 local match = lpeg.match
+local t = lpeg.locale()
 
 module("ficsparser")
 
@@ -59,7 +60,7 @@ TAG_TM = -6
 
 number = R"09" ^ 1 / tonumber
 e = -P(1)
-handle = C(R("09", "az", "AZ")^-17)
+handle = C(t.alnum^-17)
 admin = P"*" / function () return TAG_ADMIN end
 blind = P"B" / function () return TAG_BLIND end
 ca = P"CA" / function () return TAG_CA end

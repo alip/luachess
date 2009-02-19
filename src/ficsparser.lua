@@ -50,12 +50,8 @@ e = -P(1)
 -- Prompts
 login = (P"login: " * e) / function (c) return {PROMPT_LOGIN} end
 password = (P"password: " * e) / function (c) return {PROMPT_PASSWORD} end
-server_prompt = (number^-4 * P"_"^0 * P"fics% " * e) / function (c)
-    local ret = {PROMPT_SERVER}
-    if type(c) == "number" then
-        table.insert(ret, c)
-    end
-    return ret
+server_prompt = (C((R"09"^-2 * P":" * R"09"^-2)^0) * P"_"^0 * P"fics% " * e) / function (c)
+    return {PROMPT_SERVER, c}
     end
 prompts = login + password + server_prompt
 

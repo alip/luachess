@@ -28,6 +28,7 @@ local unpack = unpack
 
 local string = string
 local table = table
+local ficsutils = require "ficsutils"
 
 local C = lpeg.C
 local Cg = lpeg.Cg
@@ -436,7 +437,8 @@ offer = draw + draw_accept + draw_decline + abort + abort_accept + abort_decline
 rated = S"ru" / function (c)
     if c == "u" then return false end
     return true end
-seekinfo = (P"<s> " * number * P" w=" * handle * P" ti=" * number * P" rt=" * rating *
+seekinfo = (P"<s> " * number * P" w=" * handle * P" ti=" *
+    (number / ficsutils.titles_totable) * P" rt=" * rating *
     (P"  " + P" ") * P"t=" * number * P" i=" * number * P" r=" * rated  *
     P" tp=" * C(t.alpha^1) * P" c=" * C(S"?WB") * P" rr=" * digit * P"-" * digit *
     P" a=" * boolean * P" f=" * boolean) / function (...)

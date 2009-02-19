@@ -6,9 +6,9 @@ include config
 LUA_PATH="src/?.lua;$(shell lua -e 'print(package.path)')"
 LUA_CPATH="src/?.so;$(shell lua -e 'print(package.cpath)')"
 
-all: src/timeseal.so examples/itelnet/iutils.so
+all: src/ficsutils.so examples/itelnet/iutils.so
 
-src/timeseal.so: src/timeseal.c
+src/ficsutils.so: src/ficsutils.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LUALIBS) -o $@ $<
 
 examples/itelnet/iutils.so: examples/itelnet/iutils.c
@@ -27,13 +27,13 @@ clean:
 	rm -f src/*.so src/*.o || true
 	rm -fr doc || true
 
-install: src/timeseal.so
-	$(INSTALL) src/timeseal.so $(INSTALL_TOP_LIB)
+install: src/ficsutils.so
+	$(INSTALL) src/ficsutils.so $(INSTALL_TOP_LIB)
 	$(INSTALL) src/fics.lua $(INSTALL_TOP_SHARE)
 	$(INSTALL) src/ficsparser.lua $(INSTALL_TOP_SHARE)
 
 uninstall:
-	rm -f $(INSTALL_TOP_LIB)/timeseal.so || true
+	rm -f $(INSTALL_TOP_LIB)/ficsutils.so || true
 	rm -f $(INSTALL_TOP_SHARE)/fics.lua || true
 
 upload-www: doc

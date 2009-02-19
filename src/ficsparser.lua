@@ -91,7 +91,7 @@ handle_too_long = P"Sorry, names may be at most 17 characters long" / function (
     return {HANDLE_TOO_LONG} end
 handle_not_alpha = P"Sorry, names can only consist of lower and upper case letters" / function (c)
     return {HANDLE_NOT_ALPHA} end
-handle_not_registered = handle * P"  is not a registered name" / function (c)
+handle_not_registered = (P'"' * handle * P'" is not a registered name') / function (c)
     return {HANDLE_NOT_REGISTERED, c} end
 password_invalid = P"**** Invalid password! ****" / function (c) return {PASSWORD_INVALID} end
 

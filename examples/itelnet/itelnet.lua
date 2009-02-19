@@ -18,9 +18,9 @@
 
 --- ITelnet, a timeseal replacement with support for hooks.
 
-require("lfs")
-require("fics")
-require("iutils")
+require "lfs"
+require "fics"
+require "iutils"
 
 -- Configuration
 USE_TIMESEAL = true

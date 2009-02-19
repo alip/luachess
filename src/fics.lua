@@ -36,6 +36,7 @@ local string = string
 local table = table
 local socket = require("socket")
 local timeseal = require("timeseal")
+local parser = require("ficsparser")
 --}}}
 --{{{ Variables
 module("fics")
@@ -226,11 +227,7 @@ function client:recvline() --{{{
         elseif chunk ~= CR then
             self._linebuf = self._linebuf .. chunk
 
-            if string.find(self._linebuf, self.login_prompt) then
-                break
-            elseif string.find(self._linebuf, self.password_prompt) then
-                break
-            elseif string.find(self._linebuf, self.prompt) then
+            if parser.prompts:match(self._linebuf) then
                 break
             end
         end
@@ -299,8 +296,13 @@ function client:parseline(line) --{{{
         end
     end
 
+    local parsed = parser.p:match(line)
+
+    if type(parsed) ~= "table" then
+        local parsed
+
     -- Prompts
-    if string.find(line, self.login_prompt) then
+    elseif parsed[1] == parser.PROMPT_LOGIN then
         if self.send_ivars and self._ivars_sent == false then
             local bytes, errmsg = self:send(self:ivars_tostring())
             if errmsg ~= nil then
@@ -318,54 +320,55 @@ function client:parseline(line) --{{{
             self:run_callback("line", "login", line)
             self:run_callback("login", line)
         end
-    elseif string.find(line, self.password_prompt) then
+        return true
+    elseif parsed[1] == parser.PROMPT_PASSWORD then
         self:run_callback("line", "password", line)
         self:run_callback("password", line)
-    elseif string.find(line, self.prompt) then
+        return true
+    elseif parsed[1] == parser.PROMPT_SERVER then
         self:run_callback("line", "prompt", line)
-        if not self.callbacks["prompt"] then return true end
-
-        local ptime = string.match(line, self.prompt)
-        self:run_callback("prompt", line, ptime)
+        self:run_callback("prompt", line, parsed[2])
+        return true
 
     -- Authentication
-    elseif string.find(line, "^A name should be at least three characters long") then
+    elseif parsed[1] == parser.HANDLE_TOO_SHORT then
         self:run_callback("line", "handle_too_short", line)
         if self.callbacks["handle_too_short"] then
             self:run_callback("handle_too_short")
         else
             error("handle too short")
         end
-    elseif string.find(line, "^Sorry, names may be at most 17 characters long") then
+    elseif parsed[1] == parser.HANDLE_TOO_LONG then
         self:run_callback("line", "handle_too_long", line)
         if self.callbacks["handle_too_long"] then
             self:run_callback("handle_too_long", line)
         else
             error("handle too long")
         end
-    elseif string.find(line, "^Sorry, names can only consist of lower and upper case letters") then
+    elseif parsed[1] == parser.HANDLE_NOT_ALPHA then
         self:run_callback("line", "handle_not_alpha", line)
         if self.callbacks["handle_not_alpha"] then
             self:run_callback("handle_not_alpha", line)
         else
             error("handle not alpha")
         end
-    elseif string.find(line, "^\"%w+\" is not a registered name") then
+    elseif parsed[1] == parser.HANDLE_NOT_REGISTERED then
         self:run_callback("line", "handle_not_registered", line)
         if not self.callbacks["handle_not_registered"] then return true end
 
         local handle = string.match(line, "^\"(%w+)\"")
         self:run_callback("handle_not_registered", line, handle)
-    elseif string.find(line, "^%*%*%*%* Invalid password! %*%*%*%*") then
+    elseif parsed[1] == parser.PASSWORD_INVALID then
         self:run_callback("line", "password_invalid", line)
         if self.callbacks["password_invalid"] then
             self:run_callback("password_invalid", line)
         else
             error("invalid password")
         end
+    end
 
     -- Session start
-    elseif string.find(line, "^%*%*%*%* Starting FICS session as") then
+    if string.find(line, "^%*%*%*%* Starting FICS session as") then
         self:run_callback("line", "session_start", line)
         if not self.callbacks["session_start"] then return true end
 

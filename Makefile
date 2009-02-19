@@ -30,6 +30,7 @@ clean:
 install: src/timeseal.so
 	$(INSTALL) src/timeseal.so $(INSTALL_TOP_LIB)
 	$(INSTALL) src/fics.lua $(INSTALL_TOP_SHARE)
+	$(INSTALL) src/ficsparser.lua $(INSTALL_TOP_SHARE)
 
 uninstall:
 	rm -f $(INSTALL_TOP_LIB)/timeseal.so || true

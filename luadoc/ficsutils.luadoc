@@ -1,21 +1,25 @@
 #!/usr/bin/env luadoc
 -- vim: set ft=lua et sts=4 sw=4 ts=4 fdm=marker:
 
---- Timeseal for Lua.<br />
--- Copyright &copy; 2008 <a href="mailto:polatel@itu.edu.tr">Ali Polatel</a><br />
+--- Utilities for LuaFics.<br />
+-- Copyright &copy; 2008 <a href="mailto:polatel@gmail.com">Ali Polatel</a><br />
 -- Distributed under the terms of the GNU General Public License v2<br />
 -- Depends on ngboard's timesealplus which is:<br />
 -- Copyright &copy; 2006 Bruce Horn
 
-module("timeseal")
+module("ficsutils")
 
 --- Encode a string using timeseal.
 -- @param string The string to encode.
 -- @param norandom If set to true don't use random values while encoding (used for testing.)
 -- @return Encoded string
-function encode(string, norandom) end
+function ts_encode(string, norandom) end
 
 --- Get timeseal initialization string.
 -- This string has to be encoded and sent to server when connection is established.
-function init_string() end
+function ts_init_string() end
 
+--- Turn the integer given as parameter ti= from seekinfo output to table.
+-- Used by parser.
+-- @param titles Integer given as parameter ti= in seekinfo message.
+function titles_totable(titles) end

@@ -21,8 +21,12 @@
 
 require("lpeg")
 
+local ipairs = ipairs
 local tonumber = tonumber
 local type = type
+local unpack = unpack
+
+local table = table
 
 local C = lpeg.C
 local Cg = lpeg.Cg
@@ -43,9 +47,34 @@ HANDLE_TOO_LONG = 5
 HANDLE_NOT_ALPHA = 6
 HANDLE_NOT_REGISTERED = 7
 PASSWORD_INVALID = 8
+WELCOME = 10
+
+-- Tags
+TAG_ADMIN = -1
+TAG_BLIND = -2
+TAG_CA = -3
+TAG_COMPUTER = -4
+TAG_SR = -5
+TAG_TM = -6
 
 number = R"09" ^ 1 / tonumber
 e = -P(1)
+handle = C(R("09", "az", "AZ")^-17)
+admin = P"*" / function () return TAG_ADMIN end
+blind = P"B" / function () return TAG_BLIND end
+ca = P"CA" / function () return TAG_CA end
+computer = P"C" / function () return TAG_COMPUTER end
+sr = P"SR" / function () return TAG_SR end
+tm = P"TM" / function () return TAG_TM end
+tag = P"(" * (admin + blind + ca + computer + sr + tm) * P")"
+tags = tag^1 / function (...)
+    local ret = {}
+    for _, capture in ipairs(arg) do
+        table.insert(ret, capture)
+    end
+    return ret
+    end
+handle_tags = handle * tags
 
 -- Prompts
 login = (P"login: " * e) / function (c) return {PROMPT_LOGIN} end
@@ -62,11 +91,16 @@ handle_too_long = P"Sorry, names may be at most 17 characters long" / function (
     return {HANDLE_TOO_LONG} end
 handle_not_alpha = P"Sorry, names can only consist of lower and upper case letters" / function (c)
     return {HANDLE_NOT_ALPHA} end
-handle_not_registered = C(R("09", "az", "AZ")^-17) * P"  is not a registered name" / function (c)
+handle_not_registered = handle * P"  is not a registered name" / function (c)
     return {HANDLE_NOT_REGISTERED, c} end
 password_invalid = P"**** Invalid password! ****" / function (c) return {PASSWORD_INVALID} end
 
 authentication = handle_too_short + handle_too_long + handle_not_alpha +
     handle_not_registered + password_invalid
 
-p = prompts + authentication
+-- Session start
+welcome = (P"**** Starting FICS session as " * handle_tags) / function (...)
+    return {WELCOME, unpack(arg)}
+    end
+
+p = prompts + authentication + welcome

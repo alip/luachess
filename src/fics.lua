@@ -365,16 +365,14 @@ function client:parseline(line) --{{{
         else
             error("invalid password")
         end
-    end
 
     -- Session start
-    if string.find(line, "^%*%*%*%* Starting FICS session as") then
+    elseif parsed[1] == parser.WELCOME then
         self:run_callback("line", "session_start", line)
-        if not self.callbacks["session_start"] then return true end
+        self:run_callback("session_start", line, parsed[2], parsed[3])
+    end
 
-        local handle, tags = string.match(line, "^%*%*%*%* Starting FICS session as (%a+)(.*)")
-        self:run_callback("session_start", line, handle, totaglist(tags))
-    elseif string.find(line, "^%d+ %(.*%) .*") then
+    if string.find(line, "^%d+ %(.*%) .*") then
         self:run_callback("line", "news", line)
         if not self.callbacks["news"] then return true end
 

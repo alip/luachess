@@ -1,5 +1,5 @@
 #!/usr/bin/env lua
--- vim: set ft=lua et sts=4 sw=4 ts=4 fdm=marker:
+-- vim: set ft=lua et sts=4 sw=4 ts=4 tw=80 fdm=marker:
 --[[
   Copyright (c) 2008 Ali Polatel <polatel@itu.edu.tr>
 
@@ -140,7 +140,7 @@ end --}}}
 --}}}
 --{{{ fics.client functions
 function client:new(argtable) --{{{
-    assert(type(argtable) == "table", "Argument is not a table")
+    assert(type(argtable) == "table", "argument is not a table")
 
     local instance = {
         timeseal = argtable.timeseal or false,
@@ -461,7 +461,8 @@ function client:parseline(line) --{{{
         self._last_wrapping_group = "chantell"
 
         self:run_callback("line", "chantell", line)
-        self:run_callback("chantell", line, parsed[2], parsed[3], parsed[4], parsed[5])
+        self:run_callback("chantell", line, parsed[2], parsed[3], parsed[4],
+            parsed[5])
 
     elseif parsed[1] == parser.QTELL then
         self._last_wrapping_group = "qtell"
@@ -497,13 +498,15 @@ function client:parseline(line) --{{{
         self._last_wrapping_group = "kibitz"
 
         self:run_callback("line", "kibitz", line)
-        self:run_callback("kibitz", line, parsed[1], parsed[2], parsed[3], parsed[4], parsed[5])
+        self:run_callback("kibitz", line, parsed[1], parsed[2], parsed[3],
+            parsed[4], parsed[5])
 
     elseif parsed[1] == parser.WHISPER then
         self._last_wrapping_group = "whisper"
 
         self:run_callback("line", "whisper", line)
-        self:run_callback("whisper", line, parsed[1], parsed[2], parsed[3], parsed[4], parsed[5])
+        self:run_callback("whisper", line, parsed[1], parsed[2], parsed[3],
+            parsed[4], parsed[5])
 
     -- Challenge
     elseif parsed[1] == parser.CHALLENGE_UPDATE then
@@ -523,7 +526,8 @@ function client:parseline(line) --{{{
 
         if parsed[2].rated == false then
             -- Don't wait for the next line to call the callback
-            self:run_callback("challenge", line, parsed[3], parsed[4], parsed[2])
+            self:run_callback("challenge", line, parsed[3], parsed[4],
+                parsed[2])
         else
             self.__parse_chunk_game = parsed[2]
             self.__parse_chunk_player1 = parsed[3]
@@ -558,11 +562,13 @@ function client:parseline(line) --{{{
     -- Game start/end
     elseif parsed[1] == parser.GAME_START then
         self:run_callback("line", "game_start", line)
-        self:run_callback("game_start", line, parsed[2], parsed[3], parsed[4], parsed[5])
+        self:run_callback("game_start", line, parsed[2], parsed[3], parsed[4],
+            parsed[5])
 
     elseif parsed[1] == parser.GAME_END then
         self:run_callback("line", "game_end", line)
-        self:run_callback("game_end", line, parsed[2], parsed[3], parsed[4], parsed[5], parsed[6])
+        self:run_callback("game_end", line, parsed[2], parsed[3], parsed[4],
+            parsed[5], parsed[6])
 
     -- Style 12
     elseif parsed[1] == parser.STYLE12 then

@@ -1,13 +1,13 @@
 #!/usr/bin/env lua
 -- vim: set ft=lua et sts=4 sw=4 ts=4 fdm=marker:
 --[[
-  Copyright (c) 2008 Ali Polatel <polatel@itu.edu.tr>
+  Copyright (c) 2008, 2009 Ali Polatel <polatel@gmail.com>
 
-  This file is part of LuaFics. LuaFics is free software; you can redistribute
+  This file is part of LuaChess. LuaChess is free software; you can redistribute
   it and/or modify it under the terms of the GNU General Public License version
   2, as published by the Free Software Foundation.
 
-  LuaFics is distributed in the hope that it will be useful, but WITHOUT ANY
+  LuaChess is distributed in the hope that it will be useful, but WITHOUT ANY
   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
@@ -16,7 +16,7 @@
   Place, Suite 330, Boston, MA  02111-1307  USA
 --]]
 
---- Unit tests for LuaFics parser.
+--- Unit tests for LuaChess parser.
 
 require("lunit")
 require("fics")

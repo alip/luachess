@@ -370,18 +370,13 @@ function client:parseline(line) --{{{
     elseif parsed[1] == parser.WELCOME then
         self:run_callback("line", "session_start", line)
         self:run_callback("session_start", line, parsed[2], parsed[3])
+
+    elseif parsed[1] == parser.NEWS then
+        self:run_callback("line", "news", line)
+        self:run_callback("news", line, parsed[2], parsed[3], parsed[4])
     end
 
-    if string.find(line, "^%d+ %(.*%) .*") then
-        self:run_callback("line", "news", line)
-        if not self.callbacks["news"] then return true end
-
-        local no, date, subject = string.match(line, "^(%d+) %((.*)%) (.*)")
-
-        no = tonumber(no)
-
-        self:run_callback("news", line, no, date, subject)
-    elseif string.find(line, "^You have %d+ messages? %(%d+ unread%)") then
+    if string.find(line, "^You have %d+ messages? %(%d+ unread%)") then
         self:run_callback("line", "messages", line)
         if not self.callbacks["messages"] then return true end
 

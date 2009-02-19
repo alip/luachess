@@ -49,6 +49,7 @@ HANDLE_NOT_ALPHA = 6
 HANDLE_NOT_REGISTERED = 7
 PASSWORD_INVALID = 8
 WELCOME = 10
+NEWS = 11
 
 -- Tags
 TAG_ADMIN = -1
@@ -103,5 +104,10 @@ authentication = handle_too_short + handle_too_long + handle_not_alpha +
 welcome = (P"**** Starting FICS session as " * handle_tags) / function (...)
     return {WELCOME, unpack(arg)}
     end
+news = (number * P" (" * C((t.print - P")")^1) * P") " * C(t.print^1) * e) / function (...)
+    return {NEWS, unpack(arg)}
+    end
 
-p = prompts + authentication + welcome
+session_start = welcome + news
+
+p = prompts + authentication + session_start

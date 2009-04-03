@@ -470,7 +470,7 @@ function client:generate_parser() --{{{
         p = p + parser.dg_move_lag
     end
     self.parser = p
- end --} }} 
+ end --}}}
  function client:set(index, boolean) --{{{
     assert(type(index) == "number", "index not a number")
     assert(0 <= index and index <= MAX_DG, "invalid index")

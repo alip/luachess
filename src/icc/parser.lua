@@ -39,7 +39,7 @@ local S = lpeg.S
 local match = lpeg.match
 local t = lpeg.locale()
 
-module "iccparser"
+module "chess.icc.parser"
 
 --{{{ Variables
 PROMPT_LOGIN = 1001

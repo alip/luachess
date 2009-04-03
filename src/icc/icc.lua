@@ -28,9 +28,6 @@ local setmetatable = setmetatable
 local type = type
 local unpack = unpack
 
-local print = print
-local io = io
-
 local os = os
 local string = string
 local socket = require "socket"
@@ -635,10 +632,6 @@ function client:run_callback(group, ...) --{{{
     end
 end --}}}
 function client:parseline(line) --{{{
-    local f = io.open("a.txt", "a")
-    f:write(line .. "\n")
-    f:close()
-
     local parsed = self.parser:match(line)
 
     if not parsed then

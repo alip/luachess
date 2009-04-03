@@ -34,7 +34,7 @@ local io = io
 local os = os
 local string = string
 local socket = require "socket"
-local parser = require "iccparser"
+local parser = require "chess.icc.parser"
 --}}}
 --{{{ Variables
 module "icc"

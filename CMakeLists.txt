@@ -45,9 +45,13 @@ SET(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 SET(GET_LUAUNIT "package.path = [[${TEST_DIR}/?.lua;]] .. package.path")
 #}}}
 
-OPTION(WITH_FICS "Build luachess.fics module" ON)
+OPTION(WITH_FICS "Build chess.fics module" ON)
+OPTION(WITH_ICC  "Build chess.icc module" ON)
 
 ADD_SUBDIRECTORY(src/chess)
 IF(WITH_FICS)
     ADD_SUBDIRECTORY(src/fics)
 ENDIF(WITH_FICS)
+IF(WITH_ICC)
+    ADD_SUBDIRECTORY(src/icc)
+ENDIF(WITH_ICC)

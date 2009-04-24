@@ -73,21 +73,20 @@ static int bitboard_new(lua_State *L) {
             bb = (U64 *)lua_newuserdata(L, sizeof(U64));
             luaL_getmetatable(L, BITBOARD_T);
             lua_setmetatable(L, -2);
-            if (type == LUA_TNUMBER)
+            if (LUA_TNUMBER == type)
                 *bb = (U64) lua_tonumber(L, 1);
             else {
                 int base;
                 base = (lua_isnumber(L, 2)) ? lua_tointeger(L, 2) : STRTOULL_DEFAULT_BASE;
 
+                errno = 0;
                 *bb = strtoull(lua_tostring(L, 1), NULL, base);
-                switch (errno) {
-                    case EINVAL: case ERANGE:
-                        /* Pop the userdata, push nil and error message */
-                        lua_pop(L, 1);
-                        lua_pushnil(L);
-                        lua_pushstring(L, strerror(errno));
-                        return 2;
-                        break;
+                if (0 != errno) {
+                    /* Pop the userdata, push nil and error message */
+                    lua_pop(L, 1);
+                    lua_pushnil(L);
+                    lua_pushstring(L, strerror(errno));
+                    return 2;
                 }
             }
             break;

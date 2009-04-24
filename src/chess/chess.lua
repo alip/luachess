@@ -303,45 +303,6 @@ Board = setmetatable({}, {
         })
     end
     })
---[[ No longer needed
-function Board:update_cboard() --{{{
-    self.cboard = {
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-    }
-    for p=PAWN,KING do
-        local o = self.bitboard.pieces[WHITE][p] + self.bitboard.pieces[BLACK][p]
-        while o ~= NULL do
-            local sq = o:leadz()
-            o:clrbit63(sq)
-            self.cboard[-((sq + 1) % -65)] = p
-        end
-    end
-end --}}}
-function Board:update_occupied() --{{{
-    self.bitboard.occupied = {bb(0), bb(0), bb(0), bb(0)}
-    for side=WHITE,BLACK do
-        for piece=PAWN,KING do
-            self.bitboard.occupied[side] = self.bitboard.occupied[side] +
-                                        self.bitboard.pieces[side][piece]
-        end
-    end
-
-    self.bitboard.occupied[3] = self.bitboard.occupied[WHITE] +
-                                self.bitboard.occupied[BLACK]
-    self.bitboard.occupied[4] = -self.bitboard.occupied[3]
-end --}}}
-function Board:update() --{{{
-    self:update_cboard()
-    self:update_occupied()
-end --}}}
---]]
 function Board:set_piece(square, piece, side) --{{{
     assert(square > -1 and square < 64, "invalid square")
     assert(piece >= PAWN and piece <= KING, "invalid piece")

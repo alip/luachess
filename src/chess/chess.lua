@@ -19,9 +19,7 @@
 --]]
 
 -- Main chess module for LuaChess
--- Requires bitlib and lpeg
--- Note: bitop treats integers as 32 bits but we need doubles to represent
--- moves.
+-- Requires bitop and lpeg
 
 --{{{Grab environment
 -- Builtin functions

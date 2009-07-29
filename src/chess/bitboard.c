@@ -72,7 +72,8 @@ static int bitboard_new(lua_State *L) {
     /* Accept strings as argument as well as integers and use strtoull() */
     int type = lua_type(L, 1);
     switch (type) {
-        case LUA_TNUMBER: case LUA_TSTRING:
+        case LUA_TNUMBER:
+        case LUA_TSTRING:
             bb = (U64 *)lua_newuserdata(L, sizeof(U64));
             luaL_getmetatable(L, BITBOARD_T);
             lua_setmetatable(L, -2);

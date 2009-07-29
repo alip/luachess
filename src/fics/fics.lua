@@ -233,9 +233,9 @@ function client:ivars_tostring() --{{{
     return ivstr
 end --}}}
 --- Connect to FICS.
--- @param address Address of the free internet chess server. Defaults to
+-- @param address Address of the Free Internet Chess Server. Defaults to
 -- <tt>freechess.org</tt>.
--- @param port Port of the free internet chess server. Defaults to <tt>23</tt>.
+-- @param port Port of the Free Internet Chess Server. Defaults to <tt>23</tt>.
 -- @return <tt>true</tt> on success, <tt>nil</tt> and error message on failure.
 function client:connect(address, port) --{{{
     assert(self.sock == nil, "already connected")
@@ -274,7 +274,7 @@ function client:disconnect() --{{{
     self._got_gresponse = false
     self._last_wrapping_group = nil
 end --}}}
---- Send data to server, encode with timeseal if necessary.
+--- Send data to the server, encode with timeseal if necessary.
 -- @param data Data to send
 -- @return Number of bytes sent on success, <tt>nil</tt> and error message on
 -- failure.

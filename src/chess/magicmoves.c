@@ -214,7 +214,7 @@ const U64* magicmoves_r_indices[64]=
 	#endif
 #endif
 
-U64 initmagicmoves_occ(const int* squares, const int numSquares, const U64 linocc)
+static U64 initmagicmoves_occ(const int* squares, const int numSquares, const U64 linocc)
 {
 	int i;
 	U64 ret=0;
@@ -223,7 +223,7 @@ U64 initmagicmoves_occ(const int* squares, const int numSquares, const U64 linoc
 	return ret;
 }
 
-U64 initmagicmoves_Rmoves(const int square, const U64 occ)
+static U64 initmagicmoves_Rmoves(const int square, const U64 occ)
 {
 	U64 ret=0;
 	U64 bit;
@@ -258,7 +258,7 @@ U64 initmagicmoves_Rmoves(const int square, const U64 occ)
 	return ret;
 }
 
-U64 initmagicmoves_Bmoves(const int square, const U64 occ)
+static U64 initmagicmoves_Bmoves(const int square, const U64 occ)
 {
 	U64 ret=0;
 	U64 bit;

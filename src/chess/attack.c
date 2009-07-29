@@ -35,6 +35,9 @@
 #define QUEEN 5
 #define KING 6
 
+/* Prototypes */
+LUALIB_API int luaopen_chess_attack(lua_State *L);
+
 static const U64 PAWN_ATTACKS[2][64] = {
     {0, 0, 0, 0, 0, 0, 0, 0,
     0x0000000000020000, 0x0000000000050000, 0x00000000000a0000, 0x0000000000140000,
@@ -101,6 +104,7 @@ static const U64 KING_ATTACKS[64] = {
     0x0203000000000000, 0x0507000000000000, 0x0a0e000000000000, 0x141c000000000000,
     0x2838000000000000, 0x5070000000000000, 0xa0e0000000000000, 0x40c0000000000000
 };
+
 static int atak(lua_State *L) {
     int piece, square, colour;
     U64 *ret = NULL;
@@ -156,10 +160,12 @@ static int atak(lua_State *L) {
     }
     return 1;
 }
+
 static const struct luaL_reg attack_global[] = {
     {"atak", atak},
     {NULL, NULL}
 };
+
 LUALIB_API int luaopen_chess_attack(lua_State *L) {
     initmagicmoves();
     luaL_register(L, "chess.attack", attack_global);
@@ -204,3 +210,4 @@ LUALIB_API int luaopen_chess_attack(lua_State *L) {
 
     return 1;
 }
+

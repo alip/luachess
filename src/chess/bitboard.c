@@ -35,6 +35,38 @@ static unsigned char lz_array[65536];
 /* Prototypes */
 LUALIB_API int luaopen_chess_bitboard(lua_State *L);
 
+#if 0
+static void dumpstack(lua_State *L)
+{
+    fprintf(stderr, "-------- Lua stack dump ---------\n");
+    for(int i = lua_gettop(L); i; i--)
+    {
+        int t = lua_type(L, i);
+        switch (t)
+        {
+          case LUA_TSTRING:
+            fprintf(stderr, "%d: string: `%s'\n", i, lua_tostring(L, i));
+            break;
+          case LUA_TBOOLEAN:
+            fprintf(stderr, "%d: bool:   %s\n", i, lua_toboolean(L, i) ? "true" : "false");
+            break;
+          case LUA_TNUMBER:
+            fprintf(stderr, "%d: number: %g\n", i, lua_tonumber(L, i));
+            break;
+          case LUA_TNIL:
+            fprintf(stderr, "%d: nil\n", i);
+            break;
+          default:
+            fprintf(stderr, "%d: %s\t#%d\t%p\n", i, lua_typename(L, t),
+                    (int) lua_objlen(L, i),
+                    lua_topointer(L, i));
+            break;
+        }
+    }
+    fprintf(stderr, "------- Lua stack dump end ------\n");
+}
+#endif
+
 /*  Creates the lz_array. This array is used when the position of the leading
  *  non-zero bit is required.  The convention used is that the leftmost bit is
  *  considered as position 0 and the rightmost bit position 63.
@@ -412,16 +444,35 @@ LUALIB_API int luaopen_chess_bitboard(lua_State *L) {
     init_lz_array();
     luaL_register(L, "chess.bitboard", bblib_global);
 
+    /* Push version */
+    lua_pushliteral(L, "_VERSION");
+    lua_pushstring(L, PACKAGE_NAME "-" VERSION);
+    lua_settable(L, -3);
+
+    /* Push HAVE_SNPRINTF */
+    lua_pushliteral(L, "_HAVE_SNPRINTF");
+#ifdef HAVE_SNPRINTF
+    lua_pushboolean(L, 1);
+#else
+    lua_pushboolean(L, 0);
+#endif // HAVE_SNPRINTF
+    lua_settable(L, -3);
+
+    /* Push HAVE_STRTOULL */
+    lua_pushliteral(L, "_HAVE_STRTOULL");
+#ifdef HAVE_STRTOULL
+    lua_pushboolean(L, 1);
+#else
+    lua_pushboolean(L, 0);
+#endif /* HAVE_STRTOULL */
+    lua_settable(L, -3);
+
+    /* Register BITBOARD_T metatable */
     luaL_newmetatable(L, BITBOARD_T);
     luaL_register(L, NULL, bblib_bitboard);
     lua_pushstring(L, "__index");
     lua_pushvalue(L, -2); /* push the metatable */
     lua_settable(L, -3); /* metatable.__index = metatable */
-
-    /* Push version */
-    lua_pushliteral(L, "_VERSION");
-    lua_pushstring(L, PACKAGE_NAME "-" VERSION);
-    lua_settable(L, -3);
 
     return 1;
 }

@@ -27,13 +27,13 @@
 #ifndef __64_BIT_INTEGER_DEFINED__
 #define __64_BIT_INTEGER_DEFINED__
 typedef unsigned long long U64;
-#endif // __64_BIT_INTEGER_DEFINED__
+#endif /* __64_BIT_INTEGER_DEFINED__ */
 
 #define BITBOARD_T "LuaChess.BitBoard"
 
 #ifdef HAVE_STRTOULL
 #define STRTOULL_DEFAULT_BASE 16
-#endif // HAVE_STRTOULL
+#endif /* HAVE_STRTOULL */
 
-#endif // LUACHESS_GUARD_BITBOARD_H
+#endif /* LUACHESS_GUARD_BITBOARD_H */
 

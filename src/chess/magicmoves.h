@@ -76,26 +76,27 @@
 #define _magicmovesh
 
 /*********MODIFY THE FOLLOWING IF NECESSARY********/
-//the default configuration is the best
+/* the default configuration is the best */
 
-//Uncommont either one of the following or none
+/* Uncommont either one of the following or none */
 #define MINIMIZE_MAGIC
-//#define PERFECT_MAGIC_HASH unsigned short
+/* #define PERFECT_MAGIC_HASH unsigned short */
 
-//the following works only for perfect magic hash or no defenitions above
-//it uses variable shift for each square
-//#define VARIABLE_SHIFT
+/* the following works only for perfect magic hash or no defenitions above
+ * it uses variable shift for each square
+ */
+/* #define VARIABLE_SHIFT */
 
 #define USE_INLINING /*the MMINLINE keyword is assumed to be available*/
 
 #ifndef __64_BIT_INTEGER_DEFINED__
 	#define __64_BIT_INTEGER_DEFINED__
 	#if defined(_MSC_VER) && _MSC_VER<1300
-		typedef unsigned __int64 U64; //For the old microsoft compilers
+		typedef unsigned __int64 U64; /* For the old microsoft compilers */
 	#else
-		typedef unsigned long long  U64; //Supported by MSC 13.00+ and C99
-	#endif //defined(_MSC_VER) && _MSC_VER<1300
-#endif //__64_BIT_INTEGER_DEFINED__
+		typedef unsigned long long U64; /* Supported by MSC 13.00+ and C99 */
+	#endif /* defined(_MSC_VER) && _MSC_VER<1300 */
+#endif /* __64_BIT_INTEGER_DEFINED__ */
 /***********MODIFY THE ABOVE IF NECESSARY**********/
 
 /*Defining the inlining keyword*/
@@ -140,28 +141,28 @@ extern const unsigned int magicmoves_r_shift[64];
 			#define Rmagic(square, occupancy) *(magicmoves_r_indices[square]+((((occupancy)&magicmoves_r_mask[square])*magicmoves_r_magics[square])>>magicmoves_r_shift[square]))
 			#define BmagicNOMASK(square, occupancy) *(magicmoves_b_indices[square]+(((occupancy)*magicmoves_b_magics[square])>>magicmoves_b_shift[square]))
 			#define RmagicNOMASK(square, occupancy) *(magicmoves_r_indices[square]+(((occupancy)*magicmoves_r_magics[square])>>magicmoves_r_shift[square]))
-		#endif //USE_INLINING
+		#endif /* USE_INLINING */
 
-		//extern U64 magicmovesbdb[5248];
+		/* extern U64 magicmovesbdb[5248]; */
 		extern const U64* magicmoves_b_indices[64];
 
-		//extern U64 magicmovesrdb[102400];
+		/* extern U64 magicmovesrdb[102400]; */
 		extern const U64* magicmoves_r_indices[64];
 
-	#else //Don't Minimize database size
+	#else /* Don't Minimize database size */
 
 		#ifndef USE_INLINING
 			#define Bmagic(square, occupancy) magicmovesbdb[square][(((occupancy)&magicmoves_b_mask[square])*magicmoves_b_magics[square])>>MINIMAL_B_BITS_SHIFT(square)]
 			#define Rmagic(square, occupancy) magicmovesrdb[square][(((occupancy)&magicmoves_r_mask[square])*magicmoves_r_magics[square])>>MINIMAL_R_BITS_SHIFT(square)]
 			#define BmagicNOMASK(square, occupancy) magicmovesbdb[square][((occupancy)*magicmoves_b_magics[square])>>MINIMAL_B_BITS_SHIFT(square)]
 			#define RmagicNOMASK(square, occupancy) magicmovesrdb[square][((occupancy)*magicmoves_r_magics[square])>>MINIMAL_R_BITS_SHIFT(square)]
-		#endif //USE_INLINING
+		#endif /* USE_INLINING */
 
 		extern U64 magicmovesbdb[64][1<<9];
 		extern U64 magicmovesrdb[64][1<<12];
 
-	#endif //MINIMIAZE_MAGICMOVES
-#else //PERFCT_MAGIC_HASH defined
+	#endif /* MINIMIAZE_MAGICMOVES */
+#else /* PERFECT_MAGIC_HASH defined */
 	#ifndef MINIMIZE_MAGIC
 
 		#ifndef USE_INLINING
@@ -169,7 +170,7 @@ extern const unsigned int magicmoves_r_shift[64];
 			#define Rmagic(square, occupancy) magicmovesrdb[magicmoves_r_indices[square][(((occupancy)&magicmoves_r_mask[square])*magicmoves_r_magics[square])>>MINIMAL_R_BITS_SHIFT(square)]]
 			#define BmagicNOMASK(square, occupancy) magicmovesbdb[magicmoves_b_indices[square][((occupancy)*magicmoves_b_magics[square])>>MINIMAL_B_BITS_SHIFT(square)]]
 			#define RmagicNOMASK(square, occupancy) magicmovesrdb[magicmoves_r_indices[square][((occupancy)*magicmoves_r_magics[square])>>MINIMAL_R_BITS_SHIFT(square)]]
-		#endif //USE_INLINING
+		#endif /* USE_INLINING */
 
 		extern U64 magicmovesbdb[1428];
 		extern U64 magicmovesrdb[4900];
@@ -178,7 +179,7 @@ extern const unsigned int magicmoves_r_shift[64];
 	#else
 		#error magicmoves - MINIMIZED_MAGIC and PERFECT_MAGIC_HASH cannot be used together
 	#endif
-#endif //PERFCT_MAGIC_HASH
+#endif /* PERFCT_MAGIC_HASH */
 
 #ifdef USE_INLINING
 	static MMINLINE U64 Bmagic(const unsigned int square,const U64 occupancy)
@@ -238,13 +239,14 @@ extern const unsigned int magicmoves_r_shift[64];
 	{
 		return BmagicNOMASK(square,occupancy)|RmagicNOMASK(square,occupancy);
 	}
-#else //!USE_INLINING
+#else /* !USE_INLINING */
 
 #define Qmagic(square, occupancy) (Bmagic(square,occupancy)|Rmagic(square,occupancy))
 #define QmagicNOMASK(square, occupancy) (BmagicNOMASK(square,occupancy)|RmagicNOMASK(square,occupancy))
 
-#endif //USE_INLINING
+#endif /* USE_INLINING */
 
 void initmagicmoves(void);
 
-#endif //_magicmoveshvesh
+#endif /* _magicmoveshvesh */
+

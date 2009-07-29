@@ -69,8 +69,10 @@ static inline unsigned char leadz(U64 b) {
 static int bitboard_new(lua_State *L) {
     U64 *bb;
 #ifdef HAVE_STRTOULL
+    int base, type;
+
     /* Accept strings as argument as well as integers and use strtoull() */
-    int type = lua_type(L, 1);
+    type = lua_type(L, 1);
     switch (type) {
         case LUA_TNUMBER:
         case LUA_TSTRING:
@@ -80,7 +82,6 @@ static int bitboard_new(lua_State *L) {
             if (LUA_TNUMBER == type)
                 *bb = (U64) lua_tonumber(L, 1);
             else {
-                int base;
                 base = (lua_isnumber(L, 2)) ? lua_tointeger(L, 2) : STRTOULL_DEFAULT_BASE;
 
                 errno = 0;
@@ -98,8 +99,9 @@ static int bitboard_new(lua_State *L) {
             return luaL_argerror(L, 1, "integer or string expected");
     }
 #else
-    double n = luaL_checknumber(L, 1);
+    double n;
 
+    n = luaL_checknumber(L, 1);
     bb = (U64 *)lua_newuserdata(L, sizeof(U64));
     luaL_getmetatable(L, BITBOARD_T);
     lua_setmetatable(L, -2);
@@ -111,9 +113,10 @@ static int bitboard_new(lua_State *L) {
 #ifdef HAVE_SNPRINTF
 #define BITBOARD_MAX 4096 /* for snprintf */
 static int bitboard_tostring(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
-
     char bbstr[BITBOARD_MAX];
+    U64 *bb;
+
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
     snprintf(bbstr, BITBOARD_MAX, "bitboard: 0x%018llx", *bb);
     lua_pushstring(L, bbstr);
     return 1;
@@ -122,9 +125,11 @@ static int bitboard_tostring(lua_State *L) {
 
 /* Copying */
 static int bitboard_copy(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
+    U64 *bb, *ret;
 
-    U64 *ret = (U64 *)lua_newuserdata(L, sizeof(U64));
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
+
+    ret = (U64 *)lua_newuserdata(L, sizeof(U64));
     luaL_getmetatable(L, BITBOARD_T);
     lua_setmetatable(L, -2);
 
@@ -134,53 +139,53 @@ static int bitboard_copy(lua_State *L) {
 
 /* Setting, testing bits  */
 static int bitboard_setbit(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
-    int index, sq;
+    int ind, sq;
+    U64 *bb;
 
-    index = 2;
-    while (!lua_isnone(L, index)) {
-        sq = luaL_checkinteger(L, index);
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
+    for (ind = 2; !lua_isnone(L, ind); ind++) {
+        sq = luaL_checkinteger(L, ind);
         if (sq < 0 || sq > 63)
-            return luaL_argerror(L, index, "invalid square");
+            return luaL_argerror(L, ind, "invalid square");
         *bb |= (1ULL << sq);
-        index++;
     }
     return 0;
 }
 
 static int bitboard_clrbit(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
-    int index, sq;
+    int ind, sq;
+    U64 *bb;
 
-    index = 2;
-    while (!lua_isnone(L, index)) {
-        sq = luaL_checkinteger(L, index);
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
+    for (ind = 2; !lua_isnone(L, ind); ind++) {
+        sq = luaL_checkinteger(L, ind);
         if (sq < 0 || sq > 63)
-            return luaL_argerror(L, index, "invalid square");
+            return luaL_argerror(L, ind, "invalid square");
         *bb &= ~(1ULL << sq);
-        index++;
     }
     return 0;
 }
 
 static int bitboard_tglbit(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
-    int index, sq;
+    int ind, sq;
+    U64 *bb;
 
-    index = 2;
-    while (!lua_isnone(L, index)) {
-        sq = luaL_checkinteger(L, index);
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
+    for (ind = 2; !lua_isnone(L, ind); ind++) {
+        sq = luaL_checkinteger(L, ind);
         if (sq < 0 || sq > 63)
-            return luaL_argerror(L, index, "invalid square");
+            return luaL_argerror(L, ind, "invalid square");
         *bb ^= (1ULL << sq);
-        index++;
     }
     return 0;
 }
 
 static int bitboard_tstbit(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
-    int sq = luaL_checkinteger(L, 2);
+    int sq;
+    U64 *bb;
+
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
+    sq = luaL_checkinteger(L, 2);
 
     if (sq < 0 || sq > 63)
         return luaL_argerror(L, 2, "invalid square");
@@ -196,39 +201,39 @@ static int bitboard_tstbit(lua_State *L) {
  * and rightmost bit as position 63
  */
 static int bitboard_setbit63(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
-    int index, sq;
+    int ind, sq;
+    U64 *bb;
 
-    index = 2;
-    while (!lua_isnone(L, index)) {
-        sq = luaL_checkinteger(L, index);
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
+    for (ind = 2; !lua_isnone(L, ind); ind++) {
+        sq = luaL_checkinteger(L, ind);
         if (sq < 0 || sq > 63)
-            return luaL_argerror(L, index, "invalid square");
+            return luaL_argerror(L, ind, "invalid square");
         *bb |= (1ULL << 63) >> sq;
-        index++;
     }
     return 0;
 }
 
 static int bitboard_clrbit63(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
-    int index, sq;
+    int ind, sq;
+    U64 *bb;
 
-    index = 2;
-    while (!lua_isnone(L, index)) {
-        sq = luaL_checkinteger(L, index);
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
+    for (ind = 2; !lua_isnone(L, ind); ind++) {
+        sq = luaL_checkinteger(L, ind);
         if (sq < 0 || sq > 63)
-            return luaL_argerror(L, index, "invalid square");
+            return luaL_argerror(L, ind, "invalid square");
         *bb &= ~((1ULL << 63) >> sq);
-        index++;
     }
     return 0;
 }
 
 /* Equality testing */
 static int bitboard_eq(lua_State *L) {
-    U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
-    U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
+    U64 *bb1, *bb2;
+
+    bb1 = luaL_checkudata(L, 1, BITBOARD_T);
+    bb2 = luaL_checkudata(L, 2, BITBOARD_T);
 
     if (*bb1 == *bb2)
         lua_pushboolean(L, 1);
@@ -238,8 +243,10 @@ static int bitboard_eq(lua_State *L) {
 }
 
 static int bitboard_lt(lua_State *L) {
-    U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
-    U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
+    U64 *bb1, *bb2;
+
+    bb1 = luaL_checkudata(L, 1, BITBOARD_T);
+    bb2 = luaL_checkudata(L, 2, BITBOARD_T);
 
     if (*bb1 < *bb2)
         lua_pushboolean(L, 1);
@@ -249,8 +256,10 @@ static int bitboard_lt(lua_State *L) {
 }
 
 static int bitboard_le(lua_State *L) {
-    U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
-    U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
+    U64 *bb1, *bb2;
+
+    bb1 = luaL_checkudata(L, 1, BITBOARD_T);
+    bb2 = luaL_checkudata(L, 2, BITBOARD_T);
 
     if (*bb1 <= *bb2)
         lua_pushboolean(L, 1);
@@ -268,10 +277,12 @@ static int bitboard_le(lua_State *L) {
  * unary - is bitwise NOT
  */
 static int bitboard_or(lua_State *L) {
-    U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
-    U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
+    U64 *bb1, *bb2, *ret;
 
-    U64 *ret = (U64 *)lua_newuserdata(L, sizeof(U64));
+    bb1 = luaL_checkudata(L, 1, BITBOARD_T);
+    bb2 = luaL_checkudata(L, 2, BITBOARD_T);
+
+    ret = (U64 *)lua_newuserdata(L, sizeof(U64));
     luaL_getmetatable(L, BITBOARD_T);
     lua_setmetatable(L, -2);
 
@@ -280,10 +291,12 @@ static int bitboard_or(lua_State *L) {
 }
 
 static int bitboard_and(lua_State *L) {
-    U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
-    U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
+    U64 *bb1, *bb2, *ret;
 
-    U64 *ret = (U64 *)lua_newuserdata(L, sizeof(U64));
+    bb1 = luaL_checkudata(L, 1, BITBOARD_T);
+    bb2 = luaL_checkudata(L, 2, BITBOARD_T);
+
+    ret = (U64 *)lua_newuserdata(L, sizeof(U64));
     luaL_getmetatable(L, BITBOARD_T);
     lua_setmetatable(L, -2);
 
@@ -292,10 +305,12 @@ static int bitboard_and(lua_State *L) {
 }
 
 static int bitboard_xor(lua_State *L) {
-    U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
-    U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
+    U64 *bb1, *bb2, *ret;
 
-    U64 *ret = (U64 *)lua_newuserdata(L, sizeof(U64));
+    bb1 = luaL_checkudata(L, 1, BITBOARD_T);
+    bb2 = luaL_checkudata(L, 2, BITBOARD_T);
+
+    ret = (U64 *)lua_newuserdata(L, sizeof(U64));
     luaL_getmetatable(L, BITBOARD_T);
     lua_setmetatable(L, -2);
 
@@ -304,10 +319,13 @@ static int bitboard_xor(lua_State *L) {
 }
 
 static int bitboard_lshift(lua_State *L) {
-    U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
-    int bit = luaL_checkinteger(L, 2);
+    int bit;
+    U64 *bb1, *ret;
 
-    U64 *ret = (U64 *)lua_newuserdata(L, sizeof(U64));
+    bb1 = luaL_checkudata(L, 1, BITBOARD_T);
+    bit = luaL_checkinteger(L, 2);
+
+    ret = (U64 *)lua_newuserdata(L, sizeof(U64));
     luaL_getmetatable(L, BITBOARD_T);
     lua_setmetatable(L, -2);
 
@@ -316,10 +334,13 @@ static int bitboard_lshift(lua_State *L) {
 }
 
 static int bitboard_rshift(lua_State *L) {
-    U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
-    int bit = luaL_checkinteger(L, 2);
+    int bit;
+    U64 *bb1, *ret;
 
-    U64 *ret = (U64 *)lua_newuserdata(L, sizeof(U64));
+    bb1 = luaL_checkudata(L, 1, BITBOARD_T);
+    bit = luaL_checkinteger(L, 2);
+
+    ret = (U64 *)lua_newuserdata(L, sizeof(U64));
     luaL_getmetatable(L, BITBOARD_T);
     lua_setmetatable(L, -2);
 
@@ -328,9 +349,11 @@ static int bitboard_rshift(lua_State *L) {
 }
 
 static int bitboard_not(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
+    U64 *bb, *ret;
 
-    U64 *ret = (U64 *)lua_newuserdata(L, sizeof(U64));
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
+
+    ret = (U64 *)lua_newuserdata(L, sizeof(U64));
     luaL_getmetatable(L, BITBOARD_T);
     lua_setmetatable(L, -2);
 
@@ -340,13 +363,17 @@ static int bitboard_not(lua_State *L) {
 
 /* Miscallenous functions */
 static int bitboard_leadz(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
+    U64 *bb;
+
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
     lua_pushinteger(L, leadz(*bb));
     return 1;
 }
 
 static int bitboard_trailz(lua_State *L) {
-    U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
+    U64 *bb;
+
+    bb = luaL_checkudata(L, 1, BITBOARD_T);
     lua_pushinteger(L, trailz(*bb));
     return 1;
 }

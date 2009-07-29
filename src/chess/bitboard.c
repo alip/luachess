@@ -119,6 +119,7 @@ static int bitboard_tostring(lua_State *L) {
     return 1;
 }
 #endif
+
 /* Copying */
 static int bitboard_copy(lua_State *L) {
     U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
@@ -130,6 +131,7 @@ static int bitboard_copy(lua_State *L) {
     *ret = *bb;
     return 1;
 }
+
 /* Setting, testing bits  */
 static int bitboard_setbit(lua_State *L) {
     U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
@@ -145,6 +147,7 @@ static int bitboard_setbit(lua_State *L) {
     }
     return 0;
 }
+
 static int bitboard_clrbit(lua_State *L) {
     U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
     int index, sq;
@@ -159,6 +162,7 @@ static int bitboard_clrbit(lua_State *L) {
     }
     return 0;
 }
+
 static int bitboard_tglbit(lua_State *L) {
     U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
     int index, sq;
@@ -173,6 +177,7 @@ static int bitboard_tglbit(lua_State *L) {
     }
     return 0;
 }
+
 static int bitboard_tstbit(lua_State *L) {
     U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
     int sq = luaL_checkinteger(L, 2);
@@ -186,6 +191,7 @@ static int bitboard_tstbit(lua_State *L) {
         lua_pushboolean(L, 1);
     return 1;
 }
+
 /* Functions suffixed 63 treat the leftmost bit as position 0
  * and rightmost bit as position 63
  */
@@ -203,6 +209,7 @@ static int bitboard_setbit63(lua_State *L) {
     }
     return 0;
 }
+
 static int bitboard_clrbit63(lua_State *L) {
     U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
     int index, sq;
@@ -217,6 +224,7 @@ static int bitboard_clrbit63(lua_State *L) {
     }
     return 0;
 }
+
 /* Equality testing */
 static int bitboard_eq(lua_State *L) {
     U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
@@ -228,6 +236,7 @@ static int bitboard_eq(lua_State *L) {
         lua_pushboolean(L, 0);
     return 1;
 }
+
 static int bitboard_lt(lua_State *L) {
     U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
     U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
@@ -238,6 +247,7 @@ static int bitboard_lt(lua_State *L) {
         lua_pushboolean(L, 0);
     return 1;
 }
+
 static int bitboard_le(lua_State *L) {
     U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
     U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
@@ -248,6 +258,7 @@ static int bitboard_le(lua_State *L) {
         lua_pushboolean(L, 0);
     return 1;
 }
+
 /* Arithmetic operations on bitboards.
  * + is bitwise or
  * - is bitwise and
@@ -267,6 +278,7 @@ static int bitboard_or(lua_State *L) {
     *ret = *bb1 | *bb2;
     return 1;
 }
+
 static int bitboard_and(lua_State *L) {
     U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
     U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
@@ -278,6 +290,7 @@ static int bitboard_and(lua_State *L) {
     *ret = *bb1 & *bb2;
     return 1;
 }
+
 static int bitboard_xor(lua_State *L) {
     U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
     U64 *bb2 = luaL_checkudata(L, 2, BITBOARD_T);
@@ -289,6 +302,7 @@ static int bitboard_xor(lua_State *L) {
     *ret = *bb1 ^ *bb2;
     return 1;
 }
+
 static int bitboard_lshift(lua_State *L) {
     U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
     int bit = luaL_checkinteger(L, 2);
@@ -300,6 +314,7 @@ static int bitboard_lshift(lua_State *L) {
     *ret = *bb1 << bit;
     return 1;
 }
+
 static int bitboard_rshift(lua_State *L) {
     U64 *bb1 = luaL_checkudata(L, 1, BITBOARD_T);
     int bit = luaL_checkinteger(L, 2);
@@ -311,6 +326,7 @@ static int bitboard_rshift(lua_State *L) {
     *ret = *bb1 >> bit;
     return 1;
 }
+
 static int bitboard_not(lua_State *L) {
     U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
 
@@ -321,12 +337,14 @@ static int bitboard_not(lua_State *L) {
     *ret = ~(*bb);
     return 1;
 }
+
 /* Miscallenous functions */
 static int bitboard_leadz(lua_State *L) {
     U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
     lua_pushinteger(L, leadz(*bb));
     return 1;
 }
+
 static int bitboard_trailz(lua_State *L) {
     U64 *bb = luaL_checkudata(L, 1, BITBOARD_T);
     lua_pushinteger(L, trailz(*bb));
@@ -373,7 +391,6 @@ LUALIB_API int luaopen_chess_bitboard(lua_State *L) {
     lua_pushvalue(L, -2); /* push the metatable */
     lua_settable(L, -3); /* metatable.__index = metatable */
 
-
     /* Push version */
     lua_pushliteral(L, "_VERSION");
     lua_pushstring(L, PACKAGE_NAME "-" VERSION);
@@ -381,3 +398,4 @@ LUALIB_API int luaopen_chess_bitboard(lua_State *L) {
 
     return 1;
 }
+

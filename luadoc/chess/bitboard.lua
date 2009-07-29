@@ -17,7 +17,7 @@
 --]]
 
 --- bitboard module for luachess
-module "bitboard"
+module "chess.bitboard"
 
 
 --- Create a new bitboard
@@ -129,3 +129,4 @@ function bb:__unm(self) end
 -- compile time.
 -- @return A string representation of the bitboard.
 function bb:__tostring(self) end
+

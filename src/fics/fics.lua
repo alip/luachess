@@ -16,9 +16,6 @@
   Place, Suite 330, Boston, MA  02111-1307  USA
 --]]
 
---- Lua module to interact with the Free Internet Chess Server
--- Requires luasocket.
-
 --{{{ Grab environment we need
 local assert = assert
 local error = error
@@ -41,6 +38,9 @@ local utils = chess.fics.utils
 local parser = chess.fics.parser
 --}}}
 --{{{ Variables
+--- Lua module to interact with the Free Internet Chess Server<br />
+-- Requires <a href="http://www.tecgraf.puc-rio.br/~diego/professional/luasocket/">luasocket</a>
+-- and <a href="http://www.inf.puc-rio.br/~roberto/lpeg.html">LPeg</a>.
 module "chess.fics"
 _VERSION = utils._VERSION
 
@@ -129,6 +129,16 @@ ivar_to_setting = {
 --}}}
 --{{{ Utility functions
 --{{{ Helper functions for tags
+--- Concatenate tags
+-- @param t List of tags (table)
+-- @return Tag string
+-- <br /><b>Example:</b>
+-- <pre>
+-- &gt; require "chess.fics"<br />
+-- &gt; =chess.fics.tag_concat{"CA", "SR", "TM"}<br />
+-- (CA)(SR)(TM)<br />
+-- &gt;
+-- </pre>
 function tag_concat(t)
     assert(type(t) == "table", "argument is not a table")
     local tstr = ""
@@ -141,6 +151,22 @@ function tag_concat(t)
 end --}}}
 --}}}
 --{{{ fics.client functions
+--- Create a new fics.client instance.
+-- @param argtable A table which may have the following elements<br />
+-- <ul>
+--  <li><tt>ivars</tt>: Interface variables. This is a list of interface variables.<br />
+--      Example:
+--          <pre>
+--          ivars = {}<br />
+--          ivars[fics.IV_COMPRESSMOVE] = true<br />
+--          ivars[fics.IV_DEFPROMPT] = true
+--          </pre>
+--      <b>Note</b>: LuaChess sets some of the interface variables itself for the functions to work as expected.
+--  <li><tt>send_ivars</tt>: Boolean that specifies whether LuaFics should send
+--      interface variables when login prompt is received, defaults to <tt>true</tt>.<br />
+--  <li><tt>timeseal</tt>: Boolean that specifies whether to use timeseal,
+--      defaults to <tt>false</tt>.
+-- </ul>
 function client:new(argtable) --{{{
     assert(type(argtable) == "table", "argument is not a table")
 
@@ -176,6 +202,10 @@ function client:new(argtable) --{{{
         end)
     return client_instance
 end --}}}
+--- Set an interface variable. Do <b>NOT</b> use <tt>iset</tt> directly!
+-- @param ivar Interface variable e.g: <tt>fics.IV_DEFPROMPT</tt>, <tt>fics.IV_MS</tt>
+-- @param boolean Boolean that specifies whether this interface variable should be enabled.
+-- @return <tt>nil</tt>
 function client:set(ivar, boolean) --{{{
     assert(0 < ivar and ivar < IVARS_COUNT, "invalid interface variable")
     if self.sock ~= nil then
@@ -187,6 +217,8 @@ function client:set(ivar, boolean) --{{{
     end
     self.ivars[ivar] = boolean
 end --}}}
+--- Convert interface variables to string.
+-- @return Interface variables represented as a string suitable to sent to server on login prompt.
 function client:ivars_tostring() --{{{
     local ivstr = IVARS_PREFIX
 
@@ -200,6 +232,11 @@ function client:ivars_tostring() --{{{
 
     return ivstr
 end --}}}
+--- Connect to FICS.
+-- @param address Address of the free internet chess server. Defaults to
+-- <tt>freechess.org</tt>.
+-- @param port Port of the free internet chess server. Defaults to <tt>23</tt>.
+-- @return <tt>true</tt> on success, <tt>nil</tt> and error message on failure.
 function client:connect(address, port) --{{{
     assert(self.sock == nil, "already connected")
     local address = address or "freechess.org"
@@ -221,6 +258,8 @@ function client:connect(address, port) --{{{
     self.sock:setoption("tcp-nodelay", true)
     return true
 end --}}}
+--- Disconnect from server
+-- @return <tt>nil</tt>
 function client:disconnect() --{{{
     assert(self.sock ~= nil, "not connected")
 
@@ -235,6 +274,10 @@ function client:disconnect() --{{{
     self._got_gresponse = false
     self._last_wrapping_group = nil
 end --}}}
+--- Send data to server, encode with timeseal if necessary.
+-- @param data Data to send
+-- @return Number of bytes sent on success, <tt>nil</tt> and error message on
+-- failure.
 function client:send(data) --{{{
     assert(self.sock ~= nil, "not connected")
 
@@ -255,6 +298,11 @@ function client:send(data) --{{{
 
     return bytes, errmsg
 end --}}}
+--- Receive a line from the server.
+-- @return The received line, <tt>nil</tt> and error message on failure.
+-- <br/><b>Note:</b><br />
+-- The error message may be <tt>internal</tt> for internal lines like timeseal
+-- responses.
 function client:recvline() --{{{
     assert(self.sock ~= nil, "not connected")
 
@@ -287,6 +335,10 @@ function client:recvline() --{{{
         return line
     end
 end --}}}
+--- Register a callback.
+-- @param group Name of the callback group.
+-- @param func Function or coroutine to register.
+-- @return Callback index which can be used to remove the callback.
 function client:register_callback(group, func) --{{{
     assert(type(func) == "function" or type(func) == "thread",
         "callback is neither a function nor a coroutine.")
@@ -300,6 +352,10 @@ function client:register_callback(group, func) --{{{
     end
     return callback_index
 end --}}}
+--- Register a callback
+-- @param index Callback index.
+-- @return <tt>true</tt> if the callback was found and removed, <tt>false</tt>
+-- otherwise.
 function client:remove_callback(index) --{{{
     assert(type(index) == "table", "invalid callback index")
     assert(index.group, "no group data in callback index")
@@ -313,6 +369,10 @@ function client:remove_callback(index) --{{{
     end
     return false
 end --}}}
+--- Run a callback.
+-- @param group The callback group.
+-- @param ... Arguments passed to the callback function or coroutine.
+-- @return <tt>nil</tt>
 function client:run_callback(group, ...) --{{{
     if self.callbacks[group] == nil then self.callbacks[group] = {} end
     assert(type(self.callbacks[group]) == "table", "callback group not table")
@@ -338,6 +398,9 @@ function client:run_callback(group, ...) --{{{
         end
     end
 end --}}}
+--- Parse a line and call related callback functions.
+-- @param line The line to parse.
+-- @return <tt>true</tt> on success, <tt>nil</tt> and error message on failure.
 function client:parseline(line) --{{{
     -- FICS sends empty lines before timeseal gresponse.
     if self.timeseal and self._playing then
@@ -687,6 +750,10 @@ function client:parseline(line) --{{{
 
     return true
 end --}}}
+--- Enter main loop.
+-- @param times How many times to loop, if 0 loop forever. Defaults to
+-- <tt>0</tt>.
+-- @return <tt>true</tt> on success, <tt>nil</tt> and error message on failure.
 function client:loop(times) --{{{
     local times = times or 0
 

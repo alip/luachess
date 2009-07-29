@@ -1,13 +1,9 @@
 #!/usr/bin/env luadoc
 -- vim: set ft=lua et sts=4 sw=4 ts=4 fdm=marker:
 
---- Utilities for LuaFics.<br />
--- Copyright &copy; 2008 <a href="mailto:polatel@gmail.com">Ali Polatel</a><br />
--- Distributed under the terms of the GNU General Public License v2<br />
--- Depends on ngboard's timesealplus which is:<br />
--- Copyright &copy; 2006 Bruce Horn
+--- <a href="http://www.freechess.org">Fics</a> utilities for LuaChess.
 
-module("ficsutils")
+module "chess.fics.utils"
 
 --- Encode a string using timeseal.
 -- @param string The string to encode.
@@ -23,3 +19,4 @@ function timeseal_init_string() end
 -- Used by parser.
 -- @param titles Integer given as parameter ti= in seekinfo message.
 function titles_totable(titles) end
+

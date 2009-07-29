@@ -16,9 +16,6 @@
   Place, Suite 330, Boston, MA  02111-1307  USA
 --]]
 
---- Lua module to interact with the Internet Chess Club
--- Requires luasocket.
-
 --{{{ Grab environment we need
 local assert = assert
 local error = error
@@ -35,7 +32,10 @@ require "chess.icc.parser"
 local parser = chess.icc.parser
 --}}}
 --{{{ Variables
-module "icc"
+--- Lua module to interact with the Internet Chess Club.<br />
+-- Requires <a href="http://www.tecgraf.puc-rio.br/~diego/professional/luasocket/">luasocket</a>
+-- and <a href="http://www.inf.puc-rio.br/~roberto/lpeg.html">LPeg</a>.
+module "chess.icc"
 _VERSION = 0.02
 
 client = {}
@@ -182,6 +182,16 @@ MAX_DG = 145
 --}}}
 --}}}
 --{{{ Utility functions
+--- Concatenate tags
+-- @param t List of tags (table)
+-- @return Tag string
+-- <br /><b>Example:</b>
+-- <pre>
+-- &gt; require "chess.icc"<br />
+-- &gt; =chess.icc.tag_concat{"GM", "*"}<br />
+-- (GM *)<br />
+-- &gt;
+-- </pre>
 function tag_concat(t)
     assert(type(t) == "table", "argument is not a table")
     local tstr = ""
@@ -201,6 +211,9 @@ function tag_concat(t)
         return ""
     end
 end
+--- Convert a seek failure reason to string
+-- @param r Reason no.
+-- @return Description string.
 function reason_tostring(r)
     assert(type(r) == "number", "argument is not a number")
     if r == 1 then

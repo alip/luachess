@@ -1,6 +1,6 @@
-/* Bitboard module for LuaChess.
- * vim: set et ts=4 sts=4 sw=4 fdm=syntax :
- *
+/* vim: set sw=4 sts=4 et foldmethod=syntax : */
+
+/*
  * Copyright (c) 2009 Ali Polatel <polatel@gmail.com>
  *  based in part upon GNU Chess 5.0 which is
  *  Copyright (c) 1999-2002 Free Software Foundation, Inc.
@@ -19,15 +19,21 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifndef LUACHESS_GUARD_BITBOARD_H
+#define LUACHESS_GUARD_BITBOARD_H 1
+
 #include "config.h"
 
 #ifndef __64_BIT_INTEGER_DEFINED__
 #define __64_BIT_INTEGER_DEFINED__
 typedef unsigned long long U64;
-#endif
+#endif // __64_BIT_INTEGER_DEFINED__
 
 #define BITBOARD_T "LuaChess.BitBoard"
 
 #ifdef HAVE_STRTOULL
 #define STRTOULL_DEFAULT_BASE 16
-#endif
+#endif // HAVE_STRTOULL
+
+#endif // LUACHESS_GUARD_BITBOARD_H
+

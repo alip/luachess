@@ -229,13 +229,17 @@ function reason_tostring(r)
     end
 end
 --}}}
- --{{{ icc.client functions
+--{{{ icc.client functions
+--- Create a new icc.client instance and generate the parser.
+-- @param argtable A table which may have the following elements<br />
+-- <ul>
+--  <li><tt>settings</tt>: Table of Level-2 settings</li>
+-- </ul>
+-- @return icc.client instance
 function client:new(argtable) --{{{
     assert(type(argtable) == "table", "Argument is not a table")
 
     local instance = {
-        login_prompt = argtable.prompt_login or "^login: $",
-        password_prompt = argtable.prompt_password or "^password: $",
         settings = argtable.settings or {},
 
         sock = nil,
@@ -252,6 +256,8 @@ function client:new(argtable) --{{{
     ci:generate_parser()
     return ci
 end --}}}
+--- Generate parser using <tt>self.settings</tt>
+-- @return <tt>nil</tt>
 function client:generate_parser() --{{{
     local p = parser.telnet + parser.prompts
     if self.settings[DG_WHO_AM_I] then
@@ -484,7 +490,11 @@ function client:generate_parser() --{{{
     end
     self.parser = p
 end --}}}
- function client:set(index, boolean) --{{{
+--- Set a level-2 setting. Do <b>NOT</b> use <tt>set-2</tt> directly!
+-- @param index level-2 setting index
+-- @param boolean Boolean that specifies whether this interface variable should be enabled.
+-- @return <tt>nil</tt>
+function client:set(index, boolean) --{{{
     assert(type(index) == "number", "index not a number")
     assert(0 <= index and index <= MAX_DG, "invalid index")
 
@@ -498,6 +508,8 @@ end --}}}
     self.settings[index] = boolean
     self:generate_parser()
 end --}}}
+--- Convert settings table to a string.
+-- @return Level-2 settings represented as a string suitable to sent to server on login prompt.
 function client:settings_tostring() --{{{
     local settings_str = "level2settings="
 
@@ -511,6 +523,11 @@ function client:settings_tostring() --{{{
 
     return settings_str
 end --}}}
+--- Connect to Internet Chess Club.
+-- @param address Address of the Internet Chess Club. Defaults to
+-- <tt>chessclub.com</tt>.
+-- @param port Port of the Internet Chess Club. Defaults to <tt>23</tt>.
+-- @return <tt>true</tt> on success, <tt>nil</tt> and error message on failure.
 function client:connect(address, port) --{{{
     assert(self.sock == nil, "already connected")
     local address = address or "chessclub.com"
@@ -524,6 +541,8 @@ function client:connect(address, port) --{{{
     self.sock:setoption("tcp-nodelay", true)
     return true
 end --}}}
+--- Disconnect from the Internet Chess Club.
+-- @return <tt>nil</tt>
 function client:disconnect() --{{{
     assert(self.sock ~= nil, "not connected")
 
@@ -535,6 +554,10 @@ function client:disconnect() --{{{
     self._linebuf = ""
     self._in_datagram = false
 end --}}}
+--- Send data to the server.
+-- @param data Data to send
+-- @return Number of bytes sent on success, <tt>nil</tt> and error message on
+-- failure.
 function client:send(data) --{{{
     assert(type(data) == "string", "argument not a string")
     assert(self.sock ~= nil, "not connected")
@@ -549,6 +572,11 @@ function client:send(data) --{{{
 
     return bytes, errmsg
 end --}}}
+--- Receive a line from the server.
+-- @return The received line, <tt>nil</tt> and error message on failure.
+-- <br/><b>Note:</b><br />
+-- The error message may be <tt>internal</tt> for internal lines like timeseal
+-- responses.
 function client:recvline() --{{{
     assert(self.sock ~= nil, "not connected")
 
@@ -593,6 +621,10 @@ function client:recvline() --{{{
     if line then return line
     else return nil, "internal" end
 end --}}}
+--- Register a callback.
+-- @param group Name of the callback group.
+-- @param func Function or coroutine to register.
+-- @return Callback index which can be used to remove the callback.
 function client:register_callback(group, func) --{{{
     assert(type(func) == "function" or type(func) == "thread",
         "callback is neither a function nor a coroutine.")
@@ -606,6 +638,10 @@ function client:register_callback(group, func) --{{{
     end
     return callback_index
 end --}}}
+--- Register a callback
+-- @param index Callback index.
+-- @return <tt>true</tt> if the callback was found and removed, <tt>false</tt>
+-- otherwise.
 function client:remove_callback(index) --{{{
     assert(type(index) == "table", "invalid callback index")
     assert(index.group, "no group data in callback index")
@@ -619,6 +655,10 @@ function client:remove_callback(index) --{{{
     end
     return false
 end --}}}
+--- Run a callback.
+-- @param group The callback group.
+-- @param ... Arguments passed to the callback function or coroutine.
+-- @return <tt>nil</tt>
 function client:run_callback(group, ...) --{{{
     if self.callbacks[group] == nil then self.callbacks[group] = {} end
     assert(type(self.callbacks[group]) == "table", "callback group not table")
@@ -644,6 +684,9 @@ function client:run_callback(group, ...) --{{{
         end
     end
 end --}}}
+--- Parse a line and call related callback functions.
+-- @param line The line to parse.
+-- @return <tt>true</tt> on success, <tt>nil</tt> and error message on failure.
 function client:parseline(line) --{{{
     local parsed = self.parser:match(line)
 
@@ -861,7 +904,11 @@ function client:parseline(line) --{{{
     end
 
     return true
-end --} }}
+end --}}}
+--- Enter main loop.
+-- @param times How many times to loop, if 0 loop forever. Defaults to
+-- <tt>0</tt>.
+-- @return <tt>true</tt> on success, <tt>nil</tt> and error message on failure.
 function client:loop(times) --{{{
     local times = times or 0
 
@@ -893,4 +940,5 @@ function client:loop(times) --{{{
 
     return true
 end --}}}
- --}}}
+--}}}
+

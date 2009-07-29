@@ -32,11 +32,14 @@
 #define NBITS 16
 static unsigned char lz_array[65536];
 
+/* Prototypes */
+LUALIB_API int luaopen_chess_bitboard(lua_State *L);
+
 /*  Creates the lz_array. This array is used when the position of the leading
  *  non-zero bit is required.  The convention used is that the leftmost bit is
  *  considered as position 0 and the rightmost bit position 63.
  */
-void init_lz_array(void) {
+static void init_lz_array(void) {
    int i, j, s, n;
 
    s = n = 1;

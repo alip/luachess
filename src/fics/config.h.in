@@ -1,6 +1,6 @@
+/* vim: set et ts=4 sts=4 sw=4 fdm=syntax : */
+
 /* config.h.in for luachess.fics
- * vim: set et ts=4 sts=4 sw=4 fdm=syntax :
- *
  * Copyright (c) 2009 Ali Polatel <polatel@gmail.com>
  *
  * This file is part of LuaChess. LuaChess is free software; you can redistribute
@@ -26,3 +26,4 @@
 #cmakedefine HAVE_GETUSERNAME
 
 #endif /* LUACHESS_GUARD_CONFIG_H */
+

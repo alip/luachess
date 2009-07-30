@@ -231,7 +231,7 @@ static int timeseal_init_string(lua_State *L) {
 }
 
 static int titles_totable(lua_State *L) {
-    int index, titles;
+    int ind, titles;
 
 #define TITLE_UNREGISTERED 0x01
 #define TITLE_COMPUTER 0x02
@@ -244,53 +244,53 @@ static int titles_totable(lua_State *L) {
 
     titles = luaL_checkinteger(L, 1);
 
-    index = 1;
+    ind = 1;
     lua_newtable(L);
 
     if ((titles & TITLE_UNREGISTERED) == TITLE_UNREGISTERED) {
-        lua_pushinteger(L, index);
+        lua_pushinteger(L, ind);
         lua_pushstring(L, "U");
         lua_settable(L, -3);
-        index++;
+        ind++;
     }
     if ((titles & TITLE_COMPUTER) == TITLE_COMPUTER) {
-        lua_pushinteger(L, index);
+        lua_pushinteger(L, ind);
         lua_pushstring(L, "C");
         lua_settable(L, -3);
-        index++;
+        ind++;
     }
     if ((titles & TITLE_GM) == TITLE_GM) {
-        lua_pushinteger(L, index);
+        lua_pushinteger(L, ind);
         lua_pushstring(L, "GM");
         lua_settable(L, -3);
-        index++;
+        ind++;
     }
     if ((titles & TITLE_IM) == TITLE_IM) {
-        lua_pushinteger(L, index);
+        lua_pushinteger(L, ind);
         lua_pushstring(L, "IM");
         lua_settable(L, -3);
-        index++;
+        ind++;
     }
     if ((titles & TITLE_FM) == TITLE_FM) {
-        lua_pushinteger(L, index);
+        lua_pushinteger(L, ind);
         lua_pushstring(L, "FM");
         lua_settable(L, -3);
-        index++;
+        ind++;
     }
     if ((titles & TITLE_WGM) == TITLE_WGM) {
-        lua_pushinteger(L, index);
+        lua_pushinteger(L, ind);
         lua_pushstring(L, "WGM");
         lua_settable(L, -3);
-        index++;
+        ind++;
     }
     if ((titles & TITLE_WIM) == TITLE_WIM) {
-        lua_pushinteger(L, index);
+        lua_pushinteger(L, ind);
         lua_pushstring(L, "WIM");
         lua_settable(L, -3);
-        index++;
+        ind++;
     }
     if ((titles & TITLE_WFM) == TITLE_WFM) {
-        lua_pushinteger(L, index);
+        lua_pushinteger(L, ind);
         lua_pushstring(L, "WFM");
         lua_settable(L, -3);
     }

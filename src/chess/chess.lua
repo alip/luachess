@@ -121,6 +121,16 @@ function squarei(csquare)
     local rank = string.sub(csquare, 2, 2)
     return lshift(rank, 3) + (file % -9)
 end
+function square_validate(square)
+    square = assert(tonumber(square), "invalid square")
+    assert(square > -1 and square < 64, "invalid square")
+    return square
+end
+function square_isvalid(square)
+    square = tonumber(square)
+    if square == nil then return false end
+    return square > -1 and square < 64
+end
 function square_left(square)
     assert(square > -1 and square < 64, "invalid square")
     if square % 8 ~= 0 then return square - 1 end
@@ -167,6 +177,15 @@ function fromsq(move) return band(rshift(move, 6), 0x003F) end
 function MOVE(from, to) return bor(lshift(from, 6), to) end
 function capture_piece(move) return band(rshift(move, 15), 0x0007) end
 function promote_piece(move) return band(rshift(move, 12), 0x0007) end
+function capture_bit(piece)
+    if piece == PAWN then return PAWNCAP
+    elseif piece == KNIGHT then return KNIGHTCAP
+    elseif piece == BISHOP then return BISHOPCAP
+    elseif piece == ROOK then return ROOKCAP
+    elseif piece == QUEEN then return QUEENCAP
+    elseif piece == KING then return KINGCAP
+    else error"invalid piece" end
+end
 --}}}
 --{{{Castling flags
 WKINGCASTLE = 0x0001
@@ -719,4 +738,149 @@ function Board:move_san(smove) --{{{
     if iscastle then m = bor(m, CASTLING) end
 
     return self:make_move(m)
+end --}}}
+function Board:generate_legal_pawn_moves(square, promoteking) --{{{
+    square = assert(tonumber(square), "invalid square")
+    assert(square > -1 and square < 64, "invalid square")
+    assert(self:has_piece(square, self.side), "no piece on the given square")
+    assert(PAWN == self:get_piece(square), "no pawn on the given square")
+
+    local lglmoves = {}
+
+    -- One step forward
+    local osf
+    if self.side == WHITE then
+        osf = square + 8
+    else
+        osf = square - 8
+    end
+
+    if square_isvalid(osf) then
+        if not self.bitboard.occupied[3]:tstbit(osf) then
+            -- Pawn can move one step forward legally.
+            local m = MOVE(square, osf)
+            -- Check for promotion
+            if (self.side == WHITE and rank(osf) == 8) or (self.side == BLACK and rank(osf) == 1) then
+                -- Pawn has to promote to a piece.
+                table.insert(lglmoves, bor(m, KNIGHTPRM))
+                table.insert(lglmoves, bor(m, BISHOPPRM))
+                table.insert(lglmoves, bor(m, ROOKPRM))
+                table.insert(lglmoves, bor(m, QUEENPRM))
+                if promoteking then table.insert(lglmoves, bor(m, KINGPRM)) end
+            else
+                table.insert(lglmoves, m)
+            end
+        end
+    end
+
+    -- Two steps forward
+    if (self.side == WHITE and rank(square) == 2) or (self.side == BLACK and rank(square) == 7) then
+        local tsf
+        if self.side == WHITE then
+            tsf = square + 16
+        else
+            tsf = square - 16
+        end
+
+        if square_isvalid(tsf) then
+            if not self.bitboard.occupied[3]:tstbit(osf) and not self.bitboard.occupied[3]:tstbit(tsf) then
+                -- Pawn can move two steps forward legally.
+                -- No need to check for promotion.
+                local m = MOVE(square, tsf)
+                table.insert(lglmoves, m)
+            end
+        end
+    end
+
+    -- Diagonal one step captures
+    if self.side == WHITE then
+        -- First possibility of attack: /
+        local slsq = square + 9
+        if square_isvalid(square) then
+            if self.bitboard.occupied[BLACK]:tstbit(slsq) then
+                -- White pawn can capture the piece on slsq.
+                local m = bor(MOVE(square, slsq), capture_bit(self.cboard[slsq + 1]))
+                -- Check for promotion
+                if rank(slsq) == 8 then
+                    -- Pawn has to promote to a piece.
+                    table.insert(lglmoves, bor(m, KNIGHTPRM))
+                    table.insert(lglmoves, bor(m, BISHOPPRM))
+                    table.insert(lglmoves, bor(m, ROOKPRM))
+                    table.insert(lglmoves, bor(m, QUEENPRM))
+                    if promoteking then table.insert(lglmoves, bor(m, KINGPRM)) end
+                else
+                    table.insert(lglmoves, m)
+                end
+            end
+        end
+
+        -- Second possibility of attack: \
+        local bslsq = square + 7
+        if square_isvalid(square) then
+            if self.bitboard.occupied[BLACK]:tstbit(bslsq) then
+                -- White pawn can capture the piece on bslsq.
+                local m = bor(MOVE(square, slsq), capture_bit(self.cboard[bslsq + 1]))
+                -- Check for promotion
+                if rank(bslsq) == 1 then
+                    -- Pawn has to promote to a piece.
+                    table.insert(lglmoves, bor(m, KNIGHTPRM))
+                    table.insert(lglmoves, bor(m, BISHOPPRM))
+                    table.insert(lglmoves, bor(m, ROOKPRM))
+                    table.insert(lglmoves, bor(m, QUEENPRM))
+                    if promoteking then table.insert(lglmoves, bor(m, KINGPRM)) end
+                else
+                    table.insert(lglmoves, m)
+                end
+            end
+        end
+    else -- if self.side == BLACK
+        -- First possibility of attack: \
+        local slsq = square - 7
+        if square_isvalid(square) then
+            if self.bitboard.occupied[WHITE]:tstbit(slsq) then
+                -- Black pawn can capture the piece on slsq.
+                local m = bor(MOVE(square, slsq), capture_bit(self.cboard[slsq + 1]))
+                -- Check for promotion
+                if rank(slsq) == 1 then
+                    -- Pawn has to promote to a piece.
+                    table.insert(lglmoves, bor(m, KNIGHTPRM))
+                    table.insert(lglmoves, bor(m, BISHOPPRM))
+                    table.insert(lglmoves, bor(m, ROOKPRM))
+                    table.insert(lglmoves, bor(m, QUEENPRM))
+                    if promoteking then table.insert(lglmoves, bor(m, KINGPRM)) end
+                else
+                    table.insert(lglmoves, m)
+                end
+            end
+        end
+
+        -- Second possibility of attack: /
+        local bslsq = square - 9
+        if square_isvalid(square) then
+            if self.bitboard.occupied[WHITE]:tstbit(bslsq) then
+                -- Black pawn can capture the piece on bslsq.
+                local m = bor(MOVE(square, bslsq), capture_bit(self.cboard[bslsq + 1]))
+                -- Check for promotion
+                if rank(bslsq) == 1 then
+                    -- Pawn has to promote to a piece.
+                    table.insert(lglmoves, bor(m, KNIGHTPRM))
+                    table.insert(lglmoves, bor(m, BISHOPPRM))
+                    table.insert(lglmoves, bor(m, ROOKPRM))
+                    table.insert(lglmoves, bor(m, QUEENPRM))
+                    if promoteking then table.insert(lglmoves, bor(m, KINGPRM)) end
+                else
+                    table.insert(lglmoves, m)
+                end
+            end
+        end
+    end
+
+    -- Check for en passant
+    if self.ep ~= -1 and
+        ((self.side == WHITE and self.ep == square + 9 or self.ep == square + 7) or
+        (self.side == BLACK and self.ep == square - 9 or self.ep == square - 7)) then
+        table.insert(lglmoves, bor(MOVE(square, self.ep), PAWNCAP))
+    end
+
+    return lglmoves
 end --}}}
